@@ -1,0 +1,5 @@
+severity,avg_los,max_los,count
+Critical,20.87,90,27113
+Mild,5.23,33,18849
+Moderate,8.35,63,36275
+Severe,12.79,90,37763
