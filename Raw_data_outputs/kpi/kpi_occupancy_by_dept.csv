@@ -1,0 +1,111 @@
+department_name,department_type,hospital_name,avg_occupancy,max_occupancy,avg_available_beds,total_admissions,total_discharges,vs_WHO,vs_NHS,vs_MoHP,alert_status
+Burn Unit,Critical,Bagmati Community Hospital,0.8636,1.0,0.9543478260869566,1860,1580,0.0136,0.0436,0.1136,RED
+Burn Unit,Critical,Bhaktapur District Hospital,0.8613,1.0,1.71959213401311,3228,2712,0.0113,0.0413,0.1113,RED
+Burn Unit,Critical,Himal Teaching Hospital,0.8622,1.0,1.714902807775378,3262,2939,0.0122,0.0422,0.1122,RED
+Burn Unit,Critical,Trishuli Referral Hospital,0.8628,1.0,1.6940133037694014,3147,2837,0.0128,0.0428,0.1128,RED
+Burn Unit,Critical,Valley General Hospital,0.8609,1.0,1.5299206921413122,2837,2581,0.0109,0.0409,0.1109,RED
+Cardiology,Inpatient,Bagmati Community Hospital,0.707,1.0,4.102719033232629,3481,3165,-0.143,-0.113,-0.043,GREEN
+Cardiology,Inpatient,Bhaktapur District Hospital,0.7081,1.0,3.682962962962963,3173,2825,-0.1419,-0.1119,-0.0419,GREEN
+Cardiology,Inpatient,Himal Teaching Hospital,0.7092,1.0,4.65321955003879,3782,3476,-0.1408,-0.1108,-0.0408,GREEN
+Cardiology,Inpatient,Trishuli Referral Hospital,0.7084,1.0,3.658450704225352,3359,2985,-0.1416,-0.1116,-0.0416,GREEN
+Cardiology,Inpatient,Valley General Hospital,0.7074,1.0,3.804205946337926,3416,2975,-0.1426,-0.1126,-0.0426,GREEN
+Dermatology,Outpatient,Bagmati Community Hospital,0.49,0.5,1.0199146514935988,546,461,-0.36,-0.33,-0.26,GREEN
+Dermatology,Outpatient,Bhaktapur District Hospital,0.417,0.7143,7.407236335642803,3188,2855,-0.433,-0.403,-0.333,GREEN
+Dermatology,Outpatient,Himal Teaching Hospital,0.4177,0.6667,7.226190476190476,3101,2820,-0.4323,-0.4023,-0.3323,GREEN
+Dermatology,Outpatient,Trishuli Referral Hospital,0.4232,0.7273,7.1717929482370595,3106,2734,-0.4268,-0.3968,-0.3268,GREEN
+Dermatology,Outpatient,Valley General Hospital,0.487,0.5,1.026002971768202,504,476,-0.363,-0.333,-0.263,GREEN
+Dialysis Unit,Diagnostic,Bagmati Community Hospital,0.5684,0.75,1.7265861027190332,1009,904,-0.2816,-0.2516,-0.1816,GREEN
+Dialysis Unit,Diagnostic,Bhaktapur District Hospital,0.5797,0.8667,5.301900584795321,3242,2832,-0.2703,-0.2403,-0.1703,GREEN
+Dialysis Unit,Diagnostic,Himal Teaching Hospital,0.5799,0.9,5.313421828908554,3264,2916,-0.2701,-0.2401,-0.1701,GREEN
+Dialysis Unit,Diagnostic,Trishuli Referral Hospital,0.5793,0.875,5.264481707317073,3105,2725,-0.2707,-0.2407,-0.1707,GREEN
+Dialysis Unit,Diagnostic,Valley General Hospital,0.6104,1.0,1.168914123491838,794,697,-0.2396,-0.2096,-0.1396,GREEN
+ENT,Inpatient,Bagmati Community Hospital,0.7074,1.0,5.266075388026607,4480,4069,-0.1426,-0.1126,-0.0426,GREEN
+ENT,Inpatient,Bhaktapur District Hospital,0.7049,1.0,3.694267515923567,3283,2915,-0.1451,-0.1151,-0.0451,GREEN
+ENT,Inpatient,Himal Teaching Hospital,0.7042,1.0,3.6619926199261994,3092,2875,-0.1458,-0.1158,-0.0458,GREEN
+ENT,Inpatient,Trishuli Referral Hospital,0.7085,1.0,3.5920177383592016,3071,2779,-0.1415,-0.1115,-0.0415,GREEN
+ENT,Inpatient,Valley General Hospital,0.7081,1.0,5.254901960784314,4399,3996,-0.1419,-0.1119,-0.0419,GREEN
+Emergency,Critical,Bagmati Community Hospital,0.8725,1.0,0.637628111273792,1291,1128,0.0225,0.0525,0.1225,RED
+Emergency,Critical,Bhaktapur District Hospital,0.8642,1.0,1.7085501858736059,3158,2876,0.0142,0.0442,0.1142,RED
+Emergency,Critical,Himal Teaching Hospital,0.8649,1.0,1.0806686046511629,2229,1745,0.0149,0.0449,0.1149,RED
+Emergency,Critical,Trishuli Referral Hospital,0.8581,1.0,1.8020014295925662,3374,3007,0.0081,0.0381,0.1081,RED
+Emergency,Critical,Valley General Hospital,0.8601,1.0,1.679231337767923,3092,2735,0.0101,0.0401,0.1101,RED
+Gastroenterology,Inpatient,Bagmati Community Hospital,0.7097,0.9333,4.354722422494593,3889,3398,-0.1403,-0.1103,-0.0403,GREEN
+Gastroenterology,Inpatient,Bhaktapur District Hospital,0.7076,1.0,3.707122093023256,3256,2845,-0.1424,-0.1124,-0.0424,GREEN
+Gastroenterology,Inpatient,Himal Teaching Hospital,0.7091,1.0,3.614220877458396,3139,2803,-0.1409,-0.1109,-0.0409,GREEN
+Gastroenterology,Inpatient,Trishuli Referral Hospital,0.7041,1.0,3.7453462397617274,3242,2809,-0.1459,-0.1159,-0.0459,GREEN
+Gastroenterology,Inpatient,Valley General Hospital,0.7061,1.0,3.232946298984035,2888,2542,-0.1439,-0.1139,-0.0439,GREEN
+General Medicine,Inpatient,Bagmati Community Hospital,0.7096,1.0,3.4845283018867925,3048,2644,-0.1404,-0.1104,-0.0404,GREEN
+General Medicine,Inpatient,Bhaktapur District Hospital,0.704,1.0,3.67264895908112,3267,2843,-0.146,-0.116,-0.046,GREEN
+General Medicine,Inpatient,Himal Teaching Hospital,0.7092,1.0,4.653585926928281,4522,3882,-0.1408,-0.1108,-0.0408,GREEN
+General Medicine,Inpatient,Trishuli Referral Hospital,0.707,1.0,3.6612184249628528,3141,2776,-0.143,-0.113,-0.043,GREEN
+General Medicine,Inpatient,Valley General Hospital,0.7048,1.0,4.132547864506628,3492,3090,-0.1452,-0.1152,-0.0452,GREEN
+General Surgery,Inpatient,Bagmati Community Hospital,0.7129,1.0,3.4452324665090623,2839,2559,-0.1371,-0.1071,-0.0371,GREEN
+General Surgery,Inpatient,Bhaktapur District Hospital,0.7069,1.0,3.6972543352601157,3234,2905,-0.1431,-0.1131,-0.0431,GREEN
+General Surgery,Inpatient,Himal Teaching Hospital,0.7051,1.0,4.719178082191781,3911,3457,-0.1449,-0.1149,-0.0449,GREEN
+General Surgery,Inpatient,Trishuli Referral Hospital,0.7084,1.0,3.6338028169014085,3109,2848,-0.1416,-0.1116,-0.0416,GREEN
+General Surgery,Inpatient,Valley General Hospital,0.7054,1.0,3.240875912408759,2960,2532,-0.1446,-0.1146,-0.0446,GREEN
+HDU,Critical,Bagmati Community Hospital,0.8582,1.0,1.5595505617977528,2806,2511,0.0082,0.0382,0.1082,RED
+HDU,Critical,Bhaktapur District Hospital,0.8592,1.0,1.7730547550432276,3219,3041,0.0092,0.0392,0.1092,RED
+HDU,Critical,Himal Teaching Hospital,0.8644,1.0,1.0851370851370852,2032,1854,0.0144,0.0444,0.1144,RED
+HDU,Critical,Trishuli Referral Hospital,0.8644,1.0,1.7016654598117307,3348,3009,0.0144,0.0444,0.1144,RED
+HDU,Critical,Valley General Hospital,0.8603,1.0,0.9777942264988897,1807,1626,0.0103,0.0403,0.1103,RED
+ICU,Critical,Bagmati Community Hospital,0.8637,1.0,1.6352154531946508,3021,2742,0.0137,0.0437,0.1137,RED
+ICU,Critical,Bhaktapur District Hospital,0.8601,1.0,1.7412536443148687,3240,2805,0.0101,0.0401,0.1101,RED
+ICU,Critical,Himal Teaching Hospital,0.8602,1.0,1.5381355932203389,2889,2628,0.0102,0.0402,0.1102,RED
+ICU,Critical,Trishuli Referral Hospital,0.8617,1.0,1.7477744807121662,3253,2920,0.0117,0.0417,0.1117,RED
+ICU,Critical,Valley General Hospital,0.8577,1.0,1.565155807365439,2926,2688,0.0077,0.0377,0.1077,RED
+Maternity & Obstetrics,Inpatient,Bagmati Community Hospital,0.7077,1.0,4.383831026948289,3919,3414,-0.1423,-0.1123,-0.0423,GREEN
+Maternity & Obstetrics,Inpatient,Bhaktapur District Hospital,0.7053,1.0,3.687089715536105,3213,2857,-0.1447,-0.1147,-0.0447,GREEN
+Maternity & Obstetrics,Inpatient,Himal Teaching Hospital,0.7085,1.0,3.206748025843503,2797,2505,-0.1415,-0.1115,-0.0415,GREEN
+Maternity & Obstetrics,Inpatient,Trishuli Referral Hospital,0.7082,1.0,3.7437774524158125,3319,2915,-0.1418,-0.1118,-0.0418,GREEN
+Maternity & Obstetrics,Inpatient,Valley General Hospital,0.7052,0.9167,3.538181818181818,3075,2790,-0.1448,-0.1148,-0.0448,GREEN
+Neonatal ICU,Critical,Bagmati Community Hospital,0.8651,1.0,0.9440406976744186,1773,1659,0.0151,0.0451,0.1151,RED
+Neonatal ICU,Critical,Bhaktapur District Hospital,0.8659,1.0,1.6654518950437318,3237,2910,0.0159,0.0459,0.1159,RED
+Neonatal ICU,Critical,Himal Teaching Hospital,0.8619,1.0,1.7299484915378955,3179,2898,0.0119,0.0419,0.1119,RED
+Neonatal ICU,Critical,Trishuli Referral Hospital,0.8617,1.0,1.7286995515695067,3065,2785,0.0117,0.0417,0.1117,RED
+Neonatal ICU,Critical,Valley General Hospital,0.8613,1.0,1.3871906841339157,2565,2180,0.0113,0.0413,0.1113,RED
+Nephrology,Inpatient,Bagmati Community Hospital,0.7093,1.0,3.779597915115413,3432,2918,-0.1407,-0.1107,-0.0407,GREEN
+Nephrology,Inpatient,Bhaktapur District Hospital,0.7061,1.0,3.6758474576271185,3311,2913,-0.1439,-0.1139,-0.0439,GREEN
+Nephrology,Inpatient,Himal Teaching Hospital,0.7072,1.0,1.4640179910044977,1264,1095,-0.1428,-0.1128,-0.0428,GREEN
+Nephrology,Inpatient,Trishuli Referral Hospital,0.7055,1.0,3.6923076923076925,3149,2783,-0.1445,-0.1145,-0.0445,GREEN
+Nephrology,Inpatient,Valley General Hospital,0.7086,1.0,4.3714075165806925,3800,3304,-0.1414,-0.1114,-0.0414,GREEN
+Neurology,Inpatient,Bagmati Community Hospital,0.7048,1.0,3.5423476968796432,2897,2671,-0.1452,-0.1152,-0.0452,GREEN
+Neurology,Inpatient,Bhaktapur District Hospital,0.7122,1.0,3.617626154939588,3311,2931,-0.1378,-0.1078,-0.0378,GREEN
+Neurology,Inpatient,Himal Teaching Hospital,0.706,1.0,4.115910727141829,3686,3245,-0.144,-0.114,-0.044,GREEN
+Neurology,Inpatient,Trishuli Referral Hospital,0.7013,1.0,3.747041420118343,3260,2810,-0.1487,-0.1187,-0.0487,GREEN
+Neurology,Inpatient,Valley General Hospital,0.7034,0.9444,5.339568345323741,4618,4271,-0.1466,-0.1166,-0.0466,GREEN
+Oncology,Inpatient,Bagmati Community Hospital,0.708,1.0,4.379867744305658,3858,3410,-0.142,-0.112,-0.042,GREEN
+Oncology,Inpatient,Bhaktapur District Hospital,0.7078,1.0,3.664,3161,2846,-0.1422,-0.1122,-0.0422,GREEN
+Oncology,Inpatient,Himal Teaching Hospital,0.7112,1.0,3.659771754636234,3385,2950,-0.1388,-0.1088,-0.0388,GREEN
+Oncology,Inpatient,Trishuli Referral Hospital,0.7061,1.0,3.6917080085046066,3274,2981,-0.1439,-0.1139,-0.0439,GREEN
+Oncology,Inpatient,Valley General Hospital,0.7042,1.0,4.14188679245283,3492,3030,-0.1458,-0.1158,-0.0458,GREEN
+Ophthalmology,Inpatient,Bagmati Community Hospital,0.7092,1.0,4.653266331658291,4211,3626,-0.1408,-0.1108,-0.0408,GREEN
+Ophthalmology,Inpatient,Bhaktapur District Hospital,0.7023,1.0,3.660377358490566,3038,2692,-0.1477,-0.1177,-0.0477,GREEN
+Ophthalmology,Inpatient,Himal Teaching Hospital,0.7028,1.0,3.6933438985736924,3036,2526,-0.1472,-0.1172,-0.0472,GREEN
+Ophthalmology,Inpatient,Trishuli Referral Hospital,0.7054,1.0,3.6569395017793593,3269,2992,-0.1446,-0.1146,-0.0446,GREEN
+Ophthalmology,Inpatient,Valley General Hospital,0.7067,1.0,3.2268417213712617,2820,2579,-0.1433,-0.1133,-0.0433,GREEN
+Orthopedics,Inpatient,Bagmati Community Hospital,0.7076,1.0,5.263436790310371,4500,3939,-0.1424,-0.1124,-0.0424,GREEN
+Orthopedics,Inpatient,Bhaktapur District Hospital,0.7099,1.0,3.641359363702097,3221,2952,-0.1401,-0.1101,-0.0401,GREEN
+Orthopedics,Inpatient,Himal Teaching Hospital,0.7091,1.0,4.653735632183908,4048,3730,-0.1409,-0.1109,-0.0409,GREEN
+Orthopedics,Inpatient,Trishuli Referral Hospital,0.7083,1.0,3.681560283687943,3349,2942,-0.1417,-0.1117,-0.0417,GREEN
+Orthopedics,Inpatient,Valley General Hospital,0.7068,1.0,4.104321907600596,3490,3125,-0.1432,-0.1132,-0.0432,GREEN
+Pediatrics,Inpatient,Bagmati Community Hospital,0.7001,1.0,3.5988538681948423,3113,2810,-0.1499,-0.1199,-0.0499,GREEN
+Pediatrics,Inpatient,Bhaktapur District Hospital,0.707,1.0,3.681442524417731,3102,2822,-0.143,-0.113,-0.043,GREEN
+Pediatrics,Inpatient,Himal Teaching Hospital,0.7061,1.0,3.5272861356932155,3053,2672,-0.1439,-0.1139,-0.0439,GREEN
+Pediatrics,Inpatient,Trishuli Referral Hospital,0.7115,1.0,3.6106526631657916,3121,2834,-0.1385,-0.1085,-0.0385,GREEN
+Pediatrics,Inpatient,Valley General Hospital,0.7058,1.0,4.706569343065693,4121,3553,-0.1442,-0.1142,-0.0442,GREEN
+Psychiatry,Inpatient,Bagmati Community Hospital,0.707,1.0,4.688727272727273,4098,3558,-0.143,-0.113,-0.043,GREEN
+Psychiatry,Inpatient,Bhaktapur District Hospital,0.7078,1.0,3.6713754646840147,3124,2810,-0.1422,-0.1122,-0.0422,GREEN
+Psychiatry,Inpatient,Himal Teaching Hospital,0.7085,1.0,3.6359616801768606,3108,2834,-0.1415,-0.1115,-0.0415,GREEN
+Psychiatry,Inpatient,Trishuli Referral Hospital,0.7042,1.0,3.6592698639942736,3203,2897,-0.1458,-0.1158,-0.0458,GREEN
+Psychiatry,Inpatient,Valley General Hospital,0.704,1.0,3.2559880239520957,2801,2535,-0.146,-0.116,-0.046,GREEN
+Pulmonology,Inpatient,Bagmati Community Hospital,0.7102,1.0,4.926591760299625,4202,3797,-0.1398,-0.1098,-0.0398,GREEN
+Pulmonology,Inpatient,Bhaktapur District Hospital,0.7061,1.0,3.7006603081438003,3125,2774,-0.1439,-0.1139,-0.0439,GREEN
+Pulmonology,Inpatient,Himal Teaching Hospital,0.7065,1.0,3.686482661004954,3380,2963,-0.1435,-0.1135,-0.0435,GREEN
+Pulmonology,Inpatient,Trishuli Referral Hospital,0.7097,1.0,3.6153305203938118,3256,3057,-0.1403,-0.1103,-0.0403,GREEN
+Pulmonology,Inpatient,Valley General Hospital,0.7061,0.9231,3.820940819423369,3159,2849,-0.1439,-0.1139,-0.0439,GREEN
+Urology,Inpatient,Bagmati Community Hospital,0.7075,1.0,3.5104542177361213,3179,2720,-0.1425,-0.1125,-0.0425,GREEN
+Urology,Inpatient,Bhaktapur District Hospital,0.7074,1.0,3.7023988005997,3143,2773,-0.1426,-0.1126,-0.0426,GREEN
+Urology,Inpatient,Himal Teaching Hospital,0.7113,1.0,3.594380403458213,3128,2924,-0.1387,-0.1087,-0.0387,GREEN
+Urology,Inpatient,Trishuli Referral Hospital,0.7073,1.0,3.6175824175824176,3157,2748,-0.1427,-0.1127,-0.0427,GREEN
+Urology,Inpatient,Valley General Hospital,0.7091,1.0,4.363844393592677,3659,3433,-0.1409,-0.1109,-0.0409,GREEN
