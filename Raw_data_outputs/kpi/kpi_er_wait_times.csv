@@ -1,0 +1,21 @@
+hospital_name,severity,avg_wait_minutes,max_wait_minutes,alert_status
+Bagmati Community Hospital,Critical,98.63,404,YELLOW
+Bagmati Community Hospital,Mild,62.35,335,YELLOW
+Bagmati Community Hospital,Moderate,73.99,398,YELLOW
+Bagmati Community Hospital,Severe,88.82,434,YELLOW
+Bhaktapur District Hospital,Critical,102.44,527,YELLOW
+Bhaktapur District Hospital,Mild,62.55,314,YELLOW
+Bhaktapur District Hospital,Moderate,78.42,348,YELLOW
+Bhaktapur District Hospital,Severe,86.44,344,YELLOW
+Himal Teaching Hospital,Critical,99.98,498,YELLOW
+Himal Teaching Hospital,Mild,63.15,369,YELLOW
+Himal Teaching Hospital,Moderate,74.2,355,YELLOW
+Himal Teaching Hospital,Severe,87.24,718,YELLOW
+Trishuli Referral Hospital,Critical,102.37,383,YELLOW
+Trishuli Referral Hospital,Mild,64.31,319,YELLOW
+Trishuli Referral Hospital,Moderate,75.3,325,YELLOW
+Trishuli Referral Hospital,Severe,83.57,376,YELLOW
+Valley General Hospital,Critical,101.82,575,YELLOW
+Valley General Hospital,Mild,63.0,248,YELLOW
+Valley General Hospital,Moderate,76.26,405,YELLOW
+Valley General Hospital,Severe,87.78,386,YELLOW
