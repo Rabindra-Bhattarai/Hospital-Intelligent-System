@@ -1,0 +1,111 @@
+department_name,hospital_name,avg_los,count,vs_WHO,vs_NHS,vs_MoHP,alert_status
+Burn Unit,Bagmati Community Hospital,21.97,146,14.97,16.17,17.17,RED
+Burn Unit,Bhaktapur District Hospital,20.96,112,13.96,15.16,16.16,RED
+Burn Unit,Himal Teaching Hospital,21.12,338,14.12,15.32,16.32,RED
+Burn Unit,Trishuli Referral Hospital,22.85,80,15.85,17.05,18.05,RED
+Burn Unit,Valley General Hospital,21.31,280,14.31,15.51,16.51,RED
+Cardiology,Bagmati Community Hospital,8.96,883,1.96,3.16,4.16,YELLOW
+Cardiology,Bhaktapur District Hospital,8.91,726,1.91,3.11,4.11,YELLOW
+Cardiology,Himal Teaching Hospital,9.04,2004,2.04,3.24,4.24,YELLOW
+Cardiology,Trishuli Referral Hospital,8.89,482,1.89,3.09,4.09,YELLOW
+Cardiology,Valley General Hospital,8.71,1739,1.71,2.91,3.91,YELLOW
+Dermatology,Bagmati Community Hospital,9.08,179,2.08,3.28,4.28,YELLOW
+Dermatology,Bhaktapur District Hospital,9.04,129,2.04,3.24,4.24,YELLOW
+Dermatology,Himal Teaching Hospital,8.75,309,1.75,2.95,3.95,YELLOW
+Dermatology,Trishuli Referral Hospital,8.13,70,1.13,2.33,3.33,YELLOW
+Dermatology,Valley General Hospital,8.08,283,1.08,2.28,3.28,YELLOW
+Dialysis Unit,Bagmati Community Hospital,9.2,232,2.2,3.4,4.4,YELLOW
+Dialysis Unit,Bhaktapur District Hospital,9.57,143,2.57,3.77,4.77,YELLOW
+Dialysis Unit,Himal Teaching Hospital,9.33,497,2.33,3.53,4.53,YELLOW
+Dialysis Unit,Trishuli Referral Hospital,9.44,121,2.44,3.64,4.64,YELLOW
+Dialysis Unit,Valley General Hospital,8.71,435,1.71,2.91,3.91,YELLOW
+ENT,Bagmati Community Hospital,9.71,276,2.71,3.91,4.91,YELLOW
+ENT,Bhaktapur District Hospital,9.22,205,2.22,3.42,4.42,YELLOW
+ENT,Himal Teaching Hospital,9.39,599,2.39,3.59,4.59,YELLOW
+ENT,Trishuli Referral Hospital,7.5,137,0.5,1.7,2.7,YELLOW
+ENT,Valley General Hospital,8.69,566,1.69,2.89,3.89,YELLOW
+Emergency,Bagmati Community Hospital,20.6,2957,13.6,14.8,15.8,RED
+Emergency,Bhaktapur District Hospital,20.18,2190,13.18,14.38,15.38,RED
+Emergency,Himal Teaching Hospital,20.55,6590,13.55,14.75,15.75,RED
+Emergency,Trishuli Referral Hospital,20.16,1472,13.16,14.36,15.36,RED
+Emergency,Valley General Hospital,20.43,5529,13.43,14.63,15.63,RED
+Gastroenterology,Bagmati Community Hospital,9.32,441,2.32,3.52,4.52,YELLOW
+Gastroenterology,Bhaktapur District Hospital,8.78,339,1.78,2.98,3.98,YELLOW
+Gastroenterology,Himal Teaching Hospital,8.63,971,1.63,2.83,3.83,YELLOW
+Gastroenterology,Trishuli Referral Hospital,8.21,238,1.21,2.41,3.41,YELLOW
+Gastroenterology,Valley General Hospital,9.07,858,2.07,3.27,4.27,YELLOW
+General Medicine,Bagmati Community Hospital,8.88,2814,1.88,3.08,4.08,YELLOW
+General Medicine,Bhaktapur District Hospital,9.06,2081,2.06,3.26,4.26,YELLOW
+General Medicine,Himal Teaching Hospital,9.02,5998,2.02,3.22,4.22,YELLOW
+General Medicine,Trishuli Referral Hospital,8.77,1366,1.77,2.97,3.97,YELLOW
+General Medicine,Valley General Hospital,8.87,5254,1.87,3.07,4.07,YELLOW
+General Surgery,Bagmati Community Hospital,9.28,1833,2.28,3.48,4.48,YELLOW
+General Surgery,Bhaktapur District Hospital,9.06,1374,2.06,3.26,4.26,YELLOW
+General Surgery,Himal Teaching Hospital,9.02,3941,2.02,3.22,4.22,YELLOW
+General Surgery,Trishuli Referral Hospital,9.02,1016,2.02,3.22,4.22,YELLOW
+General Surgery,Valley General Hospital,8.95,3483,1.95,3.15,4.15,YELLOW
+HDU,Bagmati Community Hospital,20.75,783,13.75,14.95,15.95,RED
+HDU,Bhaktapur District Hospital,19.98,606,12.98,14.18,15.18,RED
+HDU,Himal Teaching Hospital,21.09,1666,14.09,15.29,16.29,RED
+HDU,Trishuli Referral Hospital,20.65,371,13.65,14.85,15.85,RED
+HDU,Valley General Hospital,20.78,1472,13.78,14.98,15.98,RED
+ICU,Bagmati Community Hospital,21.2,952,14.2,15.4,16.4,RED
+ICU,Bhaktapur District Hospital,19.99,707,12.99,14.19,15.19,RED
+ICU,Himal Teaching Hospital,20.82,2016,13.82,15.02,16.02,RED
+ICU,Trishuli Referral Hospital,19.91,455,12.91,14.11,15.11,RED
+ICU,Valley General Hospital,20.19,1771,13.19,14.39,15.39,RED
+Maternity & Obstetrics,Bagmati Community Hospital,8.98,1645,1.98,3.18,4.18,YELLOW
+Maternity & Obstetrics,Bhaktapur District Hospital,8.87,1257,1.87,3.07,4.07,YELLOW
+Maternity & Obstetrics,Himal Teaching Hospital,8.72,3565,1.72,2.92,3.92,YELLOW
+Maternity & Obstetrics,Trishuli Referral Hospital,9.49,827,2.49,3.69,4.69,YELLOW
+Maternity & Obstetrics,Valley General Hospital,9.24,3233,2.24,3.44,4.44,YELLOW
+Neonatal ICU,Bagmati Community Hospital,23.3,259,16.3,17.5,18.5,RED
+Neonatal ICU,Bhaktapur District Hospital,21.2,213,14.2,15.4,16.4,RED
+Neonatal ICU,Himal Teaching Hospital,19.57,599,12.57,13.77,14.77,RED
+Neonatal ICU,Trishuli Referral Hospital,21.88,129,14.88,16.08,17.08,RED
+Neonatal ICU,Valley General Hospital,20.04,530,13.04,14.24,15.24,RED
+Nephrology,Bagmati Community Hospital,9.52,498,2.52,3.72,4.72,YELLOW
+Nephrology,Bhaktapur District Hospital,8.85,372,1.85,3.05,4.05,YELLOW
+Nephrology,Himal Teaching Hospital,8.99,967,1.99,3.19,4.19,YELLOW
+Nephrology,Trishuli Referral Hospital,9.94,206,2.94,4.14,5.14,YELLOW
+Nephrology,Valley General Hospital,9.1,869,2.1,3.3,4.3,YELLOW
+Neurology,Bagmati Community Hospital,9.15,578,2.15,3.35,4.35,YELLOW
+Neurology,Bhaktapur District Hospital,8.45,450,1.45,2.65,3.65,YELLOW
+Neurology,Himal Teaching Hospital,9.11,1215,2.11,3.31,4.31,YELLOW
+Neurology,Trishuli Referral Hospital,9.31,309,2.31,3.51,4.51,YELLOW
+Neurology,Valley General Hospital,9.11,1013,2.11,3.31,4.31,YELLOW
+Oncology,Bagmati Community Hospital,9.36,371,2.36,3.56,4.56,YELLOW
+Oncology,Bhaktapur District Hospital,8.65,272,1.65,2.85,3.85,YELLOW
+Oncology,Himal Teaching Hospital,9.0,795,2.0,3.2,4.2,YELLOW
+Oncology,Trishuli Referral Hospital,9.47,171,2.47,3.67,4.67,YELLOW
+Oncology,Valley General Hospital,8.89,708,1.89,3.09,4.09,YELLOW
+Ophthalmology,Bagmati Community Hospital,9.41,219,2.41,3.61,4.61,YELLOW
+Ophthalmology,Bhaktapur District Hospital,9.52,176,2.52,3.72,4.72,YELLOW
+Ophthalmology,Himal Teaching Hospital,8.91,503,1.91,3.11,4.11,YELLOW
+Ophthalmology,Trishuli Referral Hospital,9.42,118,2.42,3.62,4.62,YELLOW
+Ophthalmology,Valley General Hospital,8.87,447,1.87,3.07,4.07,YELLOW
+Orthopedics,Bagmati Community Hospital,8.92,1345,1.92,3.12,4.12,YELLOW
+Orthopedics,Bhaktapur District Hospital,8.56,968,1.56,2.76,3.76,YELLOW
+Orthopedics,Himal Teaching Hospital,8.95,2937,1.95,3.15,4.15,YELLOW
+Orthopedics,Trishuli Referral Hospital,8.94,701,1.94,3.14,4.14,YELLOW
+Orthopedics,Valley General Hospital,8.91,2445,1.91,3.11,4.11,YELLOW
+Pediatrics,Bagmati Community Hospital,8.81,1538,1.81,3.01,4.01,YELLOW
+Pediatrics,Bhaktapur District Hospital,9.24,1185,2.24,3.44,4.44,YELLOW
+Pediatrics,Himal Teaching Hospital,9.12,3276,2.12,3.32,4.32,YELLOW
+Pediatrics,Trishuli Referral Hospital,9.27,729,2.27,3.47,4.47,YELLOW
+Pediatrics,Valley General Hospital,8.91,2841,1.91,3.11,4.11,YELLOW
+Psychiatry,Bagmati Community Hospital,9.64,197,2.64,3.84,4.84,YELLOW
+Psychiatry,Bhaktapur District Hospital,9.62,137,2.62,3.82,4.82,YELLOW
+Psychiatry,Himal Teaching Hospital,8.98,389,1.98,3.18,4.18,YELLOW
+Psychiatry,Trishuli Referral Hospital,9.16,96,2.16,3.36,4.36,YELLOW
+Psychiatry,Valley General Hospital,8.94,345,1.94,3.14,4.14,YELLOW
+Pulmonology,Bagmati Community Hospital,8.42,577,1.42,2.62,3.62,YELLOW
+Pulmonology,Bhaktapur District Hospital,9.25,418,2.25,3.45,4.45,YELLOW
+Pulmonology,Himal Teaching Hospital,8.97,1200,1.97,3.17,4.17,YELLOW
+Pulmonology,Trishuli Referral Hospital,8.52,275,1.52,2.72,3.72,YELLOW
+Pulmonology,Valley General Hospital,8.86,1014,1.86,3.06,4.06,YELLOW
+Urology,Bagmati Community Hospital,9.16,383,2.16,3.36,4.36,YELLOW
+Urology,Bhaktapur District Hospital,8.6,256,1.6,2.8,3.8,YELLOW
+Urology,Himal Teaching Hospital,8.8,800,1.8,3.0,4.0,YELLOW
+Urology,Trishuli Referral Hospital,9.41,202,2.41,3.61,4.61,YELLOW
+Urology,Valley General Hospital,9.08,717,2.08,3.28,4.28,YELLOW
