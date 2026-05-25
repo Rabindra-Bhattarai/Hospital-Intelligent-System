@@ -1,6 +1,6 @@
 hospital_name,hospital_type,hospital_district,level,total_admissions,avg_los,readmission_rate,mortality_rate,avg_bill_npr,readmission_alert
-Bagmati Community Hospital,Public,Lalitpur,Secondary,19106,12.2,0.0602,0.0876,42930.0,GREEN
-Bhaktapur District Hospital,Public,Bhaktapur,Secondary,14316,11.97,0.058,0.0891,42422.0,GREEN
-Himal Teaching Hospital,Teaching,Kathmandu,Tertiary,41175,12.15,0.0605,0.0843,42846.0,GREEN
-Trishuli Referral Hospital,Public,Nuwakot,Secondary,9571,12.0,0.0615,0.0866,42299.0,GREEN
-Valley General Hospital,Public,Kathmandu,Tertiary,35832,12.02,0.0602,0.0855,42612.0,GREEN
+Bagmati Community Hospital,Public,Lalitpur,Secondary,19106,12.2,0.0602,0.0876,42930.0,YELLOW
+Bhaktapur District Hospital,Public,Bhaktapur,Secondary,14316,11.97,0.058,0.0891,42422.0,YELLOW
+Himal Teaching Hospital,Teaching,Kathmandu,Tertiary,41175,12.15,0.0605,0.0843,42846.0,YELLOW
+Trishuli Referral Hospital,Public,Nuwakot,Secondary,9571,12.0,0.0615,0.0866,42299.0,YELLOW
+Valley General Hospital,Public,Kathmandu,Tertiary,35832,12.02,0.0602,0.0855,42612.0,YELLOW
