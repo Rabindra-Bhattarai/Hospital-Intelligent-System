@@ -2,10 +2,9 @@ import pandas as pd
 import numpy as np
 import os
 
-# ============================================
+
 # SCRIPT 02: KPI CALCULATION AND ALERTS
 # Hospital Thesis - Rabindra Bhattarai
-# ============================================
 
 print("Loading cleaned master files...")
 
@@ -27,9 +26,9 @@ print(f"  staff_shifts_master:  {len(staff_shifts_master)} rows")
 print(f"  flow_master:          {len(flow_master)} rows")
 
 
-# ============================================
+
 # STEP 1: DEFINE BENCHMARKS
-# ============================================
+
 # Published international and national standards
 # WHO  = World Health Organization
 # NHS  = National Health Service UK
@@ -65,9 +64,9 @@ print(f"  Overtime:    WHO={WHO_OVERTIME*100}%  NHS={NHS_OVERTIME*100}%  MoHP={M
 print(f"  Readmission: WHO={WHO_READMISSION*100}%  NHS={NHS_READMISSION*100}%  MoHP={MOPH_READMISSION*100}%")
 
 
-# ============================================
+
 # STEP 2: BED OCCUPANCY KPIs
-# ============================================
+
 print("\nCalculating Bed Occupancy KPIs...")
 
 occupancy_by_dept = bed_occupancy_master.groupby(
@@ -109,9 +108,9 @@ print(f"  YELLOW alerts: {(occupancy_by_dept['alert_status']=='YELLOW').sum()}")
 print(f"  GREEN alerts:  {(occupancy_by_dept['alert_status']=='GREEN').sum()}")
 
 
-# ============================================
+
 # STEP 3: PATIENT FLOW KPIs
-# ============================================
+
 print("\nCalculating Patient Flow KPIs...")
 
 los_by_severity = admissions_master.groupby('severity').agg(
@@ -158,7 +157,7 @@ readmission_by_severity['readmission_rate'] = readmission_by_severity['readmissi
 def readmission_alert(rate):
     if rate >= WHO_READMISSION:
         return 'RED'
-    elif rate >= MOPH_READMISSION:
+    elif rate >= NHS_READMISSION:
         return 'YELLOW'
     else:
         return 'GREEN'
@@ -190,9 +189,9 @@ print(f"  vs NHS  ({NHS_READMISSION*100}%):  {'ABOVE' if overall_readmission_rat
 print(f"  vs MoHP ({MOPH_READMISSION*100}%): {'ABOVE' if overall_readmission_rate > MOPH_READMISSION else 'BELOW'}")
 
 
-# ============================================
+
 # STEP 4: STAFF ALLOCATION KPIs
-# ============================================
+
 print("\nCalculating Staff Allocation KPIs...")
 
 overtime_by_dept = staff_shifts_master.groupby(
@@ -238,9 +237,9 @@ print(f"  YELLOW alerts: {(overtime_by_dept['alert_status']=='YELLOW').sum()}")
 print(f"  GREEN alerts:  {(overtime_by_dept['alert_status']=='GREEN').sum()}")
 
 
-# ============================================
+
 # STEP 5: OVERALL HOSPITAL SUMMARY
-# ============================================
+
 print("\nCalculating Hospital Summary...")
 
 hospital_summary = admissions_master.groupby(
@@ -265,9 +264,9 @@ print(hospital_summary[['hospital_name', 'total_admissions',
                          'mortality_rate', 'readmission_alert']].to_string())
 
 
-# ============================================
+
 # STEP 6: SAVE ALL KPI FILES
-# ============================================
+
 print("\nSaving KPI files...")
 
 os.makedirs("Raw_data_outputs/kpi", exist_ok=True)
@@ -298,4 +297,3 @@ print("  kpi_hospital_summary.csv        saved")
 
 print("\nScript 02 Complete!")
 print("All KPIs saved to Raw_data_outputs/kpi/ folder")
-print("Ready for Script 03: ML Models")
