@@ -1,5 +1,5 @@
 severity,readmission_rate,count,alert_status
 Critical,0.0416,27113,GREEN
-Mild,0.0739,18849,GREEN
-Moderate,0.069,36275,GREEN
-Severe,0.0581,37763,GREEN
+Mild,0.0739,18849,YELLOW
+Moderate,0.069,36275,YELLOW
+Severe,0.0581,37763,YELLOW

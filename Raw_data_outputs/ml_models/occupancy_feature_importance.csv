@@ -1,0 +1,12 @@
+feature,importance
+dept_type_num,0.5144
+total_beds,0.0881
+day,0.0862
+admissions_count,0.0634
+discharges_count,0.063
+month,0.0614
+day_of_week,0.0421
+season_num,0.0345
+year,0.0292
+quarter,0.0116
+is_weekend_num,0.0062
