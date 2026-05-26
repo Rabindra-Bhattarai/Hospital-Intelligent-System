@@ -1,5 +1,6 @@
 metric,value
-Accuracy,0.9407
-Precision,0.0
-Recall,0.0
-F1_Score,0.0
+Accuracy,0.9148
+Precision,0.0813
+Recall,0.0423
+F1_Score,0.0556
+Threshold,0.25
