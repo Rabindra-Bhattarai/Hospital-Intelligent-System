@@ -27,7 +27,6 @@ print(f"\nColumns: {list(staff_shifts_master.columns)}")
 
 
 # STEP 1: PREPARE FEATURES
-
 print("\nPreparing features...")
 
 # Shift type
@@ -220,7 +219,6 @@ print(importance_df.to_string())
 print("\nOvertime risk analysis by department type...")
 
 test_results = test_data[['shift_id', 'staff_id', 'department_name','hospital_name', 'department_type','role', 'shift_type', 'shift_date','patients_handled']].copy()
-
 test_results['actual_overtime']      = y_test.values
 test_results['predicted_overtime']   = y_pred
 test_results['overtime_probability'] = y_pred_prob.round(4)

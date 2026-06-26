@@ -32,8 +32,7 @@ hospital_map     = {'Public': 1, 'Private': 2, 'Teaching': 3}
 level_map        = {'Secondary': 1, 'Tertiary': 2}
 address_map      = {'Rural': 1, 'Semi-Urban': 2, 'Urban': 3}
 gender_map       = {'Female': 0, 'Male': 1}
-outcome_map      = {'Recovered': 1, 'Referred': 2,
-                    'Transferred': 3, 'LAMA': 4, 'Expired': 5}
+outcome_map      = {'Recovered': 1, 'Referred': 2,'Transferred': 3, 'LAMA': 4, 'Expired': 5}
 
 admissions_master['severity_num']       = admissions_master['severity'].map(severity_map)
 admissions_master['admission_type_num'] = admissions_master['admission_type'].map(admission_map)
@@ -55,12 +54,7 @@ print("Features prepared!")
 
 print("\nDefining features and target...")
 
-features = [
-    'severity_num', 'admission_type_num', 'dept_type_num',
-    'hospital_type_num', 'level_num', 'address_type_num',
-    'gender_num', 'chronic_num', 'outcome_num',
-    'age', 'length_of_stay_days', 'admission_hour',
-    'admission_month', 'admission_year', 'total_bill_npr'
+features = ['severity_num', 'admission_type_num', 'dept_type_num','hospital_type_num', 'level_num', 'address_type_num','gender_num', 'chronic_num', 'outcome_num','age', 'length_of_stay_days', 'admission_hour','admission_month', 'admission_year', 'total_bill_npr'
 ]
 
 target = 'readmission_flag'
@@ -103,6 +97,7 @@ print(f"  Readmissions in testing:  {y_test.sum()}")
 
 print("\nHandling class imbalance...")
 
+
 train_full = train_data.copy()
 readmitted_rows = train_full[train_full[target] == True]
 not_readmitted  = train_full[train_full[target] == False]
@@ -113,6 +108,10 @@ oversampled = oversampled.sample(frac=1, random_state=42)
 
 X_train_balanced = oversampled[features]
 y_train_balanced = oversampled[target].astype(int)
+
+
+
+
 
 print(f"  Original training readmissions: {y_train.sum()}")
 print(f"  After oversampling:             {y_train_balanced.sum()}")

@@ -1,0 +1,16 @@
+hospital_name,shift_type,overtime_rate,avg_patients_handled,total_shifts
+Bagmati Community Hospital,Evening,0.5019,16.12,2969
+Bagmati Community Hospital,Morning,0.4949,15.96,3603
+Bagmati Community Hospital,Night,0.5034,10.75,2517
+Bhaktapur District Hospital,Evening,0.4957,16.06,3831
+Bhaktapur District Hospital,Morning,0.4948,15.88,4992
+Bhaktapur District Hospital,Night,0.5099,10.73,3532
+Himal Teaching Hospital,Evening,0.498,16.1,3281
+Himal Teaching Hospital,Morning,0.4955,16.04,4180
+Himal Teaching Hospital,Night,0.4963,10.59,2954
+Trishuli Referral Hospital,Evening,0.493,16.13,3428
+Trishuli Referral Hospital,Morning,0.4813,15.99,4359
+Trishuli Referral Hospital,Night,0.4982,10.68,2973
+Valley General Hospital,Evening,0.5008,16.13,3293
+Valley General Hospital,Morning,0.4861,15.98,4174
+Valley General Hospital,Night,0.499,10.57,2914
