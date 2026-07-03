@@ -1,0 +1,3397 @@
+"""Hospital Intelligence System — Complete UI Redesign"""
+import os, sys, time as _time, secrets
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, BASE_DIR)
+
+import config
+from src.auth         import (init_db, register_user, verify_user,
+                               change_password, validate_password,
+                               get_profile, save_profile,
+                               save_avatar, get_avatar_thumb_b64,
+                               get_user_created_at,
+                               create_session, validate_session,
+                               touch_session, revoke_session,
+                               save_estimate_request,
+                               get_google_auth_url, exchange_google_code,
+                               get_or_create_sso_user, get_patient_id,
+                               list_patient_accounts, delete_patient_account,
+                               send_chat_message, get_chat_messages,
+                               get_chat_inbox, mark_chat_read,
+                               count_unread_for_patient)
+from src.data_loader  import (load_admissions, load_patients, load_occupancy,
+                               load_occupancy_with_hospital,
+                               hospital_stats, departments_by_hospital,
+                               hospitals_with_department,
+                               merged_admissions_patients, kpi_summary)
+from src.predict      import predict_los, predict_cost, models_ready
+from src.decision_engine import occupancy_alert, overtime_alert, los_flag
+
+st.set_page_config(
+    page_title="Bagmati Care — HIS",
+    page_icon="🏥",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+init_db()
+
+for k, v in [("logged_in", False), ("username", ""), ("role", ""),
+             ("page", "dashboard"), ("profile_msg", None),
+             ("login_view", "signin"), ("reg_success", ""),
+             ("_sid", ""), ("_session_expires", 0.0)]:
+    if k not in st.session_state:
+        st.session_state[k] = v
+
+SESSION_TIMEOUT = 3600  # seconds of inactivity before auto-logout
+
+
+def _restore_session():
+    """On every page load: restore login from URL token, or touch active session."""
+    if st.session_state.logged_in:
+        sid = st.session_state.get("_sid", "")
+        if sid:
+            touch_session(sid)
+            st.session_state._session_expires = _time.time() + SESSION_TIMEOUT
+        return
+    sid = st.query_params.get("sid", None)
+    if not sid:
+        return
+    result = validate_session(sid, SESSION_TIMEOUT)
+    if result:
+        st.session_state.logged_in        = True
+        st.session_state.username         = result["username"]
+        st.session_state.role             = result["role"]
+        st.session_state._sid             = sid
+        st.session_state._session_expires = _time.time() + SESSION_TIMEOUT
+        touch_session(sid)
+    else:
+        try:
+            st.query_params.clear()
+        except Exception:
+            pass
+
+
+def _save_session(username: str, role: str):
+    """Create server-side token and persist it in the URL."""
+    token = create_session(username, role)
+    st.session_state._sid             = token
+    st.session_state._session_expires = _time.time() + SESSION_TIMEOUT
+    st.query_params["sid"] = token
+
+
+def _clear_session():
+    """Revoke token and clear URL param (logout)."""
+    sid = st.session_state.get("_sid", "") or st.query_params.get("sid", "")
+    if sid:
+        revoke_session(sid)
+    st.session_state._sid             = ""
+    st.session_state._session_expires = 0.0
+    try:
+        st.query_params.clear()
+    except Exception:
+        pass
+
+
+_restore_session()
+
+# ── Google OAuth callback handler ────────────────────────────────────────────
+if not st.session_state.logged_in:
+    _qp = st.query_params
+    if "code" in _qp:
+        _info = exchange_google_code(_qp["code"])
+        if _info and _info.get("email"):
+            _uname = get_or_create_sso_user(_info["email"], _info.get("name", ""))
+            st.session_state.logged_in = True
+            st.session_state.username  = _uname
+            st.session_state.role      = "patient"
+            st.query_params.clear()       # remove ?code=&state= first
+            _save_session(_uname, "patient")  # then set ?sid= so refresh works
+        else:
+            st.session_state["_sso_error"] = "Google sign-in failed. Please try again."
+            st.query_params.clear()
+        st.rerun()
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# DESIGN TOKENS
+# ════════════════════════════════════════════════════════════════════════════
+
+PATIENT_THEME = dict(
+    primary="#4F46E5", p_dark="#3730A3", p_light="#EEF2FF",
+    secondary="#7C3AED", accent="#A78BFA",
+    sidebar_a="#1E1B4B", sidebar_b="#3730A3",
+    t1="#1E1B4B", t2="#4B5563", t3="#9CA3AF",
+    border="#E0E7FF", bg="#F5F3FF",
+    shadow_rgb="79,70,229",
+    chart_colors=["#4F46E5","#7C3AED","#A78BFA","#06B6D4","#F59E0B","#EF4444"],
+)
+
+ADMIN_THEME = dict(
+    primary="#1B3A6B", p_dark="#0F2447", p_light="#EBF2FB",
+    secondary="#2B5BA8", accent="#4A90D9",
+    sidebar_a="#0F2447", sidebar_b="#1B3A6B",
+    t1="#1B2B44", t2="#4A5568", t3="#8492A6",
+    border="#D0DBF0", bg="#F0F4FB",
+    chart_colors=["#2B5BA8","#1B3A6B","#4A90D9","#7EB8F0","#F59E0B","#DC2626"],
+)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# CHART LAYOUT
+# ════════════════════════════════════════════════════════════════════════════
+
+_CHART_CFG = {"displayModeBar": False, "responsive": True}
+
+
+def chart_layout(t: dict, height: int = 380, title: str = "") -> dict:
+    layout = dict(
+        height=height,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, sans-serif", size=11, color=t["t2"]),
+        margin=dict(l=0, r=10, t=10, b=10),
+        xaxis=dict(showgrid=False, zeroline=False, linecolor="rgba(0,0,0,0)",
+                   tickcolor="rgba(0,0,0,0)", tickfont=dict(size=11, color=t["t3"])),
+        yaxis=dict(gridcolor="rgba(0,0,0,.05)", zeroline=False, linecolor="rgba(0,0,0,0)",
+                   tickfont=dict(size=11, color=t["t3"])),
+        legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor="rgba(0,0,0,0)",
+                    font=dict(size=11)),
+        hoverlabel=dict(bgcolor="#1E293B", font_size=12, font_family="Inter, sans-serif",
+                        bordercolor="rgba(0,0,0,0)"),
+        bargap=0.35,
+    )
+    if title:
+        layout["title"] = dict(
+            text=title,
+            font=dict(size=13, color=t["t1"], family="Plus Jakarta Sans, sans-serif"),
+            x=0, xanchor="left",
+        )
+        layout["margin"] = dict(l=0, r=10, t=36, b=10)
+    return layout
+
+
+def pchart(fig, key: str = None):
+    """Render a Plotly chart without the toolbar."""
+    st.plotly_chart(fig, use_container_width=True, config=_CHART_CFG,
+                    key=key if key else None)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# GLOBAL CSS
+# ════════════════════════════════════════════════════════════════════════════
+
+def inject_global_css(t: dict):
+    p   = t["primary"]; pd2 = t["p_dark"]; pl  = t["p_light"]
+    s   = t["secondary"]
+    sa  = t["sidebar_a"]; sb  = t["sidebar_b"]
+    t1  = t["t1"]; t2  = t["t2"]; t3  = t["t3"]
+    bdr = t["border"]; bg  = t["bg"]
+    shd = t.get("shadow_rgb", "0,108,73")
+
+    st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    html, body, [class*="css"] {{
+        font-family: 'Inter', -apple-system, sans-serif !important;
+    }}
+    h1, h2, h3, .display-font {{
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }}
+
+    /* Force light mode & background */
+    html, body {{ background: {bg} !important; color: {t1} !important; }}
+    .stApp, [data-testid="stAppViewContainer"] {{
+        background: {bg} !important; color: {t1} !important;
+    }}
+    .main .block-container {{ color: {t1} !important; }}
+    .main .block-container p,
+    .main .block-container span,
+    .main .block-container label {{ color: {t1}; }}
+    [data-testid="stWidgetLabel"] p,
+    [data-testid="stWidgetLabel"] span {{ color: {t1} !important; }}
+    [data-testid="stMarkdownContainer"] p {{ color: {t1} !important; }}
+
+    #MainMenu, footer, header {{ visibility: hidden !important; }}
+    .block-container {{ padding: 1.8rem 2rem 3rem !important; max-width: 1440px; }}
+
+    /* ── SIDEBAR ─────────────────────────────────────────── */
+    [data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, {sa} 0%, {sb} 100%) !important;
+        border-right: none !important;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.2);
+    }}
+    [data-testid="stSidebar"] > div p,
+    [data-testid="stSidebar"] > div span,
+    [data-testid="stSidebar"] > div label,
+    [data-testid="stSidebar"] > div div {{ color: rgba(255,255,255,.88) !important; }}
+    [data-testid="stSidebar"] hr {{ border-color: rgba(255,255,255,.12) !important; }}
+    [data-testid="stSidebar"] .stButton > button {{
+        background: rgba(255,255,255,.08) !important;
+        border: 1px solid rgba(255,255,255,.2) !important;
+        color: rgba(255,255,255,.8) !important;
+        border-radius: 10px !important; width: 100% !important;
+        padding: 10px 14px !important; font-weight: 500 !important;
+        font-size: .85rem !important; text-align: left !important;
+        transition: all .2s !important;
+    }}
+    [data-testid="stSidebar"] .stButton > button:hover {{
+        background: rgba(255,255,255,.18) !important;
+        color: #fff !important; transform: translateX(2px) !important;
+    }}
+
+    /* ── TABS (pill style) ───────────────────────────────── */
+    [data-baseweb="tab-list"] {{
+        background: {pl} !important; border-radius: 12px !important;
+        padding: 4px !important; gap: 2px !important;
+        border: 1px solid {bdr} !important;
+    }}
+    [data-baseweb="tab"] {{
+        border-radius: 9px !important; padding: 9px 18px !important;
+        font-weight: 600 !important; font-size: .85rem !important;
+        color: {t2} !important; background: transparent !important;
+        border: none !important; transition: all .18s !important;
+        font-family: 'Inter', sans-serif !important;
+    }}
+    [aria-selected="true"][data-baseweb="tab"] {{
+        background: {p} !important; color: #fff !important;
+        box-shadow: 0 2px 10px rgba({shd},.3) !important;
+    }}
+    [data-baseweb="tab-panel"] {{ padding-top: 1.6rem !important; }}
+
+    /* ── PRIMARY BUTTON ──────────────────────────────────── */
+    .stButton > button[kind="primary"] {{
+        background: {p} !important; color: #fff !important;
+        border: none !important; border-radius: 10px !important;
+        padding: 12px 24px !important; font-weight: 700 !important;
+        font-size: .9rem !important; letter-spacing: .01em !important;
+        box-shadow: 0 3px 14px rgba({shd},.3) !important;
+        transition: all .18s !important;
+        font-family: 'Inter', sans-serif !important;
+    }}
+    .stButton > button[kind="primary"]:hover {{
+        background: {pd2} !important; transform: translateY(-1px) !important;
+        box-shadow: 0 6px 20px rgba({shd},.35) !important;
+    }}
+    .stButton > button[kind="secondary"] {{
+        background: transparent !important; color: {p} !important;
+        border: 1.5px solid {p} !important; border-radius: 10px !important;
+        padding: 10px 20px !important; font-weight: 600 !important;
+        font-size: .875rem !important; transition: all .15s !important;
+    }}
+    .stButton > button[kind="secondary"]:hover {{
+        background: {pl} !important;
+    }}
+
+    /* ── FORM INPUTS ─────────────────────────────────────── */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {{
+        border-radius: 9px !important; border: 1.5px solid {bdr} !important;
+        padding: 10px 14px !important; font-size: .875rem !important;
+        background: #FAFCFB !important; color: {t1} !important;
+        font-family: 'Inter', sans-serif !important;
+        transition: border-color .15s, box-shadow .15s !important;
+    }}
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {{
+        border-color: {p} !important; box-shadow: 0 0 0 3px rgba({shd},.1) !important;
+    }}
+    .stSelectbox > div > div,
+    .stMultiSelect > div > div {{
+        border-radius: 9px !important; border: 1.5px solid {bdr} !important;
+        background: #FAFCFB !important;
+    }}
+    [data-testid="stSlider"] [data-testid="stSliderThumb"] {{
+        background: {p} !important; border: 2.5px solid #fff !important;
+        box-shadow: 0 0 0 2px rgba(0,108,73,.25) !important;
+    }}
+    [data-testid="stSlider"] [data-testid="stSliderThumb"]:hover {{
+        background: {pd2} !important;
+    }}
+    /* Toggle */
+    [data-testid="stToggle"] svg {{ color: {p} !important; }}
+
+    /* ── ALERTS ──────────────────────────────────────────── */
+    [data-testid="stAlert"] {{ border-radius: 10px !important; border: none !important; }}
+
+    /* ── DATA TABLE ──────────────────────────────────────── */
+    [data-testid="stDataFrame"] {{
+        border-radius: 12px !important; overflow: hidden !important;
+        border: 1px solid {bdr} !important;
+    }}
+
+    /* ── SCROLLBAR ───────────────────────────────────────── */
+    ::-webkit-scrollbar {{ width: 5px; height: 5px; }}
+    ::-webkit-scrollbar-track {{ background: transparent; }}
+    ::-webkit-scrollbar-thumb {{ background: {bdr}; border-radius: 3px; }}
+
+    /* ── CUSTOM COMPONENT CLASSES ────────────────────────── */
+    .kpi-card {{
+        background: #FFFFFF; border-radius: 16px; padding: 20px;
+        border: 1px solid {bdr}; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        transition: box-shadow .18s, transform .18s; height: 100%;
+    }}
+    .kpi-card:hover {{ box-shadow: 0 6px 24px rgba({shd},.12); transform: translateY(-2px); }}
+
+    .welcome-banner {{
+        background: linear-gradient(130deg, {sa} 0%, {p} 100%);
+        border-radius: 20px; padding: 26px 32px; margin-bottom: 24px;
+        position: relative; overflow: hidden;
+    }}
+    .welcome-banner::after {{
+        content: ''; position: absolute; right: -40px; bottom: -60px;
+        width: 220px; height: 220px; border-radius: 50%;
+        background: rgba(255,255,255,.05);
+    }}
+
+    .section-card {{
+        background: #FFFFFF; border-radius: 16px;
+        border: 1px solid {bdr}; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        padding: 22px;
+    }}
+
+    .schip {{
+        display: flex; align-items: center; gap: 8px; margin: 20px 0 12px;
+    }}
+    .schip:first-child {{ margin-top: 0; }}
+    .schip-label {{
+        font-size: .68rem; font-weight: 700; color: {p};
+        text-transform: uppercase; letter-spacing: .1em; white-space: nowrap;
+    }}
+    .schip-line {{ flex: 1; height: 1px; background: {bdr}; }}
+
+    .login-hero {{
+        background: linear-gradient(155deg, {sa} 0%, {pd2} 40%, {p} 100%);
+        border-radius: 20px; padding: 44px 40px; min-height: 540px;
+        position: relative; overflow: hidden;
+        display: flex; flex-direction: column; justify-content: space-between;
+    }}
+    .login-hero::before {{
+        content: ''; position: absolute; top: -80px; right: -80px;
+        width: 380px; height: 380px; border-radius: 50%;
+        background: rgba(255,255,255,.05);
+    }}
+    .login-hero::after {{
+        content: ''; position: absolute; bottom: -100px; left: -60px;
+        width: 260px; height: 260px; border-radius: 50%;
+        background: rgba(255,255,255,.04);
+    }}
+    .login-card {{
+        background: #FFFFFF; border-radius: 20px; padding: 36px 32px;
+        box-shadow: 0 10px 48px rgba(0,0,0,.12); border: 1px solid {bdr};
+    }}
+    hr {{ border-color: {bdr} !important; margin: 16px 0 !important; }}
+    </style>
+    """, unsafe_allow_html=True)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# HTML COMPONENTS
+# ════════════════════════════════════════════════════════════════════════════
+
+def kpi_card(icon_bg: str, icon: str, value: str, label: str, sub: str, t: dict, **_) -> str:
+    return (
+        f'<div class="kpi-card">'
+        f'<div style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;'
+        f'justify-content:center;background:{icon_bg};margin-bottom:14px;font-size:20px;">{icon}</div>'
+        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.6rem;font-weight:800;'
+        f'color:{t["t1"]};letter-spacing:-.02em;line-height:1.1;margin-bottom:3px;">{value}</div>'
+        f'<div style="font-size:.78rem;font-weight:600;color:{t["t2"]};margin-bottom:8px;">{label}</div>'
+        f'<div style="font-size:.72rem;color:{t["t3"]};">{sub}</div>'
+        f'</div>'
+    )
+
+
+def section_hdr(icon_bg: str, icon: str, title: str, subtitle: str, t: dict) -> str:
+    return f"""
+<div style="display:flex;align-items:center;gap:12px;margin:0 0 16px;">
+  <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+    justify-content:center;background:{icon_bg};font-size:18px;flex-shrink:0;">{icon}</div>
+  <div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:700;
+      color:{t['t1']};line-height:1.2;">{title}</div>
+    <div style="font-size:.72rem;color:{t['t3']};margin-top:1px;">{subtitle}</div>
+  </div>
+</div>"""
+
+
+def welcome_banner(first_name: str, subtitle: str, t: dict,
+                   patient_id: str = "", joined: str = "", **_) -> str:
+    import datetime as _dt
+    _hour = _dt.datetime.now().hour
+    _greeting = "Good morning" if _hour < 12 else "Good afternoon" if _hour < 17 else "Good evening"
+
+    pid_chip = (
+        f'<span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);'
+        f'border-radius:9999px;padding:3px 12px;font-size:.72rem;font-weight:700;'
+        f'color:#fff;letter-spacing:.03em;">&#127973; {patient_id}</span>'
+    ) if patient_id else ""
+
+    joined_chip = (
+        f'<span style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);'
+        f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.8);">'
+        f'&#128197; Member since {joined}</span>'
+    ) if joined else ""
+
+    return (
+        f'<div style="background:linear-gradient(130deg,#1E1B4B 0%,#3730A3 55%,#4F46E5 100%);'
+        f'border-radius:20px;padding:28px 32px;margin-bottom:6px;'
+        f'position:relative;overflow:hidden;">'
+        f'<div style="position:absolute;right:-70px;top:-70px;width:240px;height:240px;'
+        f'border-radius:50%;background:rgba(255,255,255,.04);"></div>'
+        f'<div style="position:absolute;right:80px;bottom:-90px;width:180px;height:180px;'
+        f'border-radius:50%;background:rgba(255,255,255,.03);"></div>'
+        f'<div style="position:relative;z-index:1;">'
+        f'<div style="font-size:.7rem;color:rgba(255,255,255,.5);letter-spacing:.1em;'
+        f'text-transform:uppercase;margin-bottom:6px;">{_greeting}</div>'
+        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.9rem;font-weight:800;'
+        f'color:#fff;letter-spacing:-.03em;margin-bottom:6px;">{first_name} &#128075;</div>'
+        f'<div style="font-size:.84rem;color:rgba(255,255,255,.65);line-height:1.6;margin-bottom:16px;">'
+        f'{subtitle}</div>'
+        f'<div style="display:flex;flex-wrap:wrap;gap:8px;">{pid_chip}{joined_chip}</div>'
+        f'</div>'
+        f'</div>'
+    )
+
+
+def status_pill(alert: dict, note: str = "") -> str:
+    c = alert["color"]; bg = alert["bg"]
+    status_icons = {"SURGE": "🔴", "WARNING": "🟡", "NORMAL": "🟢",
+                    "BREACH": "🔴", "OK": "🟢", "EXTENDED": "🟠",
+                    "ABOVE BENCHMARK": "🟡", "WITHIN BENCHMARK": "🟢"}
+    icon = status_icons.get(alert["status"], "⚪")
+    return f"""
+<div style="background:{bg};border:1px solid {c}38;border-radius:12px;
+  padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin:8px 0;">
+  <span style="font-size:1.2rem;flex-shrink:0;margin-top:1px;">{icon}</span>
+  <div>
+    <div style="font-weight:700;font-size:.88rem;color:{c};margin-bottom:2px;">{alert['status']}</div>
+    <div style="font-size:.82rem;color:{c};opacity:.9;">{alert['message']}{note}</div>
+  </div>
+</div>"""
+
+
+def result_hero(los_low, los_high, cost_low, cost_high, severity, dept, t: dict) -> str:
+    p = t["primary"]; pd2 = t["p_dark"]
+    nights_low = max(0, int(los_low))
+    nights_high = max(0, int(los_high))
+    night_word = "night" if nights_high == 1 else "nights"
+    return f"""
+<div style="background:linear-gradient(135deg,{pd2} 0%,{p} 60%,{t['secondary']} 100%);
+  border-radius:20px;padding:24px;color:#fff;margin-bottom:14px;">
+  <div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.55);
+    text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Your estimate</div>
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:600;
+    color:rgba(255,255,255,.85);margin-bottom:18px;">{dept} &middot; {severity} condition</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);
+      border-radius:14px;padding:16px;">
+      <div style="font-size:.78rem;color:rgba(255,255,255,.65);margin-bottom:8px;">🛏️ How long you'll stay</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;
+        color:#fff;line-height:1;">{nights_low}–{nights_high}</div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,.65);margin-top:2px;">{night_word} in hospital</div>
+    </div>
+    <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);
+      border-radius:14px;padding:16px;">
+      <div style="font-size:.78rem;color:rgba(255,255,255,.65);margin-bottom:8px;">💰 Estimated cost</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;
+        color:#fff;line-height:1;">Rs. {cost_low:,.0f}</div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,.65);margin-top:2px;">to Rs. {cost_high:,.0f}</div>
+    </div>
+  </div>
+</div>"""
+
+
+def trust_note(t: dict) -> str:
+    return (
+        f'<div style="background:#FFFBEB;border:1px solid rgba(217,119,6,.25);'
+        f'border-left:4px solid #D97706;border-radius:10px;'
+        f'padding:13px 16px;display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">'
+        f'<span style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">💡</span>'
+        f'<div style="font-size:.8rem;color:#92400E;line-height:1.6;">'
+        f'These figures are a <strong>rough guide</strong> based on thousands of real hospital visits '
+        f'in the Bagmati region. They help you plan and budget — they are <strong>not a guarantee, '
+        f'a diagnosis, or a final bill</strong>. Your doctor will give you the exact picture '
+        f'once they assess you in person.'
+        f'</div></div>'
+    )
+
+
+def password_rules_card(password: str = "") -> None:
+    """Render a live password-strength checklist driven by validate_password."""
+    _ALL_RULES = [
+        "At least 8 characters",
+        "At least one uppercase letter (A-Z)",
+        "At least one lowercase letter (a-z)",
+        "At least one number (0-9)",
+        "At least one special character  (!@#$%^&*)",
+    ]
+    _, errs  = validate_password(password)
+    failed   = set(errs)
+    rules    = [(r, r not in failed) for r in _ALL_RULES]
+    met      = sum(1 for _, ok in rules if ok)
+    score    = met / len(rules)
+    bar_color = "#DC2626" if score < 0.4 else "#D97706" if score < 0.8 else "#059669"
+    bar_label = "Weak" if score < 0.4 else "Fair" if score < 0.8 else "Strong"
+    items_html = "".join(
+        f'<div style="display:flex;align-items:center;gap:7px;padding:2px 0;">'
+        f'<span style="font-size:.8rem;color:{"#059669" if ok else "#DC2626"};">'
+        f'{"&#10003;" if ok else "&#10005;"}</span>'
+        f'<span style="font-size:.75rem;color:{"#065F46" if ok else "#6B7280"};">{label}</span>'
+        f'</div>'
+        for label, ok in rules
+    )
+    bar_pct = int(score * 100)
+    st.markdown(f"""
+    <div style="background:#F8FAFC;border:1px solid #D8E8E2;border-radius:10px;
+      padding:12px 14px;margin:6px 0 10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:.72rem;font-weight:700;color:#4A6358;
+          text-transform:uppercase;letter-spacing:.06em;">Password strength</span>
+        <span style="font-size:.72rem;font-weight:700;color:{bar_color};">{bar_label}</span>
+      </div>
+      <div style="height:5px;background:#E2E8F0;border-radius:9999px;margin-bottom:10px;overflow:hidden;">
+        <div style="height:100%;width:{bar_pct}%;background:{bar_color};
+          border-radius:9999px;transition:width .3s;"></div>
+      </div>
+      {items_html}
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def disclaimer_box(msg: str) -> str:
+    return (
+        f'<div style="background:#FFFBEB;border:1px solid rgba(217,119,6,.2);'
+        f'border-left:3px solid #D97706;border-radius:10px;padding:12px 16px;'
+        f'font-size:.8rem;color:#92400E;line-height:1.55;margin:10px 0;">'
+        f'{msg}</div>'
+    )
+
+
+def insight_box(title: str, body: str, t: dict) -> str:
+    shd = t.get("shadow_rgb","0,108,73")
+    return f"""
+<div style="background:{t['p_light']};border:1px solid rgba({shd},.15);border-radius:14px;
+  padding:18px 20px;display:flex;align-items:flex-start;gap:14px;margin-top:14px;">
+  <div style="width:40px;height:40px;border-radius:10px;background:{t['primary']};
+    display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">💡</div>
+  <div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:{t['t1']};
+      margin-bottom:5px;">{title}</div>
+    <div style="font-size:.85rem;color:{t['t2']};line-height:1.65;">{body}</div>
+  </div>
+</div>"""
+
+
+def season_tip_card(emoji: str, season: str, badge: str, badge_bg: str, badge_color: str,
+                    body: str, border_color: str) -> str:
+    return f"""
+<div style="background:#fff;border:1px solid #D8E8E2;border-left:4px solid {border_color};
+  border-radius:12px;padding:14px 16px;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <span style="font-size:1.3rem;">{emoji}</span>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;
+        color:#1A2E25;">{season}</div>
+      <span style="background:{badge_bg};color:{badge_color};font-size:.65rem;font-weight:700;
+        padding:2px 8px;border-radius:9999px;">{badge}</span>
+    </div>
+  </div>
+  <p style="font-size:.77rem;color:#4A6358;line-height:1.55;margin:0">{body}</p>
+</div>"""
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# SESSION BAR
+# ════════════════════════════════════════════════════════════════════════════
+
+def render_session_bar(notifs=None, n_total=0):
+    """Top bar: session status | [bell] | Sign Out."""
+    expires   = st.session_state.get("_session_expires", 0.0)
+    remaining = max(0, int(expires - _time.time()))
+    mins      = remaining // 60
+
+    if mins <= 5:
+        bg = "#FEF2F2"; border = "#FCA5A5"; color = "#991B1B"
+        icon = "&#128308;"
+        msg  = f"Session expires in <strong>{mins} min</strong> &mdash; any action resets the timer"
+    elif mins <= 15:
+        bg = "#FFFBEB"; border = "#FCD34D"; color = "#92400E"
+        icon = "&#9888;&#65039;"
+        msg  = f"Session expires in <strong>{mins} min</strong>"
+    else:
+        bg = "#F0FDF4"; border = "#BBF7D0"; color = "#166534"
+        icon = "&#128274;"
+        msg  = "Session active &mdash; auto-logout after <strong>1 hour</strong> of inactivity"
+
+    if notifs is not None:
+        bar_col, bell_col, logout_col = st.columns([6, 1, 1])
+    else:
+        bar_col, logout_col = st.columns([6, 1])
+        bell_col = None
+
+    with bar_col:
+        st.markdown(
+            f'<div style="background:{bg};border:1px solid {border};border-radius:10px;'
+            f'padding:9px 16px;font-size:.82rem;color:{color};'
+            f'display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+            f'<span style="font-size:.95rem;">{icon}</span><span>{msg}</span></div>',
+            unsafe_allow_html=True,
+        )
+
+    if bell_col is not None:
+        with bell_col:
+            badge = f" ({n_total})" if n_total else ""
+            n_urgent = sum(1 for n in (notifs or []) if n["severity"] in ("urgent", "warning"))
+            with st.popover(f"🔔{badge}", use_container_width=True):
+                st.markdown(
+                    f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:.92rem;'
+                    f'font-weight:800;color:#1E1B4B;margin-bottom:12px;">Notifications'
+                    f'{"&nbsp;&nbsp;<span style=\'background:#EF4444;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:9999px;\'>" + str(n_urgent) + " urgent</span>" if n_urgent else ""}'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+                if not notifs:
+                    st.markdown(
+                        '<div style="text-align:center;padding:20px 0;font-size:.82rem;color:#9CA3AF;">'
+                        '✅ All clear — nothing to flag right now.</div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    for n in notifs:
+                        st.markdown(_notif_card_html(n), unsafe_allow_html=True)
+
+    with logout_col:
+        if st.button("Sign Out", key="top_signout", use_container_width=True):
+            _clear_session()
+            for k in ["logged_in", "username", "role", "page", "profile_msg"]:
+                st.session_state[k] = (
+                    False if k == "logged_in" else
+                    "dashboard" if k == "page" else ""
+                )
+            st.rerun()
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# SIDEBAR
+# ════════════════════════════════════════════════════════════════════════════
+
+def render_sidebar(t: dict):
+    uname      = st.session_state.username
+    role       = st.session_state.role
+    initials   = (uname[:2].upper() if len(uname) >= 2 else (uname.upper() + "?"))
+    role_label = "Patient Portal" if role == "patient" else "Admin Console"
+    cur_page   = st.session_state.get("page", "dashboard")
+
+    # Load avatar for sidebar (48 px thumbnail — ~3 KB base64)
+    if role == "patient":
+        b64 = get_avatar_thumb_b64(uname, 48)
+        if b64:
+            av_html = (f'<img src="data:image/jpeg;base64,{b64}" '
+                       f'style="width:42px;height:42px;border-radius:50%;'
+                       f'object-fit:cover;border:2px solid rgba(255,255,255,.3);">')
+        else:
+            av_html = (f'<div style="width:42px;height:42px;border-radius:50%;'
+                       f'background:linear-gradient(135deg,{t["secondary"]},{t["primary"]});'
+                       f'display:flex;align-items:center;justify-content:center;'
+                       f'font-weight:700;font-size:.82rem;color:#fff;flex-shrink:0;">{initials}</div>')
+    else:
+        av_html = (f'<div style="width:42px;height:42px;border-radius:50%;'
+                   f'background:linear-gradient(135deg,{t["secondary"]},{t["primary"]});'
+                   f'display:flex;align-items:center;justify-content:center;'
+                   f'font-weight:700;font-size:.82rem;color:#fff;flex-shrink:0;">{initials}</div>')
+
+    with st.sidebar:
+        # Logo
+        st.markdown(f"""
+        <div style="padding:22px 16px 16px;border-bottom:1px solid rgba(255,255,255,.1);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.15);
+              border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;
+              justify-content:center;font-size:18px;">&#10133;</div>
+            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+              font-size:.95rem;color:#fff;">Bagmati Care</span>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # User card
+        st.markdown(f"""
+        <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,.1);">
+          <div style="display:flex;align-items:center;gap:12px;">
+            {av_html}
+            <div>
+              <div style="font-weight:600;font-size:.88rem;color:#fff;line-height:1.2;">{uname}</div>
+              <div style="display:inline-block;margin-top:3px;padding:2px 8px;border-radius:9999px;
+                background:rgba(255,255,255,.12);font-size:.62rem;font-weight:600;
+                color:rgba(255,255,255,.75);letter-spacing:.05em;text-transform:uppercase;">
+                {role_label}
+              </div>
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Nav label
+        st.markdown("""
+        <div style="padding:14px 16px 6px;font-size:.62rem;font-weight:700;
+          color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;">
+          Navigation
+        </div>""", unsafe_allow_html=True)
+
+        # Nav items
+        def nav_btn(label, page_key, icon):
+            active = cur_page == page_key
+            bg = "rgba(255,255,255,.22)" if active else "rgba(255,255,255,.06)"
+            border = "rgba(255,255,255,.35)" if active else "rgba(255,255,255,.12)"
+            st.markdown(f"""
+            <style>
+            div[data-testid="stButton"] > button[title="{page_key}"] {{
+              background:{bg} !important; border:1px solid {border} !important;
+              color:#fff !important; text-align:left !important;
+            }}
+            </style>""", unsafe_allow_html=True)
+            if st.button(f"{icon}  {label}", use_container_width=True,
+                         key=f"nav_{page_key}", help=page_key):
+                st.session_state.page = page_key
+                st.rerun()
+
+        nav_btn("Dashboard", "dashboard", "🏠")
+        if role == "patient":
+            nav_btn("My Profile", "profile", "👤")
+
+        st.markdown("""
+        <div style="padding:12px 16px 6px;margin-top:6px;font-size:.62rem;font-weight:700;
+          color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em;
+          border-top:1px solid rgba(255,255,255,.08);">
+          Account
+        </div>""", unsafe_allow_html=True)
+
+        if st.button("🚪  Sign Out", use_container_width=True, key="nav_logout"):
+            _clear_session()
+            for k in ["logged_in", "username", "role", "page", "profile_msg"]:
+                st.session_state[k] = (
+                    False if k == "logged_in" else
+                    "dashboard" if k == "page" else ""
+                )
+            st.rerun()
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px;
+          font-size:.73rem;color:rgba(255,255,255,.4);line-height:1.65;margin:0 4px;">
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+            color:rgba(255,255,255,.25);margin-bottom:6px;">About</div>
+          Hospital Intelligence System<br>
+          Bagmati Region, Nepal<br>
+          Synthetic Data &#183; 2021&#8211;2024<br>
+          Coventry University
+        </div>
+        """, unsafe_allow_html=True)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# LOGIN PAGE
+# ════════════════════════════════════════════════════════════════════════════
+
+def page_login():
+    t = PATIENT_THEME
+    inject_global_css(t)
+
+    st.markdown("""
+    <style>
+    [data-testid="stSidebar"] { display:none !important; }
+    .block-container { padding: 2rem 1.5rem !important; }
+    </style>
+    """, unsafe_allow_html=True)
+
+    col_hero, _sp, col_form = st.columns([1.15, 0.06, 1.0])
+
+    # ── HERO ──
+    with col_hero:
+        st.markdown(f"""
+        <div class="login-hero">
+          <div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:36px;">
+              <div style="width:44px;height:44px;border-radius:14px;
+                background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+                display:flex;align-items:center;justify-content:center;font-size:22px;">&#10133;</div>
+              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+                font-size:1.05rem;color:#fff;">Bagmati Care</span>
+            </div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2.1rem;
+              font-weight:800;color:#fff;line-height:1.2;letter-spacing:-.03em;margin-bottom:14px;">
+              Smarter<br/>Healthcare<br/>Planning
+            </div>
+            <div style="font-size:.92rem;color:rgba(255,255,255,.68);line-height:1.65;margin-bottom:28px;">
+              AI-powered tools helping patients across the Bagmati Region understand
+              hospital costs, stay durations, and the best time to seek care.
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:28px;">
+              <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+                border-radius:12px;padding:14px 16px;">
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;
+                  font-weight:800;color:#fff;">120k+</div>
+                <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:2px;
+                  text-transform:uppercase;letter-spacing:.06em;">Admissions</div>
+              </div>
+              <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+                border-radius:12px;padding:14px 16px;">
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;
+                  font-weight:800;color:#fff;">5</div>
+                <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:2px;
+                  text-transform:uppercase;letter-spacing:.06em;">Hospitals</div>
+              </div>
+              <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+                border-radius:12px;padding:14px 16px;">
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;
+                  font-weight:800;color:#fff;">4 yrs</div>
+                <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:2px;
+                  text-transform:uppercase;letter-spacing:.06em;">2021&#8211;2024</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-size:.87rem;">
+                <div style="width:7px;height:7px;border-radius:50%;background:#0D9E6A;flex-shrink:0;"></div>
+                Personalised cost and stay estimates
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-size:.87rem;">
+                <div style="width:7px;height:7px;border-radius:50%;background:#0D9E6A;flex-shrink:0;"></div>
+                Real-time hospital capacity insights
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-size:.87rem;">
+                <div style="width:7px;height:7px;border-radius:50%;background:#0D9E6A;flex-shrink:0;"></div>
+                Best season to visit, by department
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-size:.87rem;">
+                <div style="width:7px;height:7px;border-radius:50%;background:#0D9E6A;flex-shrink:0;"></div>
+                Privacy-first &#8212; no medical records stored without consent
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:32px;">
+            <div style="display:inline-flex;align-items:center;gap:6px;
+              background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+              border-radius:9999px;padding:6px 14px;font-size:.7rem;color:rgba(255,255,255,.55);
+              letter-spacing:.04em;">
+              &#127891; Coventry University &#183; Synthetic Research Data
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ── FORM PANEL ──
+    with col_form:
+        st.markdown("<br>", unsafe_allow_html=True)
+        view = st.session_state.login_view  # "signin" | "register"
+
+        # ── Tab switcher ─────────────────────────────────────────────────────
+        tc1, tc2 = st.columns(2)
+        with tc1:
+            if st.button("Sign In", use_container_width=True,
+                         type="primary" if view == "signin" else "secondary",
+                         key="tab_btn_signin"):
+                st.session_state.login_view = "signin"
+                st.rerun()
+        with tc2:
+            if st.button("Create Account", use_container_width=True,
+                         type="primary" if view == "register" else "secondary",
+                         key="tab_btn_reg"):
+                st.session_state.login_view = "register"
+                st.rerun()
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+        # ── Sign In view ─────────────────────────────────────────────────────
+        if view == "signin":
+            # Success banner from registration
+            if st.session_state.reg_success:
+                name = st.session_state.reg_success
+                st.markdown(f"""
+                <div style="background:#D1FAE5;border:1px solid rgba(5,150,105,.25);border-radius:10px;
+                  padding:12px 16px;display:flex;align-items:center;gap:10px;
+                  font-size:.84rem;color:#065F46;margin-bottom:16px;">
+                  <span style="font-size:1.2rem;">&#127881;</span>
+                  <div><strong>Account created!</strong> Welcome, {name}. Sign in below.</div>
+                </div>
+                """, unsafe_allow_html=True)
+                st.session_state.reg_success = ""
+
+            st.markdown(f"""
+            <div style="margin-bottom:18px;">
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;
+                font-weight:700;color:{t['t1']};letter-spacing:-.02em;">Welcome back</div>
+              <div style="font-size:.875rem;color:{t['t2']};margin-top:4px;">
+                Sign in to access your portal.
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # ── SSO error from OAuth callback ────────────────────────────
+            if st.session_state.get("_sso_error"):
+                st.error(st.session_state.pop("_sso_error"))
+
+            # ── Google SSO button ─────────────────────────────────────────
+            if config.GOOGLE_CLIENT_ID:
+                _g_state = secrets.token_urlsafe(12)
+                st.session_state["_oauth_state"] = _g_state
+                _g_url = get_google_auth_url(_g_state)
+                st.markdown(
+                    f'<a href="{_g_url}" target="_self" style="display:block;text-decoration:none;">'
+                    f'<div style="display:flex;align-items:center;justify-content:center;gap:10px;'
+                    f'border:1.5px solid #E2E8F0;border-radius:10px;padding:10px 16px;'
+                    f'background:#fff;cursor:pointer;font-size:.88rem;font-weight:600;color:#374151;'
+                    f'transition:box-shadow .15s;">'
+                    f'<svg width="18" height="18" viewBox="0 0 48 48">'
+                    f'<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>'
+                    f'<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>'
+                    f'<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>'
+                    f'<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>'
+                    f'</svg>'
+                    f'Sign in with Google'
+                    f'</div></a>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    f'<div style="display:flex;align-items:center;gap:10px;margin:14px 0;">'
+                    f'<div style="flex:1;height:1px;background:#E2E8F0;"></div>'
+                    f'<div style="font-size:.75rem;color:#94A3B8;">or sign in with username</div>'
+                    f'<div style="flex:1;height:1px;background:#E2E8F0;"></div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+            with st.form("login_form", clear_on_submit=False):
+                username  = st.text_input("Username", placeholder="Your username")
+                password  = st.text_input("Password", type="password", placeholder="Your password")
+                submitted = st.form_submit_button("Sign In  →", use_container_width=True, type="primary")
+
+            if submitted:
+                if not username or not password:
+                    st.error("Please enter both username and password.")
+                else:
+                    role = verify_user(username, password)
+                    if role:
+                        st.session_state.logged_in  = True
+                        st.session_state.username   = username
+                        st.session_state.role       = role
+                        st.session_state.login_view = "signin"
+                        _save_session(username, role)
+                        st.rerun()
+                    else:
+                        st.error("Incorrect username or password. Please try again.")
+
+        # ── Register view ────────────────────────────────────────────────────
+        else:
+            st.markdown(f"""
+            <div style="margin-bottom:16px;">
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;
+                font-weight:700;color:{t['t1']};letter-spacing:-.02em;">Create your account</div>
+              <div style="font-size:.82rem;color:{t['t2']};margin-top:4px;">
+                30 seconds &#183; patient portal only &#183; fill in more details later in your profile
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Fields outside form so strength meter is live
+            full_name    = st.text_input("Full Name", placeholder="Full Name (e.g. Anita Thapa)",
+                                         key="reg_full_name")
+            new_user     = st.text_input("Username",  placeholder="Username (min. 3 chars)",
+                                         key="reg_username")
+            rp1, rp2     = st.columns(2)
+            with rp1:
+                new_pass     = st.text_input("Password", type="password",
+                                             placeholder="e.g. Nepal@2024!",
+                                             key="reg_password")
+            with rp2:
+                confirm_pass = st.text_input("Confirm Password", type="password",
+                                             placeholder="Repeat password",
+                                             key="reg_confirm")
+
+            password_rules_card(new_pass)
+
+            with st.form("register_form", clear_on_submit=True):
+                consent = st.checkbox(
+                    "I understand this system provides estimates for planning purposes only. "
+                    "My personal medical records are never stored."
+                )
+                reg_btn = st.form_submit_button(
+                    "Create Account  →", use_container_width=True, type="primary")
+
+            if reg_btn:
+                errors = []
+                if not full_name.strip():        errors.append("Full name is required.")
+                if len(new_user.strip()) < 3:    errors.append("Username must be at least 3 characters.")
+                if new_pass != confirm_pass:     errors.append("Passwords do not match.")
+                if not consent:                  errors.append("Please accept the consent checkbox.")
+                pw_ok, pw_errs = validate_password(new_pass)
+                if not pw_ok:
+                    errors.extend(pw_errs)
+                if errors:
+                    for e in errors:
+                        st.error(e)
+                else:
+                    ok, msg = register_user(new_user.strip(), new_pass,
+                                            full_name=full_name.strip())
+                    if ok:
+                        # Switch to sign-in and show success banner
+                        st.session_state.reg_success = full_name.strip().split()[0]
+                        st.session_state.login_view  = "signin"
+                        st.rerun()
+                    else:
+                        st.error(msg)
+
+        st.markdown("""
+        <div style="text-align:center;font-size:.73rem;color:#7A9589;margin-top:24px;">
+          Bagmati Care &#183; Hospital Intelligence System &#183; Research Only
+        </div>
+        """, unsafe_allow_html=True)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# PATIENT DASHBOARD
+# ════════════════════════════════════════════════════════════════════════════
+
+def _avatar_html(username: str, size: int, t: dict, name: str = "") -> str:
+    """Return <img> or initials <div>. Thumbnail is resized to ~5 KB — safe to embed in HTML."""
+    b64 = get_avatar_thumb_b64(username, size)
+    r   = f"{size}px"
+    common = (f"width:{r};height:{r};border-radius:50%;object-fit:cover;"
+              f"border:3px solid rgba(255,255,255,.3);flex-shrink:0;")
+    if b64:
+        return f'<img src="data:image/jpeg;base64,{b64}" style="{common}">'
+    # Fallback: initials
+    label    = name or username
+    initials = "".join(p[0].upper() for p in label.split()[:2]) or label[:2].upper()
+    fsize    = max(12, size // 3)
+    return (f'<div style="{common}background:linear-gradient(135deg,{t["secondary"]},{t["p_dark"]});'
+            f'display:flex;align-items:center;justify-content:center;'
+            f'font-family:\'Plus Jakarta Sans\',sans-serif;'
+            f'font-size:{fsize}px;font-weight:800;color:#fff;">{initials}</div>')
+
+
+def _age_from_dob(dob_str: str):
+    """Return integer age from a YYYY-MM-DD string, clamped 1-95. None if unparseable."""
+    if not dob_str:
+        return None
+    try:
+        from datetime import date
+        dob   = date.fromisoformat(dob_str.strip())
+        today = date.today()
+        age   = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+        return max(1, min(95, age))
+    except Exception:
+        return None
+
+
+@st.dialog("Can we save your estimate?", width="small")
+def _consent_popup(data: dict, t: dict):
+    st.markdown(
+        f'<div style="text-align:center;padding:6px 0 14px;">'
+        f'<div style="font-size:2.2rem;margin-bottom:8px;">🔒</div>'
+        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:.95rem;'
+        f'font-weight:800;color:{t["t1"]};margin-bottom:6px;">Help us improve estimates</div>'
+        f'<div style="font-size:.8rem;color:{t["t2"]};line-height:1.7;margin-bottom:14px;">'
+        f'We would like to save the details you just filled in — your age, condition, '
+        f'department, and hospital choice — to help make future estimates more accurate '
+        f'for everyone in the Bagmati region.'
+        f'</div>'
+        f'<div style="background:{t["p_light"]};border-radius:10px;padding:11px 14px;'
+        f'font-size:.75rem;color:{t["t2"]};text-align:left;line-height:1.6;margin-bottom:16px;">'
+        f'<strong>What gets saved:</strong><br>'
+        f'Age · Gender · Severity · Admission type · Department · Hospital · '
+        f'Chronic condition (yes/no) · No. of chronic conditions · Insurance (yes/no) · '
+        f'Visit purpose · Travel distance · District · '
+        f'Hospital occupancy at time of estimate · Times you have used the planner'
+        f'<br><br>'
+        f'<strong>What does NOT get saved:</strong><br>'
+        f'Your name, phone, address, diagnosis text, or any personal health records.'
+        f'</div></div>',
+        unsafe_allow_html=True,
+    )
+    c1, c2 = st.columns(2, gap="small")
+    if c1.button("Yes, save it", type="primary", use_container_width=True):
+        ok = save_estimate_request(data)
+        st.session_state["_est_saved"] = ok
+        st.session_state["_est_consent_done"] = True
+        st.rerun()
+    if c2.button("No thanks", use_container_width=True):
+        st.session_state["_est_saved"] = False
+        st.session_state["_est_consent_done"] = True
+        st.rerun()
+
+
+@st.dialog("Hospital Details", width="large")
+def _hospital_popup(hid: str, occ_h, adm, hosp_df, dept_map, t: dict):
+    hname  = config.HOSPITAL_NAMES.get(hid, hid)
+    hloc   = config.HOSPITAL_LOCATIONS.get(hid, "")
+    hlvl   = config.HOSPITAL_LEVELS.get(hid, "")
+    htype  = config.HOSPITAL_TYPES.get(hid, "")
+    hbeds  = config.HOSPITAL_BEDS.get(hid, 0)
+
+    hrow = (hosp_df[hosp_df["hospital_id"] == hid].iloc[0]
+            if hid in hosp_df["hospital_id"].values else {})
+
+    def _fv(v, default=0.0):
+        return float(v) if pd.notna(v) else default
+
+    occ_v     = _fv(occ_h[occ_h["hospital_id"] == hid]["occupancy_rate"].mean()
+                    if "hospital_id" in occ_h.columns and hid in occ_h["hospital_id"].values
+                    else 0.75, 0.75)
+    beds_free = max(0, hbeds - int(occ_v * hbeds))
+    rec_rate  = _fv(hrow.get("recovery_rate")   if hasattr(hrow, "get") else None)
+    doc_count = int(_fv(hrow.get("doctor_count") if hasattr(hrow, "get") else None))
+    avg_exp   = _fv(hrow.get("avg_exp")          if hasattr(hrow, "get") else None)
+    wait_min  = _fv(hrow.get("avg_wait_triage")  if hasattr(hrow, "get") else None)
+
+    if occ_v > 0.85:
+        acc="#EF4444"; occ_lbl="Very busy right now"; occ_bg="#FEF2F2"
+    elif occ_v > 0.75:
+        acc="#F59E0B"; occ_lbl="Moderately busy";     occ_bg="#FFFBEB"
+    else:
+        acc="#10B981"; occ_lbl="Good availability";    occ_bg="#F0FDF4"
+
+    lvl_color  = "#4F46E5" if hlvl == "Tertiary" else "#7C3AED"
+    h_adm_all  = adm[adm["hospital_id"] == hid].copy()
+    hosp_cost  = float(h_adm_all["total_bill_npr"].mean()) if len(h_adm_all) else 0
+    rec_in_10  = round(rec_rate * 10)
+
+    mnames = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",
+              7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
+
+    # ── Header ──────────────────────────────────────────────────────────────
+    st.markdown(
+        f'<div style="background:{t["p_light"]};border-radius:14px;padding:14px 18px;margin-bottom:16px;">'
+        f'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
+        f'<div>'
+        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.1rem;'
+        f'font-weight:800;color:{t["t1"]};">{hname}</div>'
+        f'<div style="font-size:.72rem;color:{t["t3"]};margin-top:3px;">'
+        f'📍 {hloc} &nbsp;·&nbsp; {htype} &nbsp;·&nbsp; {hbeds} beds</div>'
+        f'</div>'
+        f'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">'
+        f'<span style="background:#EEF2FF;color:{lvl_color};font-size:.6rem;font-weight:700;'
+        f'padding:3px 9px;border-radius:9999px;">{hlvl}</span>'
+        f'<span style="background:{occ_bg};color:{acc};font-size:.6rem;font-weight:700;'
+        f'padding:3px 9px;border-radius:9999px;">{occ_lbl}</span>'
+        f'</div></div></div>',
+        unsafe_allow_html=True,
+    )
+
+    # ── 4 plain-language fact boxes ──────────────────────────────────────────
+    k1,k2,k3,k4 = st.columns(4)
+    for col, ico, question, answer, note in [
+        (k1,"🛏️","Beds free right now",  f"{beds_free} of {hbeds}", f"{occ_v:.0%} currently in use"),
+        (k2,"❤️","Patients go home well", f"{rec_in_10} out of 10",  "of everyone admitted here"),
+        (k3,"💰","Typical visit costs",   f"Rs. {hosp_cost:,.0f}",   "average across all visits"),
+        (k4,"⏱️","You'll be seen in",     f"~{wait_min:.0f} min",     "after you arrive"),
+    ]:
+        col.markdown(
+            f'<div style="background:#fff;border:1px solid {t["border"]};border-radius:12px;'
+            f'padding:13px 14px;text-align:center;height:100%;">'
+            f'<div style="font-size:1.3rem;margin-bottom:6px;">{ico}</div>'
+            f'<div style="font-size:.65rem;color:{t["t3"]};margin-bottom:4px;">{question}</div>'
+            f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1rem;'
+            f'font-weight:800;color:{t["t1"]};margin-bottom:3px;">{answer}</div>'
+            f'<div style="font-size:.62rem;color:{t["t3"]}">{note}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+
+    # ── Extra facts row ──────────────────────────────────────────────────────
+    e1,e2,e3 = st.columns(3)
+    for col, ico, lbl, val in [
+        (e1,"👨‍⚕️","Doctors on staff",       f"{doc_count} doctors · avg {avg_exp:.0f} yrs experience"),
+        (e2,"🏥","Departments available",    f"{len(dept_map.get(hid,[]))} specialties"),
+        (e3,"🔬","Hospital type",            f"{htype} · {hlvl} level"),
+    ]:
+        col.markdown(
+            f'<div style="background:{t["p_light"]};border-radius:10px;padding:11px 13px;">'
+            f'<div style="font-size:.75rem;font-weight:700;color:{t["t1"]};margin-bottom:2px;">'
+            f'{ico} {lbl}</div>'
+            f'<div style="font-size:.72rem;color:{t["t2"]};">{val}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    # ── Department filter + chart ────────────────────────────────────────────
+    if "admission_month" in h_adm_all.columns and "admission_hour" in h_adm_all.columns:
+        st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+
+        depts    = sorted(dept_map.get(hid, []))
+        dept_sel = st.selectbox(
+            "Filter by department",
+            ["All departments"] + depts,
+            key=f"dept_{hid}",
+        )
+
+        view = (h_adm_all if dept_sel == "All departments"
+                else h_adm_all[h_adm_all["department_name"] == dept_sel])
+
+        # Department fact strip — only when a dept is chosen
+        if dept_sel != "All departments" and len(view):
+            d_cost  = float(view["total_bill_npr"].mean())
+            d_los   = float(view["length_of_stay_days"].median())
+            d_rec10 = round((view["discharge_outcome"] == "Recovered").mean() * 10)
+            f1,f2,f3 = st.columns(3)
+            for col, ico, lbl, val in [
+                (f1,"💰","Typical cost",    f"Rs. {d_cost:,.0f}"),
+                (f2,"🛏️","Typical stay",    f"{d_los:.0f} nights"),
+                (f3,"❤️","Go home well",    f"{d_rec10} out of 10"),
+            ]:
+                col.markdown(
+                    f'<div style="background:{t["p_light"]};border-radius:10px;'
+                    f'padding:10px 12px;text-align:center;margin:8px 0 4px;">'
+                    f'<div style="font-size:.65rem;color:{t["t3"]};margin-bottom:2px;">{ico} {lbl}</div>'
+                    f'<div style="font-size:.9rem;font-weight:800;color:{t["t1"]};">{val}</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+        if len(view) == 0:
+            st.info("No data for this department.")
+        else:
+            # Best time cards — recalculate from filtered view
+            hr_cnt = (view.groupby("admission_hour").size()
+                      .reindex(range(24),fill_value=0).reset_index())
+            hr_cnt.columns = ["hour","count"]
+            quietest_h = int(hr_cnt.loc[hr_cnt["count"].idxmin(),"hour"])
+            busiest_h  = int(hr_cnt.loc[hr_cnt["count"].idxmax(),"hour"])
+
+            mo2 = view.groupby("admission_month").size().reset_index(name="n")
+            mo2["mname"] = mo2["admission_month"].map(mnames)
+            mo_min = int(mo2.loc[mo2["n"].idxmin(),"admission_month"])
+            mo_max = int(mo2.loc[mo2["n"].idxmax(),"admission_month"])
+            qm_lbl = mnames.get(mo_min,"—")
+            bm_lbl = mnames.get(mo_max,"—")
+
+            ctx = dept_sel if dept_sel != "All departments" else hname
+            st.markdown(
+                f'<div style="font-size:.75rem;font-weight:700;color:{t["t1"]};margin:10px 0 6px;">'
+                f'📅 Best time to visit — {ctx}</div>',
+                unsafe_allow_html=True,
+            )
+
+            b1,b2,b3 = st.columns(3)
+            for col, ico, lbl, val, detail, bg, tc in [
+                (b1,"🕐","Best time of day",  f"{quietest_h:02d}:00",
+                 "Fewest patients arriving",  "#F0FDF4","#065F46"),
+                (b2,"🗓️","Best month",         qm_lbl,
+                 "Lowest volume of the year", "#F0FDF4","#065F46"),
+                (b3,"⚠️","Try to avoid",       f"{busiest_h:02d}:00 · {bm_lbl}",
+                 "Busiest period — longer wait", "#FEF2F2","#991B1B"),
+            ]:
+                col.markdown(
+                    f'<div style="background:{bg};border-radius:12px;padding:11px 13px;">'
+                    f'<div style="font-size:1.1rem;margin-bottom:3px;">{ico}</div>'
+                    f'<div style="font-size:.62rem;color:#6B7280;margin-bottom:2px;">{lbl}</div>'
+                    f'<div style="font-size:.85rem;font-weight:800;color:{tc};margin-bottom:1px;">{val}</div>'
+                    f'<div style="font-size:.6rem;color:#6B7280;">{detail}</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+            # Two charts side by side
+            st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+            ch_left, ch_right = st.columns(2, gap="medium")
+
+            # ── Left: smooth area line — monthly trend ───────────────────────
+            with ch_left:
+                st.markdown(
+                    f'<div style="font-size:.72rem;font-weight:700;color:{t["t1"]};margin-bottom:4px;">'
+                    f'📅 Busiest months</div>',
+                    unsafe_allow_html=True,
+                )
+                fig_area = go.Figure()
+                fig_area.add_trace(go.Scatter(
+                    x=mo2["mname"], y=mo2["n"],
+                    mode="lines", fill="tozeroy",
+                    fillcolor="rgba(99,102,241,.10)",
+                    line=dict(color="rgba(0,0,0,0)", width=0),
+                    showlegend=False, hoverinfo="skip",
+                ))
+                fig_area.add_trace(go.Scatter(
+                    x=mo2["mname"], y=mo2["n"],
+                    mode="lines+markers",
+                    line=dict(color=t["primary"], width=2.5, shape="spline", smoothing=0.8),
+                    marker=dict(
+                        color=[acc if v==mo2["n"].max()
+                               else ("#10B981" if v==mo2["n"].min() else t["primary"])
+                               for v in mo2["n"]],
+                        size=[13 if v in (mo2["n"].max(), mo2["n"].min()) else 7
+                              for v in mo2["n"]],
+                        line=dict(color="#fff", width=2),
+                    ),
+                    hovertemplate="<b>%{x}</b><br>%{y:,} patient visits<extra></extra>",
+                    showlegend=False,
+                ))
+                lay_a = chart_layout(t, 210)
+                lay_a["margin"] = dict(l=30, r=10, t=4, b=28)
+                lay_a["yaxis"]["tickformat"] = ","
+                lay_a["yaxis"]["showgrid"] = True
+                fig_area.update_layout(**lay_a)
+                pchart(fig_area, key=f"area_{hid}_{dept_sel}")
+                qm = mo2.loc[mo2["n"].idxmin(), "mname"]
+                bm = mo2.loc[mo2["n"].idxmax(), "mname"]
+                st.markdown(
+                    f'<div style="font-size:.68rem;color:{t["t3"]};margin-top:2px;">'
+                    f'<span style="color:#10B981;font-weight:700;">● {qm}</span> quietest &nbsp;'
+                    f'<span style="color:{acc};font-weight:700;">● {bm}</span> busiest</div>',
+                    unsafe_allow_html=True,
+                )
+
+            # ── Right: horizontal lollipop — day of week ─────────────────────
+            with ch_right:
+                st.markdown(
+                    f'<div style="font-size:.72rem;font-weight:700;color:{t["t1"]};margin-bottom:4px;">'
+                    f'📆 Busiest days of the week</div>',
+                    unsafe_allow_html=True,
+                )
+                day_order = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+                day_short = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+                dow_cnt   = (view["admission_date"].dt.dayofweek
+                             .map(dict(enumerate(day_short)))
+                             .value_counts()
+                             .reindex(day_short, fill_value=0)
+                             .reset_index())
+                dow_cnt.columns = ["day","n"]
+                dow_sorted = dow_cnt.sort_values("n", ascending=True).reset_index(drop=True)
+
+                dot_colors = [
+                    "#10B981" if v == dow_sorted["n"].min()
+                    else (acc   if v == dow_sorted["n"].max() else t["primary"])
+                    for v in dow_sorted["n"]
+                ]
+
+                fig_lol = go.Figure()
+                for i, row in dow_sorted.iterrows():
+                    fig_lol.add_shape(
+                        type="line", layer="below",
+                        x0=0, x1=float(row["n"]), y0=i, y1=i,
+                        line=dict(color=dot_colors[i], width=1.5, dash="dot"),
+                    )
+                fig_lol.add_trace(go.Scatter(
+                    x=dow_sorted["n"], y=list(range(len(dow_sorted))),
+                    mode="markers+text",
+                    marker=dict(color=dot_colors, size=14,
+                                line=dict(color="#fff", width=2)),
+                    text=[f" {v:,}" for v in dow_sorted["n"]],
+                    textposition="middle right",
+                    textfont=dict(size=9, color=t["t2"]),
+                    hovertemplate="<b>%{customdata}</b><br>%{x:,} patient visits<extra></extra>",
+                    customdata=dow_sorted["day"],
+                    showlegend=False,
+                ))
+                lay_l = chart_layout(t, 210)
+                lay_l["yaxis"] = dict(
+                    tickmode="array", tickvals=list(range(len(dow_sorted))),
+                    ticktext=list(dow_sorted["day"]),
+                    showgrid=False, zeroline=False,
+                    linecolor="rgba(0,0,0,0)",
+                    tickfont=dict(size=10, color=t["t3"]),
+                )
+                lay_l["xaxis"] = dict(showgrid=True, gridcolor="rgba(0,0,0,.04)",
+                                      zeroline=False, linecolor="rgba(0,0,0,0)",
+                                      tickfont=dict(size=8, color=t["t3"]),
+                                      tickformat=",")
+                lay_l["margin"] = dict(l=60, r=50, t=4, b=10)
+                fig_lol.update_layout(**lay_l)
+                pchart(fig_lol, key=f"lol_{hid}_{dept_sel}")
+                qd = dow_sorted.loc[dow_sorted["n"].idxmin(), "day"]
+                bd = dow_sorted.loc[dow_sorted["n"].idxmax(), "day"]
+                st.markdown(
+                    f'<div style="font-size:.68rem;color:{t["t3"]};margin-top:2px;">'
+                    f'<span style="color:#10B981;font-weight:700;">● {qd}</span> quietest &nbsp;'
+                    f'<span style="color:{acc};font-weight:700;">● {bd}</span> busiest</div>',
+                    unsafe_allow_html=True,
+                )
+
+
+def build_patient_notifications(profile: dict, occ_h: pd.DataFrame,
+                                adm: pd.DataFrame,
+                                username: str = "") -> list:
+    """Return list of notification dicts for the patient bell.
+    Each dict: {severity, icon, title, body}
+    severity: 'urgent' | 'warning' | 'info' | 'success'
+    """
+    notes = []
+    now_month = pd.Timestamp.now().month
+
+    # 0. Unread admin chat messages — always shown first
+    if username:
+        unread_msgs = count_unread_for_patient(username)
+        if unread_msgs:
+            notes.append({
+                "severity": "urgent",
+                "icon":     "💬",
+                "title":    f"You have {unread_msgs} unread message{'s' if unread_msgs > 1 else ''} from admin",
+                "body":     "Open the 💬 Chat tab to read and reply.",
+            })
+
+    # 1. Preferred hospital occupancy
+    pref_hosp = profile.get("pref_hospital", "Any hospital") or "Any hospital"
+    pref_id   = next((k for k, v in config.HOSPITAL_NAMES.items() if v == pref_hosp), None)
+    if pref_id and "hospital_id" in occ_h.columns:
+        occ_val  = float(occ_h[occ_h["hospital_id"] == pref_id]["occupancy_rate"].mean()
+                         if pref_id in occ_h["hospital_id"].values else 0.75)
+        hbeds    = config.HOSPITAL_BEDS.get(pref_id, 0)
+        beds_free = max(0, hbeds - int(occ_val * hbeds))
+        if occ_val > 0.85:
+            notes.append({"severity": "urgent", "icon": "🔴",
+                          "title": f"{pref_hosp} is very busy right now",
+                          "body": f"Only {beds_free} beds free ({occ_val:.0%} occupied). "
+                                  "Consider visiting another hospital or waiting a few days."})
+        elif occ_val > 0.75:
+            notes.append({"severity": "warning", "icon": "🟡",
+                          "title": f"{pref_hosp} is moderately busy",
+                          "body": f"{beds_free} beds available ({occ_val:.0%} occupied). "
+                                  "It's worth calling ahead before you arrive."})
+        else:
+            notes.append({"severity": "success", "icon": "🟢",
+                          "title": f"{pref_hosp} has good availability",
+                          "body": f"{beds_free} of {hbeds} beds are currently free — a good time to visit."})
+
+    # 2. Surge alert for any hospital at critical level (skip preferred, already shown)
+    if "hospital_id" in occ_h.columns:
+        for hid, hname in config.HOSPITAL_NAMES.items():
+            if hid == pref_id:
+                continue
+            occ_val = float(occ_h[occ_h["hospital_id"] == hid]["occupancy_rate"].mean()
+                            if hid in occ_h["hospital_id"].values else 0.75)
+            if occ_val > 0.88:
+                notes.append({"severity": "warning", "icon": "⚠️",
+                              "title": f"{hname} is near capacity",
+                              "body": f"This hospital is {occ_val:.0%} full. "
+                                      "Choose a different hospital if you have flexibility."})
+
+    # 3. Monthly tip — busier-than-average month?
+    month_avg = adm.groupby("admission_month")["length_of_stay_days"].mean()
+    overall_avg = adm["length_of_stay_days"].mean()
+    if now_month in month_avg.index:
+        month_los = month_avg[now_month]
+        month_names = {1:"January",2:"February",3:"March",4:"April",5:"May",6:"June",
+                       7:"July",8:"August",9:"September",10:"October",11:"November",12:"December"}
+        mname = month_names.get(now_month, "This month")
+        if month_los > overall_avg * 1.08:
+            notes.append({"severity": "info", "icon": "📅",
+                          "title": f"{mname} is a busy month",
+                          "body": "Hospitals tend to have longer stays and more patients this month. "
+                                  "Non-urgent visits are better scheduled next month."})
+        else:
+            notes.append({"severity": "success", "icon": "📅",
+                          "title": f"{mname} is a quiet month to visit",
+                          "body": "Patient numbers are lower than average — expect shorter queues "
+                                  "and more staff attention."})
+
+    # 4. Profile completeness
+    missing = [f.replace("_", " ") for f in ["full_name", "dob", "gender", "phone"]
+               if not (profile.get(f) or "").strip()]
+    if missing:
+        notes.append({"severity": "info", "icon": "👤",
+                      "title": "Your profile is incomplete",
+                      "body": f"Add your {', '.join(missing)} to get more accurate estimates "
+                              "and save time at registration."})
+
+    # 5. Emergency contact missing
+    if not (profile.get("ec_name") or "").strip():
+        notes.append({"severity": "info", "icon": "📞",
+                      "title": "No emergency contact saved",
+                      "body": "Hospitals always ask for an emergency contact. "
+                              "Add one in My Profile so you're prepared."})
+
+    return notes
+
+
+def _notif_card_html(n: dict) -> str:
+    """Render one notification as an HTML card string."""
+    colors = {
+        "urgent":  ("#FEE2E2", "#EF4444", "#991B1B"),
+        "warning": ("#FEF3C7", "#F59E0B", "#92400E"),
+        "success": ("#D1FAE5", "#10B981", "#065F46"),
+        "info":    ("#EEF2FF", "#6366F1", "#3730A3"),
+    }
+    bg, border, text = colors.get(n["severity"], colors["info"])
+    return (
+        f'<div style="background:{bg};border:1px solid {border};border-radius:12px;'
+        f'padding:11px 14px;margin-bottom:8px;">'
+        f'<div style="display:flex;align-items:flex-start;gap:9px;">'
+        f'<span style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">{n["icon"]}</span>'
+        f'<div>'
+        f'<div style="font-weight:700;font-size:.82rem;color:{text};margin-bottom:3px;">{n["title"]}</div>'
+        f'<div style="font-size:.76rem;color:{text};opacity:.85;line-height:1.45;">{n["body"]}</div>'
+        f'</div></div></div>'
+    )
+
+
+def _chat_bubble_html(body: str, is_mine: bool, sent_at=None) -> str:
+    align  = "flex-end"              if is_mine else "flex-start"
+    bg     = "#4F46E5"               if is_mine else "#F3F4F6"
+    color  = "#fff"                  if is_mine else "#111827"
+    radius = "18px 18px 4px 18px"   if is_mine else "18px 18px 18px 4px"
+    ta     = "right"                 if is_mine else "left"
+    ts     = sent_at.strftime("%H:%M") if sent_at and hasattr(sent_at, "strftime") else ""
+    safe_body = str(body).replace("<", "&lt;").replace(">", "&gt;")
+    return (
+        f'<div style="display:flex;justify-content:{align};margin-bottom:10px;">'
+        f'<div style="max-width:74%;background:{bg};color:{color};border-radius:{radius};'
+        f'padding:10px 14px;font-size:.88rem;line-height:1.55;word-break:break-word;">'
+        f'<div>{safe_body}</div>'
+        f'<div style="font-size:.65rem;opacity:.55;margin-top:5px;text-align:{ta};">{ts}</div>'
+        f'</div></div>'
+    )
+
+
+def patient_dashboard():
+    t = PATIENT_THEME
+    inject_global_css(t)
+    render_sidebar(t)
+
+    adm      = load_admissions()
+    occ      = load_occupancy()
+    occ_h    = load_occupancy_with_hospital()
+    hosp_df  = hospital_stats()
+    dept_map = departments_by_hospital()
+
+    avg_los    = adm["length_of_stay_days"].mean()
+    avg_cost   = adm["total_bill_npr"].mean()
+    low_season = occ.groupby("season")["occupancy_rate"].mean().idxmin()
+    low_occ    = occ.groupby("season")["occupancy_rate"].mean().min()
+
+    # ── Load profile ──
+    uname   = st.session_state.username
+    profile = get_profile(uname)
+    p_full  = profile.get("full_name") or uname
+
+    profile_age     = _age_from_dob(profile.get("dob",""))
+    profile_chronic = bool((profile.get("chronic_conditions") or "").strip())
+
+    # ── Notifications (computed first so bell can show count) ────────────────
+    notifs  = build_patient_notifications(profile, occ_h, adm, username=uname)
+    n_total = len(notifs)
+
+    # ── Session bar: [status] [🔔 bell] [Sign Out] ───────────────────────────
+    render_session_bar(notifs=notifs, n_total=n_total)
+
+    # ── Welcome banner (full-width, no bell column) ──────────────────────────
+    rec_rate      = float((adm["discharge_outcome"] == "Recovered").mean())
+    n_hospitals   = len(config.HOSPITAL_NAMES)
+    pid_banner    = get_patient_id(uname)
+    joined_banner = get_user_created_at(uname)
+
+    st.markdown(welcome_banner(
+        f"Welcome back, {p_full.split()[0]}",
+        "Plan your hospital visit without needing any medical knowledge — Bagmati Region, Nepal",
+        t,
+        patient_id = pid_banner,
+        joined     = joined_banner,
+    ), unsafe_allow_html=True)
+
+    _unread_chat = count_unread_for_patient(uname)
+    _chat_label  = f"💬  Chat {'🔴' if _unread_chat else ''}"
+
+    # ── Toast notification for new admin reply ────────────────────────────────
+    if "_pat_unread_seen" not in st.session_state:
+        st.session_state._pat_unread_seen = _unread_chat
+    elif _unread_chat > st.session_state._pat_unread_seen:
+        st.toast("💬 New message from admin!", icon="🔔")
+        st.session_state._pat_unread_seen = _unread_chat
+
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+        "💰  My Estimate",
+        "📊  What to Expect",
+        "📅  Best Time to Visit",
+        "👴  Age & Cost Guide",
+        "🏥  Compare Hospitals",
+        "👤  My Profile",
+        _chat_label,
+    ])
+
+    # ════ TAB 1: PLANNER ════════════════════════════════════════════════════
+    with tab1:
+        if not models_ready():
+            st.warning("⚠️ Models not trained. Run `python src/train_models.py` first.")
+            return
+
+        # Explainer
+        st.markdown(f"""
+        <div style="background:{t['p_light']};border:1px solid {t['border']};border-radius:14px;
+          padding:16px 20px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;">
+          <span style="font-size:1.5rem;">🎯</span>
+          <div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+              font-size:.92rem;color:{t['t1']};margin-bottom:3px;">
+              Find out how long you might stay and what it could cost
+            </div>
+            <div style="font-size:.82rem;color:{t['t2']};line-height:1.6;">
+              Fill in a few details below and we'll give you a personalised estimate based on
+              <strong>120,000+ real hospital visits</strong> in the Bagmati region. No medical knowledge needed.
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        col_form, col_result = st.columns([1, 1.1], gap="large")
+
+        with col_form:
+            # Profile-fill status banner
+            filled_fields = []
+            if profile_age:     filled_fields.append("age")
+            if profile_chronic: filled_fields.append("chronic condition")
+            if filled_fields:
+                st.markdown(f"""
+                <div style="background:#EEF2FF;border:1px solid rgba(70,72,212,.18);border-radius:10px;
+                  padding:10px 14px;font-size:.79rem;color:#3730a3;margin-bottom:14px;
+                  display:flex;align-items:center;gap:9px;">
+                  <span style="font-size:1.1rem;">&#10024;</span>
+                  <span><strong>Pre-filled from your profile:</strong>
+                  {', '.join(filled_fields)}.
+                  You can still adjust any value below.</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+            def _field_label(txt, help_txt=""):
+                st.markdown(
+                    f'<div style="font-size:.8rem;font-weight:600;color:{t["t2"]};'
+                    f'margin-bottom:5px;margin-top:10px;">{txt}</div>',
+                    unsafe_allow_html=True,
+                )
+
+            # ── Age ──────────────────────────────────────────────────────────
+            age_default = profile_age if profile_age else 35
+            age = st.slider("Your Age", 1, 95, age_default,
+                            help="Drag to set your age. We use this to give a more accurate estimate.")
+            if profile_age:
+                st.markdown(
+                    f'<div style="font-size:.72rem;color:#3730a3;margin-top:-10px;margin-bottom:4px;">'
+                    f'✨ Auto-filled from your date of birth — adjust if needed</div>',
+                    unsafe_allow_html=True,
+                )
+
+            # ── Gender ───────────────────────────────────────────────────────
+            _field_label("Your gender")
+            gender = st.radio(
+                "Your gender", ["Male", "Female", "Prefer not to say"],
+                horizontal=True, label_visibility="collapsed",
+                key="est_gender",
+            )
+
+            # ── Severity ─────────────────────────────────────────────────────
+            _field_label("How serious is your condition?")
+            severity = st.selectbox(
+                "severity", config.SEVERITY_OPTIONS,
+                label_visibility="collapsed",
+                help="Mild = can walk around · Moderate = needs regular care · Severe / Critical = intensive care",
+            )
+
+            # ── Admission type ───────────────────────────────────────────────
+            _field_label("How are you coming in?")
+            admission_type = st.selectbox(
+                "admission_type", config.ADMISSION_TYPE_OPTIONS,
+                label_visibility="collapsed",
+                help="Emergency = urgent · Elective = planned · Referral = sent by another doctor",
+            )
+
+            # ── Department ───────────────────────────────────────────────────
+            _field_label("Which part of the hospital?")
+            department = st.selectbox(
+                "department", config.DEPARTMENT_OPTIONS,
+                label_visibility="collapsed",
+                help="Not sure? Pick the one closest to your health issue",
+            )
+
+            # ── Who is this for ──────────────────────────────────────────────
+            _field_label("Who is this visit for?")
+            visit_for = st.radio(
+                "Who is this visit for?",
+                ["Myself", "A family member", "A child"],
+                horizontal=True, label_visibility="collapsed",
+                key="est_visit_for",
+            )
+
+            # ── Chronic condition ────────────────────────────────────────────
+            st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+            has_chronic = st.toggle(
+                "I have a long-term health condition",
+                value=profile_chronic,
+                help="e.g. diabetes, high blood pressure, asthma, heart disease",
+            )
+            if profile_chronic:
+                st.markdown(
+                    f'<div style="font-size:.72rem;color:#4F46E5;margin-top:-8px;margin-bottom:4px;">'
+                    f'✨ Filled from your health profile — '
+                    f'<em>{(profile.get("chronic_conditions") or "")[:40]}'
+                    f'{"…" if len(profile.get("chronic_conditions",""))>40 else ""}</em></div>',
+                    unsafe_allow_html=True,
+                )
+            num_chronic = 0
+            if has_chronic:
+                num_chronic = st.number_input(
+                    "How many chronic conditions?",
+                    min_value=1, max_value=10, value=1, step=1,
+                    help="Count each separate condition — e.g. diabetes + hypertension = 2",
+                )
+
+            # ── Insurance ────────────────────────────────────────────────────
+            has_insurance = st.toggle(
+                "I have health insurance",
+                value=False,
+                help="Having insurance may reduce your out-of-pocket cost. We'll show what to check.",
+            )
+
+            # ── Travelling far? ──────────────────────────────────────────────
+            _field_label("How far are you travelling?")
+            travel_dist = st.radio(
+                "travel_dist",
+                ["Within the city", "More than 1 hour away"],
+                horizontal=True, label_visibility="collapsed",
+                key="est_travel",
+            )
+
+            # ── Hospital ─────────────────────────────────────────────────────
+            _field_label("Which hospital are you visiting?")
+            hosp_display = {v: k for k, v in config.HOSPITAL_NAMES.items()}
+            hosp_options = list(config.HOSPITAL_NAMES.values())
+            pref_hosp_name = config.HOSPITAL_NAMES.get(
+                profile.get("pref_hospital", ""), hosp_options[0]
+            ) if profile.get("pref_hospital","") in config.HOSPITAL_NAMES else hosp_options[0]
+            selected_hosp_name = st.selectbox(
+                "hospital", hosp_options,
+                index=hosp_options.index(pref_hosp_name),
+                label_visibility="collapsed",
+                help="Choose the hospital you plan to visit",
+            )
+            selected_hosp_id = hosp_display[selected_hosp_name]
+
+            st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+            go_btn = st.button("Get My Estimate  →", type="primary", use_container_width=True)
+
+        with col_result:
+            # Compute + cache in session_state so results survive the dialog rerun
+            if go_btn:
+                los_low, los_high   = predict_los(age, severity, admission_type, has_chronic, department)
+                cost_low, cost_high = predict_cost(age, severity, admission_type, has_chronic, department)
+                _occ_now = float(
+                    occ_h[occ_h["hospital_id"] == selected_hosp_id]["occupancy_rate"].mean()
+                    if "hospital_id" in occ_h.columns and selected_hosp_id in occ_h["hospital_id"].values
+                    else 0.75
+                )
+                st.session_state["_est"] = dict(
+                    username=uname, age=age, gender=gender, severity=severity,
+                    admission_type=admission_type, department=department,
+                    hospital_id=selected_hosp_id, has_chronic=has_chronic,
+                    has_insurance=has_insurance, visit_for=visit_for,
+                    travel_dist=travel_dist, los_low=los_low, los_high=los_high,
+                    cost_low=cost_low, cost_high=cost_high,
+                    selected_hosp_name=selected_hosp_name,
+                    district=profile.get("district", ""),
+                    num_chronic=int(num_chronic),
+                    hosp_occupancy_at_time=_occ_now,
+                )
+                st.session_state["_est_consent_done"] = False
+                st.session_state["_est_saved"] = None
+
+            if "_est" in st.session_state:
+                _e = st.session_state["_est"]
+                los_low   = _e["los_low"];   los_high  = _e["los_high"]
+                cost_low  = _e["cost_low"];  cost_high = _e["cost_high"]
+                los_mid   = (los_low + los_high) / 2
+                selected_hosp_id   = _e["hospital_id"]
+                selected_hosp_name = _e["selected_hosp_name"]
+                severity    = _e["severity"]
+                department  = _e["department"]
+                has_chronic = _e["has_chronic"]
+                visit_for   = _e["visit_for"]
+                has_insurance = _e["has_insurance"]
+                travel_dist = _e["travel_dist"]
+                gender      = _e["gender"]
+                district    = _e.get("district", "")
+                num_chronic = _e.get("num_chronic", 0)
+                hosp_occ_saved = _e.get("hosp_occupancy_at_time")
+
+                st.markdown(result_hero(los_low, los_high, cost_low, cost_high,
+                                        severity, department, t), unsafe_allow_html=True)
+
+                # ── Department availability check ─────────────────────────
+                hosp_depts   = dept_map.get(selected_hosp_id, [])
+                dept_ok      = department in hosp_depts
+                if not dept_ok:
+                    alts = [config.HOSPITAL_NAMES.get(h, h)
+                            for h in hospitals_with_department(department)
+                            if h != selected_hosp_id]
+                    alt_txt = (", ".join(alts[:3]) + " also offer it") if alts else "no listed alternative found"
+                    st.warning(
+                        f"⚠️ **{selected_hosp_name}** may not have a **{department}** department. "
+                        f"{alt_txt}."
+                    )
+
+                # ── Recovery rate for this severity ────────────────────────
+                rec_rate_sev = float(
+                    (adm[adm["severity"] == severity]["discharge_outcome"] == "Recovered").mean()
+                )
+
+                # ── Best hour to arrive ────────────────────────────────────
+                hourly = (adm[adm["hospital_id"] == selected_hosp_id]
+                          .groupby("admission_hour")["length_of_stay_days"].count()
+                          if selected_hosp_id in adm["hospital_id"].values
+                          else adm.groupby("admission_hour")["length_of_stay_days"].count())
+                quiet_hour = int(hourly.idxmin()) if len(hourly) else 9
+                quiet_label = (f"{quiet_hour}:00–{quiet_hour+1}:00"
+                               if quiet_hour < 23 else "23:00–00:00")
+
+                # ── Hospital status card ──────────────────────────────────
+                hosp_occ_val = float(
+                    occ_h[occ_h["hospital_id"] == selected_hosp_id]["occupancy_rate"].mean()
+                    if "hospital_id" in occ_h.columns and selected_hosp_id in occ_h["hospital_id"].values
+                    else 0.75
+                )
+                hosp_avg_cost = float(
+                    adm[adm["hospital_id"] == selected_hosp_id]["total_bill_npr"].mean()
+                    if selected_hosp_id in adm["hospital_id"].values else (cost_low + cost_high) / 2
+                )
+                if hosp_occ_val > 0.85:
+                    occ_color = "#EF4444"; occ_bg = "#FEE2E2"
+                    occ_label = "Very busy right now"; occ_icon = "🔴"
+                    occ_advice = "Expect longer waits. If your visit isn't urgent, consider another hospital or time."
+                elif hosp_occ_val > 0.75:
+                    occ_color = "#F59E0B"; occ_bg = "#FEF3C7"
+                    occ_label = "Moderately busy"; occ_icon = "🟡"
+                    occ_advice = "Reasonably busy. Book ahead if you can — don't just walk in."
+                else:
+                    occ_color = "#10B981"; occ_bg = "#D1FAE5"
+                    occ_label = "Good availability"; occ_icon = "🟢"
+                    occ_advice = "Good time to visit. Beds are available and waits are usually shorter."
+
+                location    = config.HOSPITAL_LOCATIONS.get(selected_hosp_id, "Bagmati Region")
+                hosp_level  = config.HOSPITAL_LEVELS.get(selected_hosp_id, "")
+                hosp_type   = config.HOSPITAL_TYPES.get(selected_hosp_id, "")
+                total_beds  = config.HOSPITAL_BEDS.get(selected_hosp_id, 0)
+                beds_used   = int(hosp_occ_val * total_beds) if total_beds else 0
+                beds_free   = max(0, total_beds - beds_used)
+                level_badge = (
+                    f'<span style="background:#EEF2FF;color:#4F46E5;font-size:.62rem;font-weight:700;'
+                    f'padding:2px 8px;border-radius:9999px;margin-left:6px;">{hosp_level}</span>'
+                    if hosp_level else ""
+                )
+                st.markdown(
+                    f'<div style="background:#fff;border:1px solid {t["border"]};border-radius:14px;'
+                    f'padding:16px 18px;margin-bottom:10px;">'
+                    f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+                    f'<div style="width:38px;height:38px;border-radius:10px;background:{t["p_light"]};'
+                    f'display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">🏥</div>'
+                    f'<div style="flex:1;min-width:0;">'
+                    f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:.88rem;'
+                    f'font-weight:700;color:{t["t1"]};">{selected_hosp_name}{level_badge}</div>'
+                    f'<div style="font-size:.72rem;color:{t["t3"]};">📍 {location} &nbsp;·&nbsp; {hosp_type} &nbsp;·&nbsp; {total_beds} beds total</div>'
+                    f'</div>'
+                    f'<div style="background:{occ_bg};border-radius:9999px;flex-shrink:0;'
+                    f'padding:4px 12px;font-size:.72rem;font-weight:700;color:{occ_color};">'
+                    f'{occ_icon} {occ_label}</div>'
+                    f'</div>'
+                    f'<div style="display:flex;gap:10px;margin-bottom:12px;">'
+                    f'<div style="flex:1;background:{t["p_light"]};border-radius:10px;padding:12px;text-align:center;">'
+                    f'<div style="font-size:.68rem;color:{t["t3"]};margin-bottom:4px;">Beds available now</div>'
+                    f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.4rem;'
+                    f'font-weight:800;color:{occ_color};">{beds_free}</div>'
+                    f'<div style="font-size:.65rem;color:{t["t3"]};">out of {total_beds} total</div>'
+                    f'</div>'
+                    f'<div style="flex:1;background:#FFFBEB;border-radius:10px;padding:12px;text-align:center;">'
+                    f'<div style="font-size:.68rem;color:{t["t3"]};margin-bottom:4px;">How busy it is</div>'
+                    f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.4rem;'
+                    f'font-weight:800;color:#92400E;">{hosp_occ_val:.0%}</div>'
+                    f'<div style="font-size:.65rem;color:{t["t3"]};">of beds occupied</div>'
+                    f'</div>'
+                    f'<div style="flex:1;background:#F0FDF4;border-radius:10px;padding:12px;text-align:center;">'
+                    f'<div style="font-size:.68rem;color:{t["t3"]};margin-bottom:4px;">Avg cost here</div>'
+                    f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.1rem;'
+                    f'font-weight:800;color:#065F46;">Rs. {hosp_avg_cost:,.0f}</div>'
+                    f'<div style="font-size:.65rem;color:{t["t3"]};">per admission</div>'
+                    f'</div>'
+                    f'</div>'
+                    f'<div style="font-size:.78rem;color:{t["t2"]};background:{occ_bg};'
+                    f'border-radius:8px;padding:10px 12px;">'
+                    f'{occ_advice}'
+                    f'</div>'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+
+                # ── Plain-language next-steps card ────────────────────────
+                nights_low  = max(0, int(los_low))
+                nights_high = max(0, int(los_high))
+                if nights_high <= 3:
+                    stay_tip = "This looks like a short stay. You may be able to arrange transport home within a few days."
+                elif nights_high <= 10:
+                    stay_tip = "Plan for about a week. Let your family or employer know you may be away for several days."
+                else:
+                    stay_tip = "This is a longer stay. Consider arranging someone to help at home after you're discharged."
+
+                st.markdown(
+                    f'<div style="background:#fff;border:1px solid {t["border"]};border-radius:14px;'
+                    f'padding:16px 18px;margin-bottom:10px;">'
+                    f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:.82rem;'
+                    f'font-weight:700;color:{t["t1"]};margin-bottom:10px;">What this means for you</div>'
+                    f'<div style="display:flex;flex-direction:column;gap:8px;">'
+                    f'<div style="display:flex;align-items:flex-start;gap:10px;font-size:.8rem;color:{t["t2"]};">'
+                    f'<span style="font-size:1rem;flex-shrink:0;">🛏️</span>'
+                    f'<span>{stay_tip}</span></div>'
+                    f'<div style="display:flex;align-items:flex-start;gap:10px;font-size:.8rem;color:{t["t2"]};">'
+                    f'<span style="font-size:1rem;flex-shrink:0;">💰</span>'
+                    f'<span>Budget between <strong>Rs. {cost_low:,.0f}</strong> and '
+                    f'<strong>Rs. {cost_high:,.0f}</strong>. Ask the hospital about payment plans if needed.</span></div>'
+                    f'<div style="display:flex;align-items:flex-start;gap:10px;font-size:.8rem;color:{t["t2"]};">'
+                    f'<span style="font-size:1rem;flex-shrink:0;">📋</span>'
+                    f'<span>These are estimates only — your doctor will give you the exact plan. '
+                    f'Bring this to your appointment as a starting point.</span></div>'
+                    f'<div style="display:flex;align-items:flex-start;gap:10px;font-size:.8rem;color:{t["t2"]};">'
+                    f'<span style="font-size:1rem;flex-shrink:0;">✅</span>'
+                    f'<span>For patients with <strong>{severity}</strong> conditions, about '
+                    f'<strong>{rec_rate_sev:.0%}</strong> go home fully recovered — a good sign.</span></div>'
+                    f'<div style="display:flex;align-items:flex-start;gap:10px;font-size:.8rem;color:{t["t2"]};">'
+                    f'<span style="font-size:1rem;flex-shrink:0;">🕐</span>'
+                    f'<span>The quietest time to arrive at this hospital is around '
+                    f'<strong>{quiet_label}</strong> — shorter queues, faster attention.</span></div>'
+                    f'</div></div>',
+                    unsafe_allow_html=True
+                )
+
+                # ── Personalised extra tips ───────────────────────────────
+                extra_tips = []
+
+                if gender == "Female":
+                    extra_tips.append(("👩","For female patients",
+                        "Make sure to ask the hospital about their maternity or women's health services when you call ahead. "
+                        "Some departments have separate waiting areas for women."))
+                elif gender == "Male":
+                    extra_tips.append(("👨","For male patients",
+                        "Men often delay seeking care — arriving at the right time matters more than you think. "
+                        "If your symptoms have been going on for more than 2 days, do not wait longer."))
+
+                if visit_for == "A child":
+                    extra_tips.append(("👶","Bringing a child",
+                        "A parent or legal guardian must be present at all times. Ask the hospital about their "
+                        "<strong>Pediatrics ward</strong> when booking — children are seen separately from adults. "
+                        "Bring the child's vaccination card and any previous medical notes."))
+                elif visit_for == "A family member":
+                    extra_tips.append(("👨‍👩‍👦","Planning for someone else",
+                        "Bring their national ID or citizenship card, any existing prescriptions, "
+                        "and a list of medications they currently take. You may be asked to sign consent forms on their behalf."))
+
+                if has_insurance:
+                    extra_tips.append(("🛡️","You have health insurance",
+                        "Your insurer may cover part or all of your hospital costs. Before you go: "
+                        "call your insurer to confirm the hospital is <strong>in-network</strong>, ask about your deductible, "
+                        "and request a <em>prior authorisation</em> if your visit is planned. Keep all receipts."))
+                else:
+                    extra_tips.append(("💳","No insurance",
+                        "Ask the hospital's billing desk about a <strong>payment plan</strong> — many hospitals in the "
+                        "Bagmati region offer instalment options. Government hospitals (like district hospitals) "
+                        "usually have lower fees than private ones."))
+
+                if travel_dist == "More than 1 hour away":
+                    extra_tips.append(("🚌","Travelling far",
+                        "Since you are coming from a distance, call the hospital the day before to confirm "
+                        "your appointment and check bed availability. Consider arranging a place for family "
+                        "to stay nearby during your admission."))
+
+                if extra_tips:
+                    st.markdown(
+                        f'<div style="background:#fff;border:1px solid {t["border"]};border-radius:14px;'
+                        f'padding:16px 18px;margin-bottom:10px;">'
+                        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:.82rem;'
+                        f'font-weight:700;color:{t["t1"]};margin-bottom:10px;">Just for you</div>'
+                        f'<div style="display:flex;flex-direction:column;gap:10px;">',
+                        unsafe_allow_html=True,
+                    )
+                    for ico, heading, body in extra_tips:
+                        st.markdown(
+                            f'<div style="display:flex;align-items:flex-start;gap:10px;">'
+                            f'<div style="width:32px;height:32px;border-radius:8px;background:{t["p_light"]};'
+                            f'display:flex;align-items:center;justify-content:center;'
+                            f'font-size:1rem;flex-shrink:0;">{ico}</div>'
+                            f'<div>'
+                            f'<div style="font-size:.78rem;font-weight:700;color:{t["t1"]};margin-bottom:2px;">{heading}</div>'
+                            f'<div style="font-size:.76rem;color:{t["t2"]};line-height:1.55;">{body}</div>'
+                            f'</div></div>',
+                            unsafe_allow_html=True,
+                        )
+                    st.markdown('</div></div>', unsafe_allow_html=True)
+
+                st.markdown(trust_note(t), unsafe_allow_html=True)
+
+                # ── Consent & save confirmation ───────────────────────────────
+                if not st.session_state.get("_est_consent_done"):
+                    _consent_popup(st.session_state["_est"], t)
+                elif st.session_state.get("_est_saved") is True:
+                    st.markdown(
+                        f'<div style="background:#F0FDF4;border:1px solid rgba(16,185,129,.2);'
+                        f'border-left:4px solid #10B981;border-radius:10px;'
+                        f'padding:10px 14px;font-size:.78rem;color:#065F46;margin-top:8px;">'
+                        f'✅ <strong>Saved.</strong> Thank you — your estimate was saved anonymously '
+                        f'to help improve the system for everyone.</div>',
+                        unsafe_allow_html=True,
+                    )
+                elif st.session_state.get("_est_saved") is False:
+                    st.markdown(
+                        f'<div style="background:{t["p_light"]};border-radius:10px;'
+                        f'padding:9px 13px;font-size:.76rem;color:{t["t3"]};margin-top:8px;">'
+                        f'Not saved — no problem. Your estimate is still shown above.</div>',
+                        unsafe_allow_html=True,
+                    )
+
+            else:
+                st.markdown(f"""
+                <div style="background:{t['p_light']};border:2px dashed {t['border']};
+                  border-radius:20px;padding:52px 24px;text-align:center;">
+                  <div style="font-size:3rem;margin-bottom:16px;">🏥</div>
+                  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;
+                    font-size:1.05rem;color:{t['t1']};margin-bottom:8px;">
+                    Your personal estimate will appear here
+                  </div>
+                  <div style="font-size:.85rem;color:{t['t2']};line-height:1.6;max-width:300px;margin:0 auto;">
+                    Fill in your details on the left, then tap
+                    <strong style="color:{t['primary']};">Get My Estimate</strong>.
+                    It only takes 30 seconds.
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+    # ════ TAB 2: WHAT TO EXPECT ════════════════════════════════════════════
+    with tab2:
+        row1_a, row1_b = st.columns(2, gap="medium")
+
+        with row1_a:
+            st.markdown(f"""<div class="section-card">
+              {section_hdr(t['p_light'],'🛏️','How long do patients usually stay?',
+                           'Typical nights in hospital — half of patients leave sooner than this',t)}
+            """, unsafe_allow_html=True)
+            sev_los = (adm.groupby("severity")["length_of_stay_days"]
+                       .median().reset_index()
+                       .rename(columns={"length_of_stay_days": "typical_los"}))
+            order = ["Mild","Moderate","Severe","Critical"]
+            sev_los["severity"] = pd.Categorical(sev_los["severity"], categories=order, ordered=True)
+            sev_los = sev_los.sort_values("severity")
+            sev_colors = ["#10B981","#F59E0B","#F97316","#EF4444"]
+            fig = go.Figure(go.Bar(
+                x=sev_los["severity"], y=sev_los["typical_los"],
+                marker=dict(color=sev_colors, cornerradius=10,
+                            line=dict(color="rgba(0,0,0,0)", width=0)),
+                text=sev_los["typical_los"],
+                texttemplate="<b>%{text:.0f} nights</b>", textposition="outside",
+                textfont=dict(size=12, color=t["t2"]),
+                hovertemplate="<b>%{x}</b><br>Typical stay: %{y:.0f} nights<br><i>Half of patients leave sooner</i><extra></extra>",
+            ))
+            fig.update_layout(**chart_layout(t, 300))
+            pchart(fig)
+            mild_med  = int(sev_los[sev_los["severity"]=="Mild"]["typical_los"].iloc[0]) if "Mild" in sev_los["severity"].values else 4
+            crit_med  = int(sev_los[sev_los["severity"]=="Critical"]["typical_los"].iloc[0]) if "Critical" in sev_los["severity"].values else 17
+            st.markdown(
+                f'<p style="font-size:.78rem;color:{t["t3"]};margin:4px 0 0;padding:0 2px;">'
+                f'💡 Half of patients with a <strong>Mild</strong> condition leave within <strong>{mild_med} nights</strong>. '
+                f'Critical cases typically need around <strong>{crit_med} nights</strong>.'
+                f'</p></div>',
+                unsafe_allow_html=True
+            )
+
+        with row1_b:
+            st.markdown(f"""<div class="section-card">
+              {section_hdr(t['p_light'],'🚪','How do most people come in?',
+                           'Based on 120,000+ admissions',t)}
+            """, unsafe_allow_html=True)
+            at = adm["admission_type"].value_counts().reset_index()
+            at.columns = ["type", "count"]
+            fig2 = go.Figure(go.Pie(
+                labels=at["type"], values=at["count"],
+                hole=0.60,
+                marker=dict(colors=["#6366F1","#10B981","#F59E0B","#EC4899"],
+                            line=dict(color="#fff", width=3)),
+                textinfo="label+percent", textfont=dict(size=11),
+                pull=[0.03, 0, 0, 0],
+                hovertemplate="<b>%{label}</b><br>%{value:,} admissions<br>%{percent}<extra></extra>",
+            ))
+            fig2.update_layout(**chart_layout(t, 300))
+            pchart(fig2)
+            top_type = at.iloc[0]["type"] if len(at) else "Emergency"
+            st.markdown(f"""<p style="font-size:.78rem;color:{t['t3']};margin:4px 0 0;padding:0 2px;">
+              💡 Most patients arrive via <strong>{top_type}</strong>. If your visit is planned, you'll
+              likely have a shorter wait than emergency patients.
+            </p></div>""", unsafe_allow_html=True)
+
+        st.markdown(f"""<div class="section-card" style="margin-top:14px;">
+          {section_hdr(t['p_light'],'🩺','What are the most common reasons people visit?',
+                       'Top 10 health conditions — each bar = number of admissions',t)}
+        """, unsafe_allow_html=True)
+        diag = adm["diagnosis_category"].value_counts().head(10).reset_index()
+        diag.columns = ["diagnosis", "count"]
+        colors_d = ["#6366F1","#8B5CF6","#A78BFA","#EC4899","#F43F5E",
+                    "#10B981","#059669","#F59E0B","#0EA5E9","#06B6D4"]
+        fig3 = go.Figure(go.Bar(
+            y=diag["diagnosis"], x=diag["count"], orientation="h",
+            marker=dict(color=colors_d[:len(diag)], cornerradius=6,
+                        line=dict(color="rgba(0,0,0,0)", width=0)),
+            text=diag["count"], texttemplate="<b>%{text:,} visits</b>", textposition="outside",
+            textfont=dict(size=10),
+            hovertemplate="<b>%{y}</b><br>%{x:,} admissions<extra></extra>",
+        ))
+        fig3.update_layout(**chart_layout(t, 360))
+        pchart(fig3)
+        top_diag = diag.iloc[0]["diagnosis"] if len(diag) else "Cardiovascular"
+        st.markdown(f"""<p style="font-size:.78rem;color:{t['t3']};margin:6px 0 0;padding:0 2px;">
+          💡 <strong>{top_diag}</strong> is the most common reason for hospital visits in this region.
+          If that matches your condition, the estimates in the Planner tab will be especially relevant.
+        </p></div>""", unsafe_allow_html=True)
+
+    # ════ TAB 3: BEST TIME TO VISIT ════════════════════════════════════════
+    with tab3:
+        mo_avg = occ.groupby("month")["occupancy_rate"].mean()
+
+        # ── Build month badges (no indentation — avoids Markdown code-block treatment) ──
+        month_names_full = ["Jan","Feb","Mar","Apr","May","Jun",
+                            "Jul","Aug","Sep","Oct","Nov","Dec"]
+        month_icons = ["❄️","❄️","🌸","🌸","☀️","☀️","🌧️","🌧️","🍂","🍂","❄️","❄️"]
+        badges_html = ""
+        for i, mname in enumerate(month_names_full):
+            m = i + 1
+            occ_val = float(mo_avg.get(m, 0.75))
+            if occ_val > 0.85:
+                bg_c = "#FEE2E2"; txt_c = "#991B1B"; brd_c = "#EF4444"; lbl = "Very busy"
+            elif occ_val > 0.75:
+                bg_c = "#FEF3C7"; txt_c = "#92400E"; brd_c = "#F59E0B"; lbl = "Busy"
+            else:
+                bg_c = "#D1FAE5"; txt_c = "#065F46"; brd_c = "#10B981"; lbl = "Good time"
+            pct_str = f"{occ_val:.0%}"
+            ico = month_icons[i]
+            # single line — no leading spaces → Markdown won't treat as code
+            badges_html += (
+                f'<div style="flex:1;min-width:60px;background:{bg_c};border-radius:12px;'
+                f'padding:12px 6px;text-align:center;border:1px solid {brd_c}44;">'
+                f'<div style="font-size:1.1rem;">{ico}</div>'
+                f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:.75rem;'
+                f'font-weight:700;color:{txt_c};margin:4px 0 2px;">{mname}</div>'
+                f'<div style="font-size:.72rem;font-weight:700;color:{txt_c};">{pct_str}</div>'
+                f'<div style="font-size:.6rem;color:{txt_c};opacity:.75;margin-top:2px;">{lbl}</div>'
+                f'</div>'
+            )
+
+        legend_html = (
+            f'<div style="display:flex;align-items:center;gap:14px;font-size:.74rem;'
+            f'color:{t["t3"]};padding:10px 2px 0;">'
+            f'<span>&#11044; <span style="color:#10B981;">&#9632;</span> Under 75% — quietest</span>'
+            f'<span>&#11044; <span style="color:#F59E0B;">&#9632;</span> 75–85% — book ahead</span>'
+            f'<span>&#11044; <span style="color:#EF4444;">&#9632;</span> Over 85% — avoid if possible</span>'
+            f'</div>'
+        )
+
+        hdr_html = section_hdr(
+            t["p_light"], "📅",
+            "Which month is best for a planned visit?",
+            "Green = quiet &nbsp;·&nbsp; Yellow = busy &nbsp;·&nbsp; Red = very busy", t
+        )
+        st.markdown(
+            f'<div class="section-card">{hdr_html}'
+            f'<div style="display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;">'
+            f'{badges_html}'
+            f'</div>'
+            f'{legend_html}'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        # ── Season tip cards (single-line HTML per card to avoid Markdown code-block) ──
+        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+        seasons_data = [
+            ("🌸","Spring","Mar–May","72%","#FEF9C3","#92400E","#F59E0B",
+             "A good window. Book 2–3 weeks ahead for planned visits."),
+            ("☀️","Summer","Jun–Aug","68%","#D1FAE5","#065F46","#10B981",
+             "Best time of year. Shortest waits, most bed availability."),
+            ("🌧️","Monsoon","Jul–Sep","84%","#FEE2E2","#991B1B","#EF4444",
+             "Very busy. Illness spikes — avoid non-urgent visits if you can."),
+            ("🍂","Autumn","Sep–Nov","79%","#FEF3C7","#92400E","#F59E0B",
+             "Busy period. Go for urgent needs only; waits may be longer."),
+            ("❄️","Winter","Dec–Feb","75%","#EFF6FF","#1E40AF","#6366F1",
+             "Moderate. Cold-related illnesses push up demand — plan ahead."),
+        ]
+        cols = st.columns(5, gap="small")
+        for col, (ico, season, months, pct, bg, txt, brd, body) in zip(cols, seasons_data):
+            col.markdown(
+                f'<div style="background:{bg};border-top:3px solid {brd};border:1px solid {brd}44;'
+                f'border-radius:14px;padding:14px 12px;height:100%;">'
+                f'<div style="font-size:1.5rem;margin-bottom:6px;">{ico}</div>'
+                f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:.82rem;'
+                f'font-weight:700;color:{txt};">{season}</div>'
+                f'<div style="font-size:.7rem;color:{txt};opacity:.7;margin-bottom:6px;">{months}</div>'
+                f'<div style="font-size:1.2rem;font-weight:800;color:{txt};'
+                f'font-family:\'Plus Jakarta Sans\',sans-serif;">{pct} full</div>'
+                f'<div style="font-size:.73rem;color:{txt};opacity:.8;margin-top:8px;'
+                f'line-height:1.5;">{body}</div>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+    # ════ TAB 4: PLAN BY AGE ═══════════════════════════════════════════════
+    with tab4:
+        merged   = merged_admissions_patients()
+        age_order = ["Infant", "Toddler", "Child", "Adolescent",
+                     "Young Adult", "Middle Age", "Senior", "Elderly"]
+        elderly_groups = {"Senior", "Elderly"}
+
+        st.markdown(f"""
+        <div style="background:{t['p_light']};border:1px solid {t['border']};border-radius:14px;
+          padding:14px 20px;font-size:.82rem;color:{t['t2']};margin-bottom:18px;
+          display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:1.1rem;">👋</span>
+          <div>Planning care for an older family member? <strong>Senior and Elderly</strong> patients
+          typically stay longer and pay more — useful to know when budgeting.</div>
+        </div>""", unsafe_allow_html=True)
+
+        ag_a, ag_b = st.columns(2, gap="medium")
+
+        # ── shared data ──────────────────────────────────────────────────────
+        al = (merged.groupby("age_group")["length_of_stay_days"].median().reset_index()
+              .rename(columns={"length_of_stay_days": "typical_los"}))
+        al["age_group"] = pd.Categorical(al["age_group"],
+            categories=[a for a in age_order if a in al["age_group"].values], ordered=True)
+        al = al.sort_values("age_group").reset_index(drop=True)
+
+        ac2 = (merged.groupby("age_group")["total_bill_npr"].mean().reset_index()
+               .rename(columns={"total_bill_npr": "avg_cost"}))
+        ac2["age_group"] = pd.Categorical(ac2["age_group"],
+            categories=[a for a in age_order if a in ac2["age_group"].values], ordered=True)
+        ac2 = ac2.sort_values("age_group").reset_index(drop=True)
+
+        age_colors_los  = ["#EF4444" if g in elderly_groups else "#6366F1" for g in al["age_group"]]
+        age_colors_cost = ["#EF4444" if g in elderly_groups else "#10B981" for g in ac2["age_group"]]
+
+        with ag_a:
+            st.markdown(
+                f'<div class="section-card">'
+                f'{section_hdr(t["p_light"],"🛏️","How long do different age groups usually stay?","Lollipop — dot = typical nights · red = Senior / Elderly",t)}',
+                unsafe_allow_html=True,
+            )
+            # Lollipop: horizontal stems + coloured dots
+            fig_lo = go.Figure()
+            for i, row in al.iterrows():
+                fig_lo.add_shape(
+                    type="line", layer="below",
+                    x0=0, x1=float(row["typical_los"]),
+                    y0=i, y1=i,
+                    line=dict(color=age_colors_los[i], width=2, dash="dot"),
+                )
+            fig_lo.add_trace(go.Scatter(
+                x=al["typical_los"],
+                y=list(range(len(al))),
+                mode="markers+text",
+                marker=dict(color=age_colors_los, size=18,
+                            line=dict(color="#fff", width=2)),
+                text=[f"<b>{int(v)}d</b>" for v in al["typical_los"]],
+                textposition="middle right",
+                textfont=dict(size=11, color=t["t1"]),
+                customdata=al["age_group"].astype(str),
+                hovertemplate="<b>%{customdata}</b><br>Typical stay: %{x:.0f} nights<extra></extra>",
+            ))
+            lo_layout = chart_layout(t, 310)
+            lo_layout["yaxis"] = dict(
+                tickvals=list(range(len(al))),
+                ticktext=al["age_group"].astype(str).tolist(),
+                showgrid=False, zeroline=False,
+                linecolor="rgba(0,0,0,0)",
+                tickfont=dict(size=11, color=t["t3"]),
+            )
+            lo_layout["xaxis"] = dict(
+                showgrid=True, gridcolor="rgba(0,0,0,.05)",
+                zeroline=True, zerolinecolor="rgba(0,0,0,.1)",
+                linecolor="rgba(0,0,0,0)",
+                tickfont=dict(size=10, color=t["t3"]),
+                ticksuffix=" nights",
+            )
+            lo_layout["showlegend"] = False
+            fig_lo.update_layout(**lo_layout)
+            pchart(fig_lo, key="age_los_lollipop")
+            st.markdown(
+                f'<p style="font-size:.78rem;color:{t["t3"]};margin:4px 0 0;padding:0 2px;">'
+                f'💡 Young adults typically leave in {int(al[al["age_group"]=="Young Adult"]["typical_los"].iloc[0]) if "Young Adult" in al["age_group"].values else "~5"} nights. '
+                f'Senior & Elderly patients often need twice as long.</p></div>',
+                unsafe_allow_html=True,
+            )
+
+        with ag_b:
+            st.markdown(
+                f'<div class="section-card">'
+                f'{section_hdr("#FFFBEB","💰","How do costs rise with age?","Bubble size = number of patients · colour = cost level (green → red)",t)}',
+                unsafe_allow_html=True,
+            )
+            # Enrich ac2 with patient counts
+            _cnt = (merged.groupby("age_group")["patient_id"]
+                    .count().reset_index().rename(columns={"patient_id": "count"}))
+            ac2  = ac2.merge(_cnt, on="age_group", how="left")
+            ac2["count"] = ac2["count"].fillna(1)
+
+            # Bubble sizes: scaled so smallest ≈ 20px, largest ≈ 55px diameter
+            _min_c, _max_c = ac2["count"].min(), ac2["count"].max()
+            bubble_sz = [20 + 35 * ((c - _min_c) / max(_max_c - _min_c, 1))
+                         for c in ac2["count"]]
+
+            fig_co = go.Figure(go.Scatter(
+                x=ac2["age_group"].astype(str),
+                y=ac2["avg_cost"],
+                mode="markers+text",
+                marker=dict(
+                    size=bubble_sz,
+                    sizemode="diameter",
+                    color=ac2["avg_cost"],
+                    colorscale=[
+                        [0.0, "#10B981"],
+                        [0.5, "#F59E0B"],
+                        [1.0, "#EF4444"],
+                    ],
+                    cmin=float(ac2["avg_cost"].min()),
+                    cmax=float(ac2["avg_cost"].max()),
+                    showscale=True,
+                    colorbar=dict(
+                        title=dict(text="Avg cost", font=dict(size=10, color=t["t3"])),
+                        thickness=10, len=0.7,
+                        tickprefix="Rs.",
+                        tickformat=",",
+                        tickfont=dict(size=9, color=t["t3"]),
+                        outlinewidth=0,
+                    ),
+                    line=dict(color="#fff", width=2),
+                ),
+                text=["<b>Rs. " + f"{int(v):,}</b>" for v in ac2["avg_cost"]],
+                textposition="top center",
+                textfont=dict(size=9, color=t["t1"]),
+                customdata=list(zip(
+                    ac2["age_group"].astype(str),
+                    ac2["count"].astype(int),
+                    ac2["avg_cost"],
+                )),
+                hovertemplate=(
+                    "<b>%{customdata[0]}</b><br>"
+                    "Avg cost: Rs. %{customdata[2]:,.0f}<br>"
+                    "%{customdata[1]:,} patients<extra></extra>"
+                ),
+            ))
+            co_layout = chart_layout(t, 320)
+            co_layout["yaxis"] = dict(
+                showgrid=True, gridcolor="rgba(0,0,0,.04)",
+                zeroline=False, linecolor="rgba(0,0,0,0)",
+                tickfont=dict(size=9, color=t["t3"]),
+                tickprefix="Rs. ", tickformat=",",
+                range=[
+                    float(ac2["avg_cost"].min()) * 0.97,
+                    float(ac2["avg_cost"].max()) * 1.07,
+                ],
+            )
+            co_layout["xaxis"] = dict(
+                showgrid=False, zeroline=False,
+                linecolor="rgba(0,0,0,0)",
+                tickfont=dict(size=10, color=t["t3"]),
+                tickangle=-15,
+            )
+            co_layout["margin"] = dict(l=70, r=60, t=14, b=50)
+            co_layout["showlegend"] = False
+            fig_co.update_layout(**co_layout)
+            pchart(fig_co, key="age_cost_bubble")
+            st.markdown(
+                f'<p style="font-size:.78rem;color:{t["t3"]};margin:4px 0 0;padding:0 2px;">'
+                f'💡 Bigger bubble = more patients in that group. Colour shifts from green (lower cost) to red (higher cost).'
+                f'</p></div>',
+                unsafe_allow_html=True,
+            )
+
+        # bottom insight
+        elderly_cost = float(ac2[ac2["age_group"].isin(["Elderly","Senior"])]["avg_cost"].mean()) if any(g in ac2["age_group"].values for g in ["Elderly","Senior"]) else 0
+        young_cost   = float(ac2[ac2["age_group"].isin(["Young Adult","Adolescent"])]["avg_cost"].mean()) if any(g in ac2["age_group"].values for g in ["Young Adult","Adolescent"]) else 1
+        cost_mult    = elderly_cost / young_cost if young_cost else 1
+        st.markdown(insight_box(
+            "Planning care for an older family member?",
+            f"Senior and Elderly patients typically pay around <strong>{cost_mult:.1f}× more</strong> "
+            f"than young adults, and stay longer in hospital. "
+            "Budget generously and try to visit during <strong>Summer (Jun–Aug)</strong> when hospitals are least crowded.",
+            t
+        ), unsafe_allow_html=True)
+
+    # ════ TAB 5: COMPARE HOSPITALS ══════════════════════════════════════════
+    with tab5:
+        st.markdown(
+            f'<div style="font-size:.82rem;color:{t["t2"]};margin-bottom:18px;">'
+            f'Tap a hospital to see how busy it is, what it costs, and when to visit.</div>',
+            unsafe_allow_html=True,
+        )
+
+        def _fv(v, default=0.0):
+            return float(v) if pd.notna(v) else default
+
+        h_ids = (list(hosp_df["hospital_id"].values)
+                 if len(hosp_df) > 0 else list(config.HOSPITAL_NAMES.keys()))
+
+        for row_start in range(0, len(h_ids), 3):
+            group = h_ids[row_start : row_start + 3]
+            cols  = st.columns(len(group), gap="medium")
+            for col, hid in zip(cols, group):
+                hname    = config.HOSPITAL_NAMES.get(hid, hid)
+                hloc     = config.HOSPITAL_LOCATIONS.get(hid, "")
+                hlvl     = config.HOSPITAL_LEVELS.get(hid, "")
+                hbeds    = config.HOSPITAL_BEDS.get(hid, 0)
+
+                hrow = (hosp_df[hosp_df["hospital_id"] == hid].iloc[0]
+                        if hid in hosp_df["hospital_id"].values else {})
+
+                occ_v     = _fv(occ_h[occ_h["hospital_id"] == hid]["occupancy_rate"].mean()
+                                if "hospital_id" in occ_h.columns and hid in occ_h["hospital_id"].values
+                                else 0.75, 0.75)
+                beds_free = max(0, hbeds - int(occ_v * hbeds))
+                rec_pct   = _fv(hrow.get("recovery_rate")  if hasattr(hrow, "get") else None)
+                avg_cost  = _fv(hrow.get("avg_cost")       if hasattr(hrow, "get") else None)
+                wait_min  = _fv(hrow.get("avg_wait_triage") if hasattr(hrow, "get") else None)
+                rec_in_10 = round(rec_pct * 10)
+
+                if occ_v > 0.85:
+                    accent="#EF4444"; occ_lbl="Very busy";   occ_bg="#FEF2F2"
+                elif occ_v > 0.75:
+                    accent="#F59E0B"; occ_lbl="Moderately busy"; occ_bg="#FFFBEB"
+                else:
+                    accent="#10B981"; occ_lbl="Available";   occ_bg="#F0FDF4"
+
+                lvl_color = "#4F46E5" if hlvl == "Tertiary" else "#7C3AED"
+                occ_pct_w = int(occ_v * 100)
+
+                with col:
+                    st.markdown(
+                        f'<div style="background:#fff;border:1px solid {t["border"]};'
+                        f'border-radius:16px;overflow:hidden;margin-bottom:4px;'
+                        f'box-shadow:0 2px 12px rgba(79,70,229,.08);">'
+
+                        f'<div style="padding:16px 16px 0;">'
+
+                        f'<div style="display:flex;align-items:flex-start;'
+                        f'justify-content:space-between;gap:6px;margin-bottom:4px;">'
+                        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;'
+                        f'font-size:.92rem;font-weight:800;color:{t["t1"]};line-height:1.3;">'
+                        f'{hname}</div>'
+                        f'<span style="background:#EEF2FF;color:{lvl_color};font-size:.56rem;'
+                        f'font-weight:700;padding:3px 8px;border-radius:9999px;'
+                        f'white-space:nowrap;flex-shrink:0;margin-top:2px;">{hlvl}</span>'
+                        f'</div>'
+
+                        f'<div style="font-size:.68rem;color:{t["t3"]};margin-bottom:12px;">'
+                        f'📍 {hloc}</div>'
+
+                        f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;">'
+
+                        f'<div style="background:{t["p_light"]};border-radius:9px;padding:8px 10px;">'
+                        f'<div style="font-size:.6rem;color:{t["t3"]};margin-bottom:1px;">🛏️ Beds free</div>'
+                        f'<div style="font-size:.88rem;font-weight:800;color:{t["t1"]};">{beds_free}'
+                        f'<span style="font-size:.6rem;font-weight:500;color:{t["t3"]};"> / {hbeds}</span></div>'
+                        f'</div>'
+
+                        f'<div style="background:{t["p_light"]};border-radius:9px;padding:8px 10px;">'
+                        f'<div style="font-size:.6rem;color:{t["t3"]};margin-bottom:1px;">❤️ Go home well</div>'
+                        f'<div style="font-size:.88rem;font-weight:800;color:#10B981;">{rec_in_10}'
+                        f'<span style="font-size:.6rem;font-weight:500;color:{t["t3"]};"> out of 10</span></div>'
+                        f'</div>'
+
+                        f'<div style="background:{t["p_light"]};border-radius:9px;padding:8px 10px;">'
+                        f'<div style="font-size:.6rem;color:{t["t3"]};margin-bottom:1px;">💰 Typical cost</div>'
+                        f'<div style="font-size:.88rem;font-weight:800;color:{t["t1"]};">Rs. {avg_cost:,.0f}</div>'
+                        f'</div>'
+
+                        f'<div style="background:{t["p_light"]};border-radius:9px;padding:8px 10px;">'
+                        f'<div style="font-size:.6rem;color:{t["t3"]};margin-bottom:1px;">⏱️ Wait time</div>'
+                        f'<div style="font-size:.88rem;font-weight:800;color:{t["t1"]};">~{wait_min:.0f}'
+                        f'<span style="font-size:.6rem;font-weight:500;color:{t["t3"]};"> min</span></div>'
+                        f'</div>'
+
+                        f'</div>'
+
+                        f'<div style="margin-bottom:12px;">'
+                        f'<div style="display:flex;justify-content:space-between;'
+                        f'font-size:.62rem;color:{t["t3"]};margin-bottom:4px;">'
+                        f'<span>How busy right now</span>'
+                        f'<span style="font-weight:700;color:{accent};">{occ_lbl}</span></div>'
+                        f'<div style="background:#F1F5F9;border-radius:9999px;height:6px;overflow:hidden;">'
+                        f'<div style="width:{occ_pct_w}%;background:{accent};height:100%;'
+                        f'border-radius:9999px;transition:width .3s;"></div>'
+                        f'</div></div>'
+
+                        f'</div></div>',
+                        unsafe_allow_html=True,
+                    )
+                    if st.button("View Details →", key=f"hosp_btn_{hid}",
+                                 use_container_width=True):
+                        _hospital_popup(hid, occ_h, adm, hosp_df, dept_map, t)
+
+    # ════ TAB 6: MY PROFILE ═════════════════════════════════════════════════
+    with tab6:
+        # uname / profile already loaded at top of patient_dashboard()
+        joined    = get_user_created_at(uname)
+        full_name = p_full
+
+        # Flash message
+        if st.session_state.get("profile_msg"):
+            kind, pmsg = st.session_state.profile_msg
+            if kind == "ok":
+                st.success(pmsg)
+            else:
+                st.error(pmsg)
+            st.session_state.profile_msg = None
+
+        # ── Profile header card (navy, thumbnail avatar ~5 KB base64) ──────────
+        district_chip = profile.get("district") or "Bagmati Region"
+        blood_chip    = profile.get("blood_type") or "Unknown"
+        occ_chip      = profile.get("occupation") or ""
+        occ_span      = (
+            f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
+            f'border-radius:9999px;padding:2px 11px;font-size:.7rem;color:rgba(255,255,255,.8);">'
+            f'&#128188; {occ_chip}</span>'
+        ) if occ_chip else ""
+        av_html    = _avatar_html(uname, 84, t, full_name)
+        patient_id = get_patient_id(uname)
+        pid_chip   = (
+            f'<span style="background:rgba(99,102,241,.25);border:1px solid rgba(99,102,241,.4);'
+            f'border-radius:9999px;padding:2px 11px;font-size:.7rem;color:rgba(255,255,255,.9);'
+            f'font-weight:700;letter-spacing:.03em;">&#127973; {patient_id}</span>'
+        ) if patient_id else ""
+
+        if uname.startswith("google_"):
+            sso_email = uname[len("google_"):]
+            sub_line = (
+                f'<span style="background:rgba(255,255,255,.15);border-radius:9999px;'
+                f'padding:1px 8px;font-size:.68rem;margin-right:6px;">G Google</span>'
+                f'{sso_email} &#183; Member since {joined}'
+            )
+        else:
+            sub_line = f'@{uname} &#183; Member since {joined}'
+
+        st.markdown(
+            f'<div style="background:linear-gradient(130deg,#0F2447 0%,#1B3A6B 100%);'
+            f'border-radius:18px;padding:22px 26px;margin-bottom:18px;'
+            f'display:flex;align-items:center;gap:20px;overflow:hidden;">'
+            f'{av_html}'
+            f'<div style="flex:1;min-width:0;">'
+            f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.3rem;font-weight:800;'
+            f'color:#fff;letter-spacing:-.02em;margin-bottom:2px;">{full_name}</div>'
+            f'<div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:10px;">{sub_line}</div>'
+            f'<div style="display:flex;flex-wrap:wrap;gap:7px;">'
+            f'{pid_chip}'
+            f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
+            f'border-radius:9999px;padding:2px 11px;font-size:.7rem;color:rgba(255,255,255,.8);">'
+            f'&#128205; {district_chip}</span>'
+            f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
+            f'border-radius:9999px;padding:2px 11px;font-size:.7rem;color:rgba(255,255,255,.8);">'
+            f'&#129656; Blood: {blood_chip}</span>'
+            f'{occ_span}'
+            f'</div>'
+            f'</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+        # ── Photo upload ─────────────────────────────────────────────────────
+        with st.expander("&#128247;  Change profile photo", expanded=False):
+            uploaded_photo = st.file_uploader(
+                "Upload JPG or PNG (max 2 MB)", type=["jpg","jpeg","png"],
+                key="profile_tab_avatar",
+            )
+            if uploaded_photo:
+                if uploaded_photo.size > 2_000_000:
+                    st.error("File too large — please keep it under 2 MB.")
+                else:
+                    img_bytes = uploaded_photo.read()
+                    ext = uploaded_photo.name.rsplit(".", 1)[-1].lower()
+                    ok, result = save_avatar(uname, img_bytes, ext)
+                    if ok:
+                        st.rerun()
+                    else:
+                        st.error(f"Upload failed: {result}")
+
+        # ── Inner tabs ───────────────────────────────────────────────────────
+        ptab1, ptab2, ptab3 = st.tabs([
+            "&#128100;  Personal Info",
+            "&#129657;  Health Profile",
+            "&#128274;  Security",
+        ])
+
+        # ── Personal Info ────────────────────────────────────────────────────
+        with ptab1:
+            st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+            with st.form("prof_personal_tab"):
+                pf1, pf2 = st.columns(2)
+                with pf1:
+                    v_full = st.text_input("Full Name", value=profile.get("full_name",""))
+                with pf2:
+                    g_opts = ["Prefer not to say","Male","Female","Non-binary"]
+                    saved_g = profile.get("gender","Prefer not to say") or "Prefer not to say"
+                    v_gender = st.selectbox("Gender", g_opts,
+                        index=g_opts.index(saved_g) if saved_g in g_opts else 0)
+
+                pf3, pf4 = st.columns(2)
+                with pf3:
+                    v_dob = st.text_input("Date of Birth (YYYY-MM-DD)",
+                        value=profile.get("dob",""), placeholder="e.g. 1995-08-22")
+                with pf4:
+                    d_opts = ["— Select —","Kathmandu","Lalitpur","Bhaktapur","Kavrepalanchok",
+                              "Sindhupalchok","Nuwakot","Rasuwa","Dhading","Makwanpur",
+                              "Chitwan","Sindhuli","Ramechhap","Dolakha","Other"]
+                    saved_d = profile.get("district","— Select —") or "— Select —"
+                    v_district = st.selectbox("District / City", d_opts,
+                        index=d_opts.index(saved_d) if saved_d in d_opts else 0)
+
+                pf5, pf6 = st.columns(2)
+                with pf5:
+                    v_phone = st.text_input("Phone", value=profile.get("phone",""),
+                                            placeholder="+977 98XXXXXXXX")
+                with pf6:
+                    v_email = st.text_input("Email", value=profile.get("email",""),
+                                            placeholder="you@example.com")
+
+                h_opts  = ["Any hospital","Hospital 1 — Kathmandu","Hospital 2 — Lalitpur",
+                           "Hospital 3 — Bhaktapur","Hospital 4 — Kavrepalanchok",
+                           "Hospital 5 — Sindhupalchok"]
+                saved_h = profile.get("pref_hospital","Any hospital") or "Any hospital"
+                v_hosp  = st.selectbox("Preferred Hospital", h_opts,
+                    index=h_opts.index(saved_h) if saved_h in h_opts else 0)
+
+                sp_btn = st.form_submit_button(
+                    "Save Personal Info", use_container_width=True, type="primary")
+
+            if sp_btn:
+                ok, msg = save_profile(uname, {
+                    "full_name": v_full, "gender": v_gender, "dob": v_dob,
+                    "district": v_district if v_district != "— Select —" else "",
+                    "phone": v_phone, "email": v_email, "pref_hospital": v_hosp,
+                })
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
+
+        # ── Health Profile ───────────────────────────────────────────────────
+        with ptab2:
+            st.markdown(f"""
+            <div style="background:#FFFBEB;border:1px solid rgba(217,119,6,.18);border-radius:10px;
+              padding:11px 15px;font-size:.8rem;color:#92400E;margin-bottom:14px;
+              display:flex;align-items:flex-start;gap:9px;">
+              <span>&#9888;&#65039;</span>
+              <span>Used only to improve the AI planner estimates.
+              <strong>Never shared or used for clinical decisions.</strong></span>
+            </div>
+            """, unsafe_allow_html=True)
+
+            with st.form("prof_health_tab"):
+                hf1, hf2 = st.columns(2)
+                with hf1:
+                    bt_opts  = ["Unknown","A+","A-","B+","B-","O+","O-","AB+","AB-"]
+                    saved_bt = profile.get("blood_type","Unknown") or "Unknown"
+                    v_blood  = st.selectbox("Blood Type", bt_opts,
+                        index=bt_opts.index(saved_bt) if saved_bt in bt_opts else 0)
+                with hf2:
+                    o_opts  = ["— Select —","Student","Healthcare Worker","Government Employee",
+                               "Private Sector","Farmer / Agriculture","Business Owner",
+                               "Retired","Unemployed","Other"]
+                    saved_o = profile.get("occupation","— Select —") or "— Select —"
+                    v_occ   = st.selectbox("Occupation", o_opts,
+                        index=o_opts.index(saved_o) if saved_o in o_opts else 0)
+
+                v_allergies = st.text_area("Known Allergies",
+                    value=profile.get("allergies",""),
+                    placeholder="e.g. Penicillin, latex, peanuts — leave blank if none",
+                    height=76)
+                v_chronic = st.text_area("Chronic Conditions",
+                    value=profile.get("chronic_conditions",""),
+                    placeholder="e.g. Diabetes Type 2, Hypertension — leave blank if none",
+                    height=76)
+
+                st.markdown(f"""
+                <div class="schip" style="margin-top:4px;">
+                  <span class="schip-label">Emergency Contact</span>
+                  <div class="schip-line"></div>
+                </div>""", unsafe_allow_html=True)
+
+                ec1, ec2 = st.columns(2)
+                with ec1:
+                    v_ec_name = st.text_input("Contact Name",
+                        value=profile.get("ec_name",""), placeholder="Ramesh Thapa")
+                with ec2:
+                    r_opts  = ["—","Spouse / Partner","Parent","Sibling","Child","Guardian","Friend","Other"]
+                    saved_r = profile.get("ec_relationship","—") or "—"
+                    v_ec_rel = st.selectbox("Relationship", r_opts,
+                        index=r_opts.index(saved_r) if saved_r in r_opts else 0)
+                v_ec_phone = st.text_input("Contact Phone",
+                    value=profile.get("ec_phone",""), placeholder="+977 98XXXXXXXX")
+
+                sh_btn = st.form_submit_button(
+                    "Save Health Profile", use_container_width=True, type="primary")
+
+            if sh_btn:
+                ok, msg = save_profile(uname, {
+                    "blood_type": v_blood,
+                    "occupation": v_occ if v_occ != "— Select —" else "",
+                    "allergies": v_allergies,
+                    "chronic_conditions": v_chronic,
+                    "ec_name": v_ec_name,
+                    "ec_relationship": v_ec_rel if v_ec_rel != "—" else "",
+                    "ec_phone": v_ec_phone,
+                })
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
+
+        # ── Security ─────────────────────────────────────────────────────────
+        with ptab3:
+            st.markdown(f"""
+            <div style="background:{t['p_light']};border:1px solid {t['border']};border-radius:14px;
+              padding:16px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:13px;">
+              <div style="width:38px;height:38px;border-radius:10px;background:{t['primary']};
+                display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                &#128274;
+              </div>
+              <div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+                  color:{t['t1']};margin-bottom:3px;">Change Password</div>
+                <div style="font-size:.8rem;color:{t['t2']};line-height:1.6;">
+                  Passwords are stored as <strong>SHA-256 salted hashes</strong> — never plain text.
+                  Use at least 8 characters mixing letters, numbers and symbols.
+                </div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            sec_col, _ = st.columns([1.1, 1])
+            with sec_col:
+                v_old  = st.text_input("Current Password", type="password",
+                                       placeholder="Your current password",
+                                       key="sec_tab_old")
+                v_new1 = st.text_input("New Password", type="password",
+                                       placeholder="e.g. Bagmati@2024",
+                                       key="sec_tab_new1")
+                v_new2 = st.text_input("Confirm New Password", type="password",
+                                       placeholder="Repeat new password",
+                                       key="sec_tab_new2")
+                password_rules_card(v_new1)
+                with st.form("prof_security_tab"):
+                    ss_btn = st.form_submit_button(
+                        "Change Password", use_container_width=True, type="primary")
+
+            if ss_btn:
+                if not v_old or not v_new1 or not v_new2:
+                    st.error("All three fields are required.")
+                elif v_new1 != v_new2:
+                    st.error("New passwords do not match.")
+                else:
+                    ok, msg = change_password(uname, v_old, v_new1)
+                    if ok:
+                        st.success(msg)
+                    else:
+                        st.error(msg)
+
+
+    # ════ TAB 7: SUPPORT CHAT ═══════════════════════════════════════════════
+    with tab7:
+        mark_chat_read(uname, "patient")
+        st.session_state._pat_unread_seen = 0
+        msgs = get_chat_messages(uname)
+
+        st.markdown(
+            f'<div style="background:{t["p_light"]};border:1px solid {t["border"]};'
+            f'border-radius:14px;padding:12px 18px;margin-bottom:14px;'
+            f'display:flex;align-items:center;gap:10px;">'
+            f'<span style="font-size:1.2rem;">💬</span>'
+            f'<span style="font-size:.83rem;color:{t["t2"]};">'
+            f'Send a message to the hospital admin. We typically reply within 24 hours.</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+        chat_box = st.container(height=430, border=False)
+        with chat_box:
+            if not msgs:
+                st.markdown(
+                    '<div style="text-align:center;padding:50px 0;color:#9CA3AF;font-size:.84rem;">'
+                    '👋 No messages yet — say hello below!</div>',
+                    unsafe_allow_html=True,
+                )
+            for m in msgs:
+                is_mine = m["sender"] == "patient"
+                st.markdown(
+                    _chat_bubble_html(m["body"], is_mine, m.get("sent_at")),
+                    unsafe_allow_html=True,
+                )
+
+        st.markdown(
+            '<div style="border-top:1px solid #E5E7EB;margin-bottom:4px;"></div>',
+            unsafe_allow_html=True,
+        )
+        body = st.chat_input("Type your message…", key="patient_chat_input")
+        if body:
+            send_chat_message(uname, "patient", body)
+            st.rerun()
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# ADMIN DASHBOARD
+# ════════════════════════════════════════════════════════════════════════════
+
+def _admin_patient_row(p: dict, i: int, t: dict):
+    """Render one patient row card + delete + details expander."""
+    uname   = p.get("username", "")
+    pid     = p.get("patient_id", "—")
+    name    = p.get("full_name") or "(no name set)"
+    joined  = ""
+    ca = p.get("created_at")
+    if ca and hasattr(ca, "strftime"):
+        joined = ca.strftime("%d %b %Y")
+    is_sso   = bool(p.get("sso_provider"))
+    display  = p.get("sso_email") or uname
+    type_bg  = "#EFF6FF" if is_sso else "#F0FDF4"
+    type_col = "#1D4ED8" if is_sso else "#166534"
+    type_lbl = "Google SSO" if is_sso else "Password"
+    initials = name[:2].upper() if name != "(no name set)" else "??"
+
+    st.markdown(
+        f'<div style="background:#fff;border:1px solid #E5E7EB;border-radius:14px;'
+        f'padding:16px 20px;margin-bottom:4px;display:flex;align-items:center;gap:16px;">'
+        f'<div style="width:42px;height:42px;border-radius:50%;flex-shrink:0;'
+        f'background:linear-gradient(135deg,{t["secondary"]},{t["primary"]});'
+        f'display:flex;align-items:center;justify-content:center;'
+        f'font-weight:700;font-size:.82rem;color:#fff;">{initials}</div>'
+        f'<div style="flex:1;min-width:0;">'
+        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700;'
+        f'font-size:.92rem;color:#111827;margin-bottom:2px;">{name}</div>'
+        f'<div style="font-size:.76rem;color:#6B7280;">{display}</div>'
+        f'</div>'
+        f'<span style="background:#EDE9FE;color:#5B21B6;border-radius:9999px;'
+        f'padding:3px 10px;font-size:.7rem;font-weight:700;flex-shrink:0;">{pid}</span>'
+        f'<span style="background:{type_bg};color:{type_col};border-radius:9999px;'
+        f'padding:3px 10px;font-size:.7rem;font-weight:600;flex-shrink:0;">{type_lbl}</span>'
+        f'<div style="font-size:.76rem;color:#9CA3AF;flex-shrink:0;">{joined}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    act_col, detail_col = st.columns([1, 6])
+    with act_col:
+        if st.button("🗑️ Delete", key=f"del_btn_{i}", use_container_width=True):
+            st.session_state.admin_del_target = uname
+
+    if st.session_state.get("admin_del_target") == uname:
+        st.warning(
+            f"Permanently delete **{name}** (`{uname}`)? "
+            f"This removes their account, profile, chat history, and all session data."
+        )
+        yes_col, no_col, _ = st.columns([1, 1, 4])
+        with yes_col:
+            if st.button("Yes, Delete", key=f"confirm_{i}",
+                         type="primary", use_container_width=True):
+                ok, msg = delete_patient_account(uname)
+                st.session_state.admin_del_target = None
+                st.success(msg) if ok else st.error(msg)
+                st.rerun()
+        with no_col:
+            if st.button("Cancel", key=f"cancel_{i}", use_container_width=True):
+                st.session_state.admin_del_target = None
+                st.rerun()
+
+    with detail_col:
+        with st.expander("View details", expanded=False):
+            d1, d2, d3 = st.columns(3)
+            d1.markdown(f"**District:** {p.get('district') or '—'}")
+            d1.markdown(f"**Gender:** {p.get('gender') or '—'}")
+            d2.markdown(f"**Blood type:** {p.get('blood_type') or '—'}")
+            d2.markdown(f"**Chronic conditions:** {p.get('chronic_conditions') or 'None'}")
+            d3.markdown(f"**Preferred hospital:** {p.get('pref_hospital') or '—'}")
+
+
+def admin_dashboard():
+    import datetime as _dt
+    t = ADMIN_THEME
+    inject_global_css(t)
+    render_sidebar(t)
+
+    # ── Load data needed for bell before rendering the bar ────────────────────
+    patients  = list_patient_accounts()
+    total     = len(patients)
+    now       = _dt.datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    new_month   = sum(1 for p in patients
+                      if p.get("created_at") and p["created_at"] >= month_start)
+    inbox        = get_chat_inbox()
+    unread_total = sum(th.get("unread", 0) for th in inbox)
+
+    admin_notifs = [
+        {
+            "severity": "warning" if th.get("unread", 0) > 0 else "info",
+            "icon":     "💬",
+            "title":    f"New message from {th['full_name']}",
+            "body":     (th.get("latest_body") or "")[:70],
+        }
+        for th in inbox if th.get("unread", 0) > 0
+    ]
+    render_session_bar(notifs=admin_notifs, n_total=len(admin_notifs))
+
+    st.markdown(welcome_banner(
+        "Admin Console",
+        "Bagmati Hospital Intelligence System · Patient Management & Messaging",
+        t
+    ), unsafe_allow_html=True)
+
+    # ── Toast when new patient messages arrive ────────────────────────────────
+    if "_adm_unread_seen" not in st.session_state:
+        st.session_state._adm_unread_seen = unread_total
+    elif unread_total > st.session_state._adm_unread_seen:
+        diff = unread_total - st.session_state._adm_unread_seen
+        st.toast(f"💬 {diff} new patient message{'s' if diff > 1 else ''}!", icon="🔔")
+        st.session_state._adm_unread_seen = unread_total
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(kpi_card(t["p_light"], "👥", str(total),
+                         "Total Patients", "All registered accounts", t), unsafe_allow_html=True)
+    c2.markdown(kpi_card("#EFF6FF", "🆕", str(new_month),
+                         "New This Month", now.strftime("%B %Y"), t), unsafe_allow_html=True)
+    c3.markdown(kpi_card("#F0FDF4", "💬", str(len(inbox)),
+                         "Active Conversations", "Patients who messaged", t), unsafe_allow_html=True)
+    c4.markdown(kpi_card("#FEF2F2", "🔴", str(unread_total),
+                         "Unread Messages", "Waiting for your reply", t), unsafe_allow_html=True)
+
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+
+    # ── Tabs ─────────────────────────────────────────────────────────────────
+    _msg_label = f"💬  Messages {'🔴' if unread_total else ''}"
+    admin_tab1, admin_tab2 = st.tabs(["👥  Patient Accounts", _msg_label])
+
+    # ════ TAB 1: PATIENT ACCOUNTS ═══════════════════════════════════════════
+    with admin_tab1:
+        if "admin_del_target" not in st.session_state:
+            st.session_state.admin_del_target = None
+
+        search = st.text_input(
+            "Search", placeholder="Patient ID, name, or username…",
+            label_visibility="collapsed",
+        )
+        filtered = patients
+        if search.strip():
+            q = search.strip().lower()
+            filtered = [p for p in patients if
+                        q in (p.get("patient_id") or "").lower() or
+                        q in (p.get("full_name")  or "").lower() or
+                        q in (p.get("username")   or "").lower()]
+
+        st.markdown(
+            f'<div style="font-size:.78rem;color:#6B7280;margin-bottom:12px;">'
+            f'{len(filtered)} account{"s" if len(filtered) != 1 else ""}</div>',
+            unsafe_allow_html=True,
+        )
+
+        if not filtered:
+            st.info("No patient accounts found.")
+        else:
+            for i, p in enumerate(filtered):
+                _admin_patient_row(p, i, t)
+
+    # ════ TAB 2: MESSAGES ═══════════════════════════════════════════════════
+    with admin_tab2:
+        if "admin_chat_sel" not in st.session_state:
+            st.session_state.admin_chat_sel = None
+
+        if not inbox:
+            st.info("No patient messages yet.")
+        else:
+            left_col, right_col = st.columns([1, 2.2], gap="large")
+
+            with left_col:
+                st.markdown(
+                    '<div style="font-size:.75rem;font-weight:700;color:#6B7280;'
+                    'text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">'
+                    'Conversations</div>',
+                    unsafe_allow_html=True,
+                )
+                for th in inbox:
+                    _cu        = th["patient_username"]
+                    _cname     = th["full_name"]
+                    _cunread   = th.get("unread", 0)
+                    _cpreview  = (th.get("latest_body") or "")[:40]
+                    _cts       = th.get("latest_at")
+                    _cts_str   = _cts.strftime("%d %b") if _cts and hasattr(_cts, "strftime") else ""
+                    _is_sel    = st.session_state.admin_chat_sel == _cu
+
+                    sel_bg  = "#EEF2FF" if _is_sel else "#fff"
+                    sel_bdr = "#6366F1" if _is_sel else "#E5E7EB"
+                    sel_bw  = "2px"     if _is_sel else "1px"
+                    ubadge  = (f'<span style="background:#EF4444;color:#fff;border-radius:9999px;'
+                               f'padding:1px 6px;font-size:.62rem;font-weight:700;margin-left:4px;">'
+                               f'{_cunread}</span>') if _cunread else ""
+
+                    st.markdown(
+                        f'<div style="background:{sel_bg};border:{sel_bw} solid {sel_bdr};'
+                        f'border-radius:12px;padding:11px 13px;margin-bottom:5px;">'
+                        f'<div style="display:flex;justify-content:space-between;align-items:center;">'
+                        f'<div style="font-weight:700;font-size:.86rem;color:#111827;">'
+                        f'{_cname}{ubadge}</div>'
+                        f'<div style="font-size:.7rem;color:#9CA3AF;">{_cts_str}</div>'
+                        f'</div>'
+                        f'<div style="font-size:.75rem;color:#6B7280;margin-top:3px;'
+                        f'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+                        f'{_cpreview}</div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+                    if st.button("Open →", key=f"open_chat_{_cu}", use_container_width=True):
+                        st.session_state.admin_chat_sel = _cu
+                        st.rerun()
+
+            with right_col:
+                sel = st.session_state.admin_chat_sel
+                if not sel:
+                    st.markdown(
+                        '<div style="text-align:center;padding:80px 0;color:#9CA3AF;font-size:.86rem;">'
+                        '← Select a conversation</div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    mark_chat_read(sel, "admin")
+                    st.session_state._adm_unread_seen = sum(
+                        th.get("unread", 0) for th in get_chat_inbox()
+                    )
+                    sel_name = next(
+                        (th["full_name"] for th in inbox if th["patient_username"] == sel), sel
+                    )
+                    st.markdown(
+                        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700;'
+                        f'font-size:.98rem;color:{t["t1"]};padding-bottom:10px;'
+                        f'border-bottom:1px solid #E5E7EB;margin-bottom:10px;">'
+                        f'💬 &nbsp;{sel_name}</div>',
+                        unsafe_allow_html=True,
+                    )
+
+                    msgs = get_chat_messages(sel)
+                    chat_box = st.container(height=390, border=False)
+                    with chat_box:
+                        if not msgs:
+                            st.markdown(
+                                '<div style="text-align:center;padding:50px 0;'
+                                'color:#9CA3AF;font-size:.84rem;">No messages yet.</div>',
+                                unsafe_allow_html=True,
+                            )
+                        for m in msgs:
+                            # From admin's view: admin = right (is_mine), patient = left
+                            is_mine = m["sender"] == "admin"
+                            st.markdown(
+                                _chat_bubble_html(m["body"], is_mine, m.get("sent_at")),
+                                unsafe_allow_html=True,
+                            )
+
+                    st.markdown(
+                        '<div style="border-top:1px solid #E5E7EB;margin-bottom:4px;"></div>',
+                        unsafe_allow_html=True,
+                    )
+                    reply = st.chat_input("Reply as admin…", key="admin_chat_input")
+                    if reply:
+                        send_chat_message(sel, "admin", reply)
+                        st.rerun()
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# PROFILE PAGE
+# ════════════════════════════════════════════════════════════════════════════
+
+def profile_page():
+    t = PATIENT_THEME
+    inject_global_css(t)
+    render_sidebar(t)
+    render_session_bar()
+
+    uname   = st.session_state.username
+    profile = get_profile(uname)
+    joined  = get_user_created_at(uname)
+
+    full_name = profile.get("full_name") or uname
+
+    # ── Flash message from previous save ──
+    if st.session_state.profile_msg:
+        kind, msg = st.session_state.profile_msg
+        if kind == "ok":
+            st.success(msg)
+        else:
+            st.error(msg)
+        st.session_state.profile_msg = None
+
+    # ── Profile header (navy, thumbnail base64) ────────────────────────────────
+    district_badge = profile.get("district") or "Bagmati Region"
+    blood_badge    = profile.get("blood_type") or "Unknown"
+    occ_badge      = profile.get("occupation") or ""
+    occ_span2      = (f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
+                      f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.8);">'
+                      f'&#128188; {occ_badge}</span>') if occ_badge else ""
+    av_html2    = _avatar_html(uname, 90, t, full_name)
+    patient_id2 = get_patient_id(uname)
+    pid_chip2   = (
+        f'<span style="background:rgba(99,102,241,.25);border:1px solid rgba(99,102,241,.4);'
+        f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.9);'
+        f'font-weight:700;letter-spacing:.03em;">&#127973; {patient_id2}</span>'
+    ) if patient_id2 else ""
+
+    if uname.startswith("google_"):
+        sso_email2 = uname[len("google_"):]
+        sub_line2 = (
+            f'<span style="background:rgba(255,255,255,.15);border-radius:9999px;'
+            f'padding:1px 8px;font-size:.68rem;margin-right:6px;">G Google</span>'
+            f'{sso_email2} &#183; Member since {joined}'
+        )
+    else:
+        sub_line2 = f'@{uname} &#183; Member since {joined}'
+
+    st.markdown(
+        f'<div style="background:linear-gradient(130deg,#0F2447 0%,#1B3A6B 100%);'
+        f'border-radius:20px;padding:26px 30px;margin-bottom:22px;'
+        f'display:flex;align-items:center;gap:22px;overflow:hidden;position:relative;">'
+        f'<div style="position:absolute;right:-40px;top:-50px;width:200px;height:200px;'
+        f'border-radius:50%;background:rgba(255,255,255,.04);"></div>'
+        f'{av_html2}'
+        f'<div style="flex:1;">'
+        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.5rem;font-weight:800;'
+        f'color:#fff;letter-spacing:-.025em;margin-bottom:3px;">{full_name}</div>'
+        f'<div style="font-size:.84rem;color:rgba(255,255,255,.5);margin-bottom:12px;">{sub_line2}</div>'
+        f'<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+        f'{pid_chip2}'
+        f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
+        f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.8);">'
+        f'&#128205; {district_badge}</span>'
+        f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
+        f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.8);">'
+        f'&#129656; {blood_badge}</span>'
+        f'{occ_span2}'
+        f'</div>'
+        f'</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    # ── Photo upload (outside form for instant preview) ─────────────────────
+    with st.expander("📷  Change profile photo", expanded=False):
+        uploaded_photo = st.file_uploader(
+            "Upload a photo (JPG or PNG, max 2 MB)",
+            type=["jpg","jpeg","png"], key="avatar_uploader",
+        )
+        if uploaded_photo:
+            if uploaded_photo.size > 2_000_000:
+                st.error("File too large. Please upload a photo under 2 MB.")
+            else:
+                img_bytes = uploaded_photo.read()
+                ext       = uploaded_photo.name.rsplit(".", 1)[-1].lower()
+                ok, result = save_avatar(uname, img_bytes, ext)
+                if ok:
+                    st.session_state.profile_msg = ("ok", "Profile photo updated!")
+                    st.rerun()
+                else:
+                    st.error(f"Upload failed: {result}")
+
+    # ── Three editing tabs ───────────────────────────────────────────────────
+    tab_p, tab_h, tab_s = st.tabs([
+        "👤  Personal Info",
+        "🩺  Health Profile",
+        "🔒  Security",
+    ])
+
+    # ── TAB: Personal Info ──────────────────────────────────────────────────
+    with tab_p:
+        st.markdown(f"""
+        <div style="background:{t['p_light']};border:1px solid {t['border']};border-radius:12px;
+          padding:12px 16px;font-size:.82rem;color:{t['t2']};margin-bottom:18px;
+          display:flex;align-items:flex-start;gap:10px;">
+          <span>&#128274;</span>
+          <span>Your personal details are stored <strong>only in your account database</strong>.
+          They are never shared or used for any purpose beyond display in this app.</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        with st.form("form_personal"):
+            st.markdown(f"<div class='schip'><span class='schip-label'>Basic Details</span>"
+                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
+            pf1, pf2 = st.columns(2)
+            with pf1:
+                v_full   = st.text_input("Full Name", value=profile.get("full_name",""))
+            with pf2:
+                v_gender = st.selectbox("Gender", ["Prefer not to say","Male","Female","Non-binary"],
+                    index=["Prefer not to say","Male","Female","Non-binary"].index(
+                        profile.get("gender","Prefer not to say")
+                        if profile.get("gender") in ["Prefer not to say","Male","Female","Non-binary"]
+                        else "Prefer not to say"))
+            pf3, pf4 = st.columns(2)
+            with pf3:
+                v_dob = st.text_input("Date of Birth (YYYY-MM-DD)", value=profile.get("dob",""),
+                                      placeholder="e.g. 1995-08-22")
+            with pf4:
+                district_opts = ["— Select —","Kathmandu","Lalitpur","Bhaktapur","Kavrepalanchok",
+                    "Sindhupalchok","Nuwakot","Rasuwa","Dhading","Makwanpur",
+                    "Chitwan","Sindhuli","Ramechhap","Dolakha","Other"]
+                saved_dist = profile.get("district","— Select —") or "— Select —"
+                idx_d = district_opts.index(saved_dist) if saved_dist in district_opts else 0
+                v_district = st.selectbox("District / City", district_opts, index=idx_d)
+
+            st.markdown(f"<div class='schip'><span class='schip-label'>Contact</span>"
+                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
+            pf5, pf6 = st.columns(2)
+            with pf5:
+                v_phone = st.text_input("Phone", value=profile.get("phone",""),
+                                        placeholder="+977 98XXXXXXXX")
+            with pf6:
+                v_email = st.text_input("Email", value=profile.get("email",""),
+                                        placeholder="you@example.com")
+
+            st.markdown(f"<div class='schip'><span class='schip-label'>Preferences</span>"
+                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
+            hosp_opts = ["Any hospital","Hospital 1 — Kathmandu","Hospital 2 — Lalitpur",
+                         "Hospital 3 — Bhaktapur","Hospital 4 — Kavrepalanchok",
+                         "Hospital 5 — Sindhupalchok"]
+            saved_h = profile.get("pref_hospital","Any hospital") or "Any hospital"
+            idx_h   = hosp_opts.index(saved_h) if saved_h in hosp_opts else 0
+            v_hosp  = st.selectbox("Preferred Hospital", hosp_opts, index=idx_h)
+
+            save_p = st.form_submit_button("Save Personal Info", use_container_width=True, type="primary")
+
+        if save_p:
+            ok, msg = save_profile(uname, {
+                "full_name": v_full, "gender": v_gender, "dob": v_dob,
+                "district": v_district if v_district != "— Select —" else "",
+                "phone": v_phone, "email": v_email, "pref_hospital": v_hosp,
+            })
+            if ok:
+                st.success(msg)
+            else:
+                st.error(msg)
+
+    # ── TAB: Health Profile ─────────────────────────────────────────────────
+    with tab_h:
+        st.markdown(f"""
+        <div style="background:#FFFBEB;border:1px solid rgba(217,119,6,.18);border-radius:12px;
+          padding:12px 16px;font-size:.82rem;color:#92400E;margin-bottom:18px;
+          display:flex;align-items:flex-start;gap:10px;">
+          <span>&#9888;&#65039;</span>
+          <span>This section stores your health background to help the AI planner give better estimates.
+          <strong>Nothing here is ever shared or used for clinical decisions.</strong></span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        with st.form("form_health"):
+            st.markdown(f"<div class='schip'><span class='schip-label'>Medical Background</span>"
+                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
+            hf1, hf2 = st.columns(2)
+            with hf1:
+                bt_opts  = ["Unknown","A+","A-","B+","B-","O+","O-","AB+","AB-"]
+                saved_bt = profile.get("blood_type","Unknown") or "Unknown"
+                idx_bt   = bt_opts.index(saved_bt) if saved_bt in bt_opts else 0
+                v_blood  = st.selectbox("Blood Type", bt_opts, index=idx_bt)
+            with hf2:
+                occ_opts  = ["— Select —","Student","Healthcare Worker","Government Employee",
+                             "Private Sector","Farmer / Agriculture","Business Owner",
+                             "Retired","Unemployed","Other"]
+                saved_occ = profile.get("occupation","— Select —") or "— Select —"
+                idx_occ   = occ_opts.index(saved_occ) if saved_occ in occ_opts else 0
+                v_occ     = st.selectbox("Occupation", occ_opts, index=idx_occ)
+
+            v_allergies = st.text_area("Known Allergies",
+                value=profile.get("allergies",""),
+                placeholder="e.g. Penicillin, latex, peanuts — or leave blank",
+                height=80)
+            v_chronic = st.text_area("Chronic Conditions",
+                value=profile.get("chronic_conditions",""),
+                placeholder="e.g. Diabetes Type 2, Hypertension — or leave blank",
+                height=80)
+
+            st.markdown(f"<div class='schip'><span class='schip-label'>Emergency Contact</span>"
+                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
+            ec1, ec2 = st.columns(2)
+            with ec1:
+                v_ec_name = st.text_input("Contact Name",
+                    value=profile.get("ec_name",""), placeholder="Ramesh Thapa")
+            with ec2:
+                rel_opts  = ["—","Spouse / Partner","Parent","Sibling","Child","Guardian","Friend","Other"]
+                saved_rel = profile.get("ec_relationship","—") or "—"
+                idx_rel   = rel_opts.index(saved_rel) if saved_rel in rel_opts else 0
+                v_ec_rel  = st.selectbox("Relationship", rel_opts, index=idx_rel)
+            v_ec_phone = st.text_input("Contact Phone",
+                value=profile.get("ec_phone",""), placeholder="+977 98XXXXXXXX")
+
+            save_h = st.form_submit_button("Save Health Profile", use_container_width=True, type="primary")
+
+        if save_h:
+            ok, msg = save_profile(uname, {
+                "blood_type": v_blood,
+                "occupation": v_occ if v_occ != "— Select —" else "",
+                "allergies": v_allergies, "chronic_conditions": v_chronic,
+                "ec_name": v_ec_name,
+                "ec_relationship": v_ec_rel if v_ec_rel != "—" else "",
+                "ec_phone": v_ec_phone,
+            })
+            if ok:
+                st.success(msg)
+            else:
+                st.error(msg)
+
+    # ── TAB: Security ───────────────────────────────────────────────────────
+    with tab_s:
+        st.markdown(f"""
+        <div style="background:{t['p_light']};border:1px solid {t['border']};border-radius:14px;
+          padding:18px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:{t['primary']};
+            display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">&#128274;</div>
+          <div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+              color:{t['t1']};margin-bottom:4px;">Password Security</div>
+            <div style="font-size:.82rem;color:{t['t2']};line-height:1.6;">
+              Passwords are stored as <strong>SHA-256 salted hashes</strong> — never in plain text.
+              Choose a strong password with at least 8 characters, mixing letters, numbers and symbols.
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        sec_col, _ = st.columns([1.2, 1])
+        with sec_col:
+            v_old  = st.text_input("Current Password", type="password",
+                                   placeholder="Your current password", key="pp_sec_old")
+            v_new1 = st.text_input("New Password", type="password",
+                                   placeholder="e.g. Bagmati@2024", key="pp_sec_new1")
+            v_new2 = st.text_input("Confirm New Password", type="password",
+                                   placeholder="Repeat new password", key="pp_sec_new2")
+            password_rules_card(v_new1)
+            with st.form("form_security"):
+                save_s = st.form_submit_button("Change Password", use_container_width=True, type="primary")
+
+        if save_s:
+            if not v_old or not v_new1 or not v_new2:
+                st.error("All three password fields are required.")
+            elif v_new1 != v_new2:
+                st.error("New passwords do not match.")
+            else:
+                ok, msg = change_password(uname, v_old, v_new1)
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# ROUTER
+# ════════════════════════════════════════════════════════════════════════════
+
+if not st.session_state.logged_in:
+    page_login()
+elif st.session_state.role == "patient":
+    if st.session_state.get("page") == "profile":
+        profile_page()
+    else:
+        patient_dashboard()
+elif st.session_state.role == "admin":
+    admin_dashboard()
+else:
+    st.error("Unknown role. Please log out and try again.")
+    if st.button("Log out"):
+        st.session_state.logged_in = False
+        st.rerun()
