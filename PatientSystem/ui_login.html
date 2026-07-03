@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bagmati Care — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --g900:#003D28; --g800:#004D34; --g700:#006C49; --g600:#0D9E6A; --g100:#E6F4EF; --g50:#F0F9F5;
+    --bg:#EFF4F1; --surface:#FFFFFF; --t1:#1A2E25; --t2:#4A6358; --t3:#7A9589;
+    --border:#D8E8E2; --amber:#D97706; --amber-bg:#FFFBEB; --red:#DC2626; --red-bg:#FEF2F2;
+    --indigo:#4648D4; --indigo-bg:#EEF2FF;
+  }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--t1); min-height:100vh; }
+  .ms { font-family:'Material Symbols Outlined'; font-style:normal; line-height:1; letter-spacing:normal; text-transform:none; white-space:nowrap; word-wrap:normal; direction:ltr; -webkit-font-feature-settings:'liga'; -webkit-font-smoothing:antialiased; user-select:none; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .ms-f { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+
+  .root { display:flex; min-height:100vh; }
+
+  /* HERO */
+  .hero {
+    display:none; flex-direction:column; justify-content:space-between;
+    width:42%; padding:48px 44px;
+    background:linear-gradient(155deg,var(--g900) 0%,var(--g800) 40%,var(--g700) 100%);
+    position:relative; overflow:hidden;
+  }
+  @media(min-width:1024px){.hero{display:flex;}}
+  .blob { position:absolute; border-radius:50%; background:rgba(255,255,255,.05); }
+  .ba{width:420px;height:420px;top:-160px;right:-160px;}
+  .bb{width:280px;height:280px;bottom:-100px;left:-80px;}
+  .bc{width:100px;height:100px;top:48%;left:65%;}
+  .hero-logo { display:flex; align-items:center; gap:12px; }
+  .hero-logo-icon { width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center; }
+  .hero-brand { font-family:'Plus Jakarta Sans',sans-serif; font-size:1.1rem;font-weight:700;color:#fff; }
+  .hero-middle { margin-top:auto; }
+  .hero-middle h1 { font-family:'Plus Jakarta Sans',sans-serif; font-size:2.2rem;font-weight:800;color:#fff;line-height:1.2;letter-spacing:-.03em;margin-bottom:14px; }
+  .hero-middle p { font-size:.9rem;color:rgba(255,255,255,.65);line-height:1.65; }
+  .stats-row { display:flex;gap:16px;margin-top:32px; }
+  .stat { flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:14px 16px; }
+  .stat-v { font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:#fff; }
+  .stat-l { font-size:.7rem;color:rgba(255,255,255,.5);margin-top:3px;text-transform:uppercase;letter-spacing:.06em; }
+  .feat-list { margin-top:28px;display:flex;flex-direction:column;gap:11px; }
+  .feat { display:flex;align-items:center;gap:11px; }
+  .feat-dot { width:7px;height:7px;border-radius:50%;background:var(--g600);flex-shrink:0; }
+  .feat-text { font-size:.85rem;color:rgba(255,255,255,.72); }
+  .hero-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:9999px;padding:6px 14px;font-size:.7rem;color:rgba(255,255,255,.55);letter-spacing:.04em; }
+
+  /* FORM PANEL */
+  .form-panel { flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px;overflow-y:auto; }
+  .form-card { width:100%;max-width:460px; }
+  .mob-logo { display:flex;align-items:center;gap:10px;margin-bottom:30px; }
+  @media(min-width:1024px){.mob-logo{display:none;}}
+  .mob-logo-icon { width:38px;height:38px;border-radius:12px;background:var(--g700);display:flex;align-items:center;justify-content:center; }
+  .mob-brand { font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--g700); }
+
+  /* TABS */
+  .tab-row { display:flex;background:var(--g100);border-radius:12px;padding:4px;margin-bottom:26px; }
+  .tb { flex:1;padding:10px;border-radius:9px;border:none;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .18s;background:none;color:var(--t2);font-family:'Inter',sans-serif; }
+  .tb.on { background:var(--g700);color:#fff;box-shadow:0 2px 10px rgba(0,108,73,.28); }
+  .tb:not(.on):hover { background:rgba(0,108,73,.08); }
+
+  /* HEADING */
+  .fhead { margin-bottom:22px; }
+  .fhead h2 { font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:700;color:var(--t1);letter-spacing:-.02em; }
+  .fhead p { font-size:.875rem;color:var(--t2);margin-top:4px; }
+
+  /* SECTION CHIPS */
+  .schip { display:flex;align-items:center;gap:8px;margin-bottom:14px;margin-top:20px; }
+  .schip:first-child { margin-top:0; }
+  .schip-label { font-size:.7rem;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap; }
+  .schip-line { flex:1;height:1px;background:var(--border); }
+
+  /* FIELDS */
+  .field { margin-bottom:13px; }
+  .f2 { display:grid;grid-template-columns:1fr 1fr;gap:13px; }
+  .flabel { display:flex;align-items:center;justify-content:space-between;font-size:.78rem;font-weight:600;color:var(--t2);margin-bottom:6px; }
+  .fopt { font-size:.7rem;font-weight:400;color:var(--t3); }
+  .fwrap { position:relative; }
+  .ficon { position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--t3);transition:color .15s;pointer-events:none; }
+  .finput { width:100%;padding:10px 14px 10px 42px;border:1.5px solid var(--border);border-radius:9px;background:#FAFCFB;font-size:.875rem;color:var(--t1);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s,box-shadow .15s; }
+  .finput:focus { border-color:var(--g700);box-shadow:0 0 0 3px rgba(0,108,73,.1);background:#fff; }
+  .finput.err { border-color:var(--red); }
+  select.finput { cursor:pointer;-webkit-appearance:none; }
+  .ferr { display:none;font-size:.73rem;color:var(--red);margin-top:4px; }
+  .ferr.show { display:block; }
+  .eye { position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--t3);transition:color .15s;padding:3px;display:flex; }
+  .eye:hover { color:var(--g700); }
+
+  /* STRENGTH */
+  .sb-wrap { margin-top:8px; }
+  .sb-row { display:flex;gap:3px;margin-bottom:4px; }
+  .sbar { flex:1;height:3px;border-radius:2px;background:var(--border);overflow:hidden; }
+  .sbar-f { height:100%;width:0;border-radius:2px;transition:width .3s,background .3s; }
+  .slabel { font-size:.72rem;color:var(--t3);transition:color .3s; }
+
+  /* CONSENT */
+  .consent-row { display:flex;align-items:flex-start;gap:10px;margin-top:4px; }
+  .consent-cb { width:16px;height:16px;margin-top:3px;accent-color:var(--g700);flex-shrink:0;cursor:pointer; }
+  .consent-text { font-size:.79rem;color:var(--t2);line-height:1.55; }
+  .consent-text strong { color:var(--g700); }
+
+  /* ALERTS */
+  .alert { display:none;align-items:center;gap:10px;padding:12px 14px;border-radius:9px;margin-bottom:16px;font-size:.84rem; }
+  .alert.show { display:flex; }
+  .aerr { background:var(--red-bg);border:1px solid rgba(220,38,38,.2);color:#991b1b; }
+  .aok  { background:var(--g50);border:1px solid rgba(0,108,73,.2);color:var(--g800); }
+  .ainfo{ background:var(--indigo-bg);border:1px solid rgba(70,72,212,.2);color:#3730a3; }
+  .alert .ms { font-size:18px;flex-shrink:0; }
+
+  /* BUTTON */
+  .btn-p { width:100%;padding:13px 20px;border-radius:9px;background:var(--g700);color:#fff;font-weight:700;font-size:.9rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .18s;box-shadow:0 2px 12px rgba(0,108,73,.25);margin-top:18px;font-family:'Inter',sans-serif; }
+  .btn-p:hover { background:var(--g800);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,108,73,.3); }
+  .btn-p:active { transform:translateY(0); }
+  .btn-p:disabled { opacity:.6;cursor:not-allowed;transform:none;box-shadow:none; }
+
+  /* ADMIN HINT */
+  .admin-hint { background:var(--amber-bg);border:1px solid rgba(217,119,6,.2);border-radius:9px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;font-size:.8rem;color:#92400e;margin-top:14px; }
+  .admin-hint .ms { font-size:16px;color:var(--amber);flex-shrink:0;margin-top:1px; }
+
+  .ffooter { text-align:center;font-size:.73rem;color:var(--t3);margin-top:22px; }
+  .hidden { display:none; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)} }
+  .fu { animation:fadeUp .25s ease both; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .spin { animation:spin 1s linear infinite;display:inline-block; }
+</style>
+</head>
+<body>
+<div class="root">
+
+<!-- ══ HERO ══ -->
+<div class="hero" aria-hidden="true">
+  <div class="blob ba"></div><div class="blob bb"></div><div class="blob bc"></div>
+  <div class="hero-logo">
+    <div class="hero-logo-icon"><span class="ms ms-f" style="font-size:24px;color:#fff">add</span></div>
+    <span class="hero-brand">Bagmati Care</span>
+  </div>
+  <div class="hero-middle">
+    <h1>Smarter<br>Healthcare<br>Planning</h1>
+    <p>AI tools helping patients in the Bagmati Region understand costs, stay durations, and the best time to seek care.</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-v">120k+</div><div class="stat-l">Admissions</div></div>
+      <div class="stat"><div class="stat-v">5</div><div class="stat-l">Hospitals</div></div>
+      <div class="stat"><div class="stat-v">4 yrs</div><div class="stat-l">2021 – 2024</div></div>
+    </div>
+    <div class="feat-list">
+      <div class="feat"><div class="feat-dot"></div><span class="feat-text">Personalised cost &amp; stay estimates</span></div>
+      <div class="feat"><div class="feat-dot"></div><span class="feat-text">Real-time hospital capacity insights</span></div>
+      <div class="feat"><div class="feat-dot"></div><span class="feat-text">Best season to visit, per department</span></div>
+      <div class="feat"><div class="feat-dot"></div><span class="feat-text">Age-grouped care planning guides</span></div>
+    </div>
+  </div>
+  <div class="hero-badge">
+    <span class="ms" style="font-size:13px">school</span>
+    Coventry University · Synthetic Research Data
+  </div>
+</div>
+
+<!-- ══ FORM PANEL ══ -->
+<div class="form-panel">
+<div class="form-card">
+
+  <div class="mob-logo">
+    <div class="mob-logo-icon"><span class="ms ms-f" style="font-size:20px;color:#fff">add</span></div>
+    <span class="mob-brand">Bagmati Care</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-row">
+    <button class="tb on" id="tab-si" onclick="switchTab('si')">Sign In</button>
+    <button class="tb" id="tab-reg" onclick="switchTab('reg')">Create Account</button>
+  </div>
+
+  <!-- ─── SIGN IN ─── -->
+  <div id="pane-si" class="fu">
+    <div class="fhead">
+      <h2>Welcome back</h2>
+      <p>Sign in to access your patient portal.</p>
+    </div>
+
+    <div id="si-err" class="alert aerr"><span class="ms ms-f">error</span><span id="si-err-msg">Invalid username or password.</span></div>
+
+    <form onsubmit="doSignIn(event)" novalidate>
+      <div class="field">
+        <div class="flabel">Username</div>
+        <div class="fwrap">
+          <input class="finput" id="si-u" type="text" placeholder="Your username" autocomplete="username">
+          <span class="ms ficon">person</span>
+        </div>
+        <div class="ferr" id="si-u-e">Username is required.</div>
+      </div>
+      <div class="field">
+        <div class="flabel">Password</div>
+        <div class="fwrap">
+          <input class="finput" id="si-p" type="password" placeholder="Your password" autocomplete="current-password" style="padding-right:42px">
+          <span class="ms ficon">lock</span>
+          <button class="eye" type="button" onclick="toggleEye('si-p','si-ei')"><span class="ms" id="si-ei">visibility</span></button>
+        </div>
+        <div class="ferr" id="si-p-e">Password is required.</div>
+      </div>
+      <button class="btn-p" type="submit" id="si-btn">
+        <span id="si-bl">Sign In</span><span class="ms" id="si-bi">arrow_forward</span>
+      </button>
+    </form>
+
+    <div class="admin-hint">
+      <span class="ms ms-f">admin_panel_settings</span>
+      <div>Admin access: username <strong>admin</strong> · password <strong>Admin@123</strong></div>
+    </div>
+    <div class="ffooter">Bagmati Care · Hospital Intelligence System · Research Only</div>
+  </div>
+
+  <!-- ─── REGISTER ─── -->
+  <div id="pane-reg" class="hidden fu">
+    <div class="fhead">
+      <h2>Create your account</h2>
+      <p>Patient portal only — complete the sections below.</p>
+    </div>
+
+    <!-- Progress pills -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px">
+      <span style="background:var(--g100);color:var(--g700);border:1px solid rgba(0,108,73,.2);border-radius:9999px;padding:3px 10px;font-size:.68rem;font-weight:700">A · Identity</span>
+      <span style="background:var(--g100);color:var(--g700);border:1px solid rgba(0,108,73,.2);border-radius:9999px;padding:3px 10px;font-size:.68rem;font-weight:700">B · Credentials</span>
+      <span style="background:var(--g100);color:var(--g700);border:1px solid rgba(0,108,73,.2);border-radius:9999px;padding:3px 10px;font-size:.68rem;font-weight:700">C · Medical Profile</span>
+      <span style="background:var(--g100);color:var(--g700);border:1px solid rgba(0,108,73,.2);border-radius:9999px;padding:3px 10px;font-size:.68rem;font-weight:700">D · Emergency Contact</span>
+      <span style="background:var(--g100);color:var(--g700);border:1px solid rgba(0,108,73,.2);border-radius:9999px;padding:3px 10px;font-size:.68rem;font-weight:700">E · Preferences</span>
+    </div>
+
+    <div id="reg-ok" class="alert aok"><span class="ms ms-f">check_circle</span>Account created! Switch to Sign In to log in.</div>
+    <div class="alert ainfo show"><span class="ms ms-f">info</span>Patient registration only. Admin accounts are managed separately.</div>
+
+    <form onsubmit="doRegister(event)" novalidate>
+
+      <!-- A: Identity -->
+      <div class="schip"><span class="schip-label">Your Identity</span><div class="schip-line"></div></div>
+      <div class="f2">
+        <div class="field">
+          <div class="flabel">First Name</div>
+          <div class="fwrap">
+            <input class="finput" id="r-fn" type="text" placeholder="Anita">
+            <span class="ms ficon">badge</span>
+          </div>
+          <div class="ferr" id="r-fn-e">First name is required.</div>
+        </div>
+        <div class="field">
+          <div class="flabel">Last Name</div>
+          <div class="fwrap">
+            <input class="finput" id="r-ln" type="text" placeholder="Thapa">
+            <span class="ms ficon">badge</span>
+          </div>
+          <div class="ferr" id="r-ln-e">Last name is required.</div>
+        </div>
+      </div>
+      <div class="f2">
+        <div class="field">
+          <div class="flabel">Date of Birth <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <input class="finput" id="r-dob" type="date">
+            <span class="ms ficon">cake</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="flabel">Gender <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <select class="finput" id="r-gen">
+              <option value="">Select…</option>
+              <option>Male</option><option>Female</option>
+              <option>Non-binary</option><option>Prefer not to say</option>
+            </select>
+            <span class="ms ficon">wc</span>
+          </div>
+        </div>
+      </div>
+      <div class="f2">
+        <div class="field">
+          <div class="flabel">District / City <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <select class="finput" id="r-dist">
+              <option value="">Select district…</option>
+              <option>Kathmandu</option><option>Lalitpur</option><option>Bhaktapur</option>
+              <option>Kavrepalanchok</option><option>Sindhupalchok</option><option>Nuwakot</option>
+              <option>Rasuwa</option><option>Dhading</option><option>Makwanpur</option>
+              <option>Chitwan</option><option>Sindhuli</option><option>Ramechhap</option>
+              <option>Dolakha</option><option>Other (Bagmati Province)</option>
+            </select>
+            <span class="ms ficon">location_on</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="flabel">Nationality <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <input class="finput" id="r-nat" type="text" placeholder="e.g. Nepali">
+            <span class="ms ficon">flag</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- B: Credentials -->
+      <div class="schip"><span class="schip-label">Account Credentials</span><div class="schip-line"></div></div>
+      <div class="field">
+        <div class="flabel">Username</div>
+        <div class="fwrap">
+          <input class="finput" id="r-u" type="text" placeholder="anita_thapa" autocomplete="off">
+          <span class="ms ficon">alternate_email</span>
+        </div>
+        <div class="ferr" id="r-u-e">Username must be at least 3 characters.</div>
+      </div>
+      <div class="field">
+        <div class="flabel">Email Address <span class="fopt">(optional)</span></div>
+        <div class="fwrap">
+          <input class="finput" id="r-em" type="email" placeholder="anita@example.com" autocomplete="email">
+          <span class="ms ficon">mail</span>
+        </div>
+        <div class="ferr" id="r-em-e">Please enter a valid email address.</div>
+      </div>
+      <div class="f2">
+        <div class="field">
+          <div class="flabel">Password</div>
+          <div class="fwrap">
+            <input class="finput" id="r-p" type="password" placeholder="Min. 6 characters" autocomplete="new-password" style="padding-right:42px" oninput="updateStrength(this.value)">
+            <span class="ms ficon">lock_open</span>
+            <button class="eye" type="button" onclick="toggleEye('r-p','r-pi')"><span class="ms" id="r-pi">visibility</span></button>
+          </div>
+          <div class="sb-wrap">
+            <div class="sb-row"><div class="sbar"><div class="sbar-f" id="sb1"></div></div><div class="sbar"><div class="sbar-f" id="sb2"></div></div><div class="sbar"><div class="sbar-f" id="sb3"></div></div></div>
+            <div class="slabel" id="slbl">Enter a password</div>
+          </div>
+          <div class="ferr" id="r-p-e">Password must be at least 6 characters.</div>
+        </div>
+        <div class="field">
+          <div class="flabel">Confirm Password</div>
+          <div class="fwrap">
+            <input class="finput" id="r-p2" type="password" placeholder="Repeat password" autocomplete="new-password" style="padding-right:42px">
+            <span class="ms ficon">lock</span>
+            <button class="eye" type="button" onclick="toggleEye('r-p2','r-p2i')"><span class="ms" id="r-p2i">visibility</span></button>
+          </div>
+          <div class="ferr" id="r-p2-e">Passwords do not match.</div>
+        </div>
+      </div>
+
+      <!-- C: Medical Profile -->
+      <div class="schip"><span class="schip-label">Medical Profile</span><div class="schip-line"></div></div>
+      <div class="f2">
+        <div class="field">
+          <div class="flabel">Blood Type <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <select class="finput" id="r-blood">
+              <option value="">Unknown / not sure</option>
+              <option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option>
+              <option>O+</option><option>O-</option>
+              <option>AB+</option><option>AB-</option>
+            </select>
+            <span class="ms ficon">bloodtype</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="flabel">Occupation <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <select class="finput" id="r-occ">
+              <option value="">Select…</option>
+              <option>Student</option>
+              <option>Healthcare Worker</option>
+              <option>Government Employee</option>
+              <option>Private Sector</option>
+              <option>Farmer / Agriculture</option>
+              <option>Business Owner</option>
+              <option>Retired</option>
+              <option>Unemployed</option>
+              <option>Other</option>
+            </select>
+            <span class="ms ficon">work</span>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="flabel">Known Allergies <span class="fopt">(optional — brief)</span></div>
+        <div class="fwrap">
+          <input class="finput" id="r-allergy" type="text" placeholder="e.g. Penicillin, latex, pollen…" style="padding-left:14px">
+          <span class="ms" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--t3);pointer-events:none">health_and_safety</span>
+        </div>
+        <div style="font-size:.71rem;color:var(--t3);margin-top:4px">For informational context only — not stored in your medical record</div>
+      </div>
+
+      <!-- D: Emergency Contact -->
+      <div class="schip"><span class="schip-label">Emergency Contact</span><div class="schip-line"></div></div>
+      <div class="f2">
+        <div class="field">
+          <div class="flabel">Contact Name <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <input class="finput" id="r-ec-name" type="text" placeholder="Ramesh Thapa">
+            <span class="ms ficon">contact_phone</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="flabel">Relationship <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <select class="finput" id="r-ec-rel">
+              <option value="">Select…</option>
+              <option>Spouse / Partner</option>
+              <option>Parent</option>
+              <option>Sibling</option>
+              <option>Child</option>
+              <option>Guardian</option>
+              <option>Friend</option>
+              <option>Other</option>
+            </select>
+            <span class="ms ficon">group</span>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="flabel">Contact Phone <span class="fopt">(optional)</span></div>
+        <div class="fwrap">
+          <input class="finput" id="r-ec-ph" type="tel" placeholder="+977 98…">
+          <span class="ms ficon">phone_in_talk</span>
+        </div>
+      </div>
+
+      <!-- E: Preferences -->
+      <div class="schip"><span class="schip-label">Preferences</span><div class="schip-line"></div></div>
+      <div class="f2">
+        <div class="field">
+          <div class="flabel">Your Phone <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <input class="finput" id="r-ph" type="tel" placeholder="+977 98…">
+            <span class="ms ficon">phone</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="flabel">Preferred Hospital <span class="fopt">(optional)</span></div>
+          <div class="fwrap">
+            <select class="finput" id="r-hosp">
+              <option value="">Any hospital</option>
+              <option>Hospital 1 — Kathmandu</option>
+              <option>Hospital 2 — Lalitpur</option>
+              <option>Hospital 3 — Bhaktapur</option>
+              <option>Hospital 4 — Kavrepalanchok</option>
+              <option>Hospital 5 — Sindhupalchok</option>
+            </select>
+            <span class="ms ficon">local_hospital</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="consent-row">
+        <input class="consent-cb" type="checkbox" id="r-cons">
+        <label class="consent-text" for="r-cons">
+          I understand this system uses <strong>synthetic research data</strong> for academic purposes (Coventry University). My medical records are never stored.
+        </label>
+      </div>
+      <div class="ferr" id="r-cons-e" style="margin-top:6px">You must accept to continue.</div>
+
+      <button class="btn-p" type="submit" id="reg-btn">
+        <span id="reg-bl">Create Account</span><span class="ms" id="reg-bi">arrow_forward</span>
+      </button>
+    </form>
+    <div class="ffooter">Bagmati Care · Hospital Intelligence System · Research Only</div>
+  </div>
+
+</div><!-- form-card -->
+</div><!-- form-panel -->
+</div><!-- root -->
+
+<script>
+function switchTab(t){
+  ['si','reg'].forEach(id=>{
+    document.getElementById('tab-'+id).classList.toggle('on',id===t);
+    const p=document.getElementById('pane-'+id);
+    p.classList.toggle('hidden',id!==t);
+    if(id===t){p.classList.remove('fu');void p.offsetWidth;p.classList.add('fu');}
+  });
+  document.getElementById('si-err').classList.remove('show');
+  document.getElementById('reg-ok').classList.remove('show');
+}
+
+function toggleEye(fid,iid){
+  const f=document.getElementById(fid),i=document.getElementById(iid);
+  f.type=f.type==='password'?'text':'password';
+  i.textContent=f.type==='password'?'visibility':'visibility_off';
+}
+
+function updateStrength(v){
+  const s=(v.length>=6?1:0)+(v.length>=10||/[A-Z]/.test(v)?1:0)+(/[0-9]|[^A-Za-z0-9]/.test(v)?1:0);
+  [['sb1','#DC2626'],['sb2','#D97706'],['sb3','#006C49']].forEach(([id,c],i)=>{
+    const el=document.getElementById(id);el.style.width=i<s?'100%':'0';el.style.background=c;
+  });
+  const ls=['Enter a password','Weak','Fair','Strong'];
+  const lc=['#7A9589','#DC2626','#D97706','#006C49'];
+  const lbl=document.getElementById('slbl');
+  lbl.textContent=ls[s]||'Strong';lbl.style.color=lc[s]||'#006C49';
+}
+
+function vErr(id,msg){
+  const e=document.getElementById(id+'-e');
+  if(msg)e.textContent=msg;e.classList.add('show');
+  document.getElementById(id).classList.add('err');
+}
+function cErr(id){
+  document.getElementById(id+'-e').classList.remove('show');
+  document.getElementById(id).classList.remove('err');
+}
+
+function setLoad(bId,lId,iId,label){
+  document.getElementById(bId).disabled=true;
+  document.getElementById(lId).textContent=label;
+  const ic=document.getElementById(iId);ic.textContent='progress_activity';ic.classList.add('spin');
+}
+function clrLoad(bId,lId,iId,label,icon){
+  document.getElementById(bId).disabled=false;
+  document.getElementById(lId).textContent=label;
+  const ic=document.getElementById(iId);ic.textContent=icon;ic.classList.remove('spin');
+}
+
+function doSignIn(e){
+  e.preventDefault();
+  document.getElementById('si-err').classList.remove('show');
+  const u=document.getElementById('si-u').value.trim(),p=document.getElementById('si-p').value;
+  let ok=true;
+  u?cErr('si-u'):( vErr('si-u'),ok=false);
+  p?cErr('si-p'):( vErr('si-p'),ok=false);
+  if(!ok)return;
+  setLoad('si-btn','si-bl','si-bi','Signing in…');
+  setTimeout(()=>{
+    clrLoad('si-btn','si-bl','si-bi','Sign In','arrow_forward');
+    document.getElementById('si-err').classList.add('show');
+    document.getElementById('si-err-msg').textContent='Invalid username or password.';
+    document.getElementById('si-p').value='';
+  },1200);
+}
+
+function doRegister(e){
+  e.preventDefault();
+  document.getElementById('reg-ok').classList.remove('show');
+  const fn=document.getElementById('r-fn').value.trim();
+  const ln=document.getElementById('r-ln').value.trim();
+  const u=document.getElementById('r-u').value.trim();
+  const em=document.getElementById('r-em').value.trim();
+  const p=document.getElementById('r-p').value;
+  const p2=document.getElementById('r-p2').value;
+  const cons=document.getElementById('r-cons').checked;
+  let ok=true;
+  fn?cErr('r-fn'):( vErr('r-fn'),ok=false);
+  ln?cErr('r-ln'):( vErr('r-ln'),ok=false);
+  u.length>=3?cErr('r-u'):( vErr('r-u','Username must be at least 3 characters.'),ok=false);
+  (!em||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))?cErr('r-em'):( vErr('r-em','Please enter a valid email.'),ok=false);
+  p.length>=6?cErr('r-p'):( vErr('r-p','Password must be at least 6 characters.'),ok=false);
+  p===p2?cErr('r-p2'):( vErr('r-p2','Passwords do not match.'),ok=false);
+  cons?cErr('r-cons'):( vErr('r-cons','You must accept to continue.'),ok=false);
+  if(!ok)return;
+  setLoad('reg-btn','reg-bl','reg-bi','Creating account…');
+  setTimeout(()=>{
+    clrLoad('reg-btn','reg-bl','reg-bi','Create Account','arrow_forward');
+    document.getElementById('pane-reg').querySelector('form').reset();
+    updateStrength('');
+    document.getElementById('reg-ok').classList.add('show');
+    document.getElementById('pane-reg').scrollTo(0,0);
+    window.scrollTo({top:0,behavior:'smooth'});
+  },1400);
+}
+
+document.querySelectorAll('.finput').forEach(el=>{
+  el.addEventListener('focus',()=>el.classList.remove('err'));
+});
+</script>
+</body>
+</html>
