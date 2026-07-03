@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bagmati Care — Patient Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing:border-box;margin:0;padding:0; }
+  :root {
+    --g900:#003D28; --g800:#004D34; --g700:#006C49; --g600:#0D9E6A; --g100:#E6F4EF; --g50:#F0F9F5;
+    --bg:#EFF4F1; --surface:#FFFFFF; --t1:#1A2E25; --t2:#4A6358; --t3:#7A9589;
+    --border:#D8E8E2; --border2:#EAF0EC;
+    --amber:#D97706; --amber-bg:#FFFBEB; --amber-border:rgba(217,119,6,.2);
+    --red:#DC2626; --red-bg:#FEF2F2; --red-border:rgba(220,38,38,.2);
+    --indigo:#4648D4; --indigo-bg:#EEF2FF;
+    --sidebar-w:248px;
+  }
+  body { font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden; }
+  .ms { font-family:'Material Symbols Outlined';font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-feature-settings:'liga';-webkit-font-smoothing:antialiased;user-select:none;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .ms-f { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .hidden { display:none!important; }
+  ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:#C8D8D2;border-radius:3px}
+
+  /* ═══ LAYOUT ═══════════════════════════════════════ */
+  .app { display:flex; min-height:100vh; }
+
+  /* ─ Sidebar ─ */
+  .sidebar {
+    width:var(--sidebar-w); flex-shrink:0;
+    background:linear-gradient(180deg,var(--g900) 0%,var(--g800) 100%);
+    display:flex;flex-direction:column;
+    position:fixed;left:0;top:0;bottom:0;z-index:100;
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+  }
+  .sb-logo { padding:24px 20px 18px; display:flex;align-items:center;gap:10px; border-bottom:1px solid rgba(255,255,255,.08); }
+  .sb-logo-icon { width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .sb-brand { font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:700;color:#fff; }
+
+  /* User card in sidebar */
+  .sb-user { padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.08); }
+  .sb-avatar { width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--g600),var(--g700));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff;flex-shrink:0;letter-spacing:.04em; }
+  .sb-uname { font-weight:600;font-size:.85rem;color:#fff;line-height:1.2; }
+  .sb-role { display:inline-block;margin-top:3px;padding:2px 8px;border-radius:9999px;background:rgba(255,255,255,.12);font-size:.65rem;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.04em;text-transform:uppercase; }
+
+  /* Nav links */
+  .sb-nav { flex:1;padding:12px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:2px; }
+  .sb-section { font-size:.65rem;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;padding:12px 8px 6px; }
+  .nav-item {
+    display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;
+    cursor:pointer;transition:all .15s;color:rgba(255,255,255,.6);font-size:.875rem;font-weight:500;
+    border:none;background:none;width:100%;text-align:left;font-family:'Inter',sans-serif;
+  }
+  .nav-item .ms { font-size:20px;flex-shrink:0;transition:font-variation-settings .15s; }
+  .nav-item:hover { background:rgba(255,255,255,.08);color:rgba(255,255,255,.9); }
+  .nav-item.active { background:rgba(255,255,255,.15);color:#fff;font-weight:600; }
+  .nav-item.active .ms { font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .nav-badge { margin-left:auto;background:var(--amber);color:#fff;font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:9999px; }
+
+  .sb-bottom { padding:12px 12px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:2px; }
+  .sb-logout { display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.5);font-size:.875rem;font-weight:500;border:none;background:none;width:100%;font-family:'Inter',sans-serif;transition:all .15s; }
+  .sb-logout:hover { background:rgba(220,38,38,.15);color:#FC9595; }
+  .sb-logout .ms { font-size:20px; }
+
+  /* Mobile: sidebar overlay */
+  .sb-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;backdrop-filter:blur(2px); }
+  @media(max-width:1023px){
+    .sidebar { transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
+    .sb-overlay.open { display:block; }
+  }
+
+  /* ─ Main Content ─ */
+  .main { flex:1;margin-left:var(--sidebar-w);display:flex;flex-direction:column;min-height:100vh; }
+  @media(max-width:1023px){ .main{margin-left:0;} }
+
+  /* Top bar (mobile) */
+  .topbar {
+    display:none;position:sticky;top:0;z-index:80;
+    background:rgba(255,255,255,.9);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border2);
+    padding:14px 16px;align-items:center;justify-content:space-between;
+  }
+  @media(max-width:1023px){.topbar{display:flex;}}
+  .topbar-brand { display:flex;align-items:center;gap:8px; }
+  .topbar-logo { width:32px;height:32px;border-radius:9px;background:var(--g700);display:flex;align-items:center;justify-content:center; }
+  .topbar-name { font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:700;color:var(--g700); }
+  .hamburger { background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;display:flex;align-items:center;color:var(--t2); }
+  .hamburger:hover{background:var(--g100);}
+
+  /* Content area */
+  .content { flex:1;padding:28px 28px;max-width:1060px; }
+  @media(max-width:768px){.content{padding:20px 16px;}}
+
+  /* ═══ DESIGN TOKENS ══════════════════════════════ */
+  .card { background:var(--surface);border-radius:16px;border:1px solid var(--border2);box-shadow:0 1px 4px rgba(0,0,0,.04); }
+  .card-p { padding:22px; }
+  .card-hover { transition:box-shadow .18s,transform .18s; }
+  .card-hover:hover { box-shadow:0 6px 24px rgba(0,108,73,.1);transform:translateY(-2px); }
+
+  .page-title { font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:var(--t1);letter-spacing:-.025em; }
+  .page-sub { font-size:.875rem;color:var(--t2);margin-top:3px; }
+  .section-label { font-size:.7rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.1em; }
+  .section-title { font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:700;color:var(--t1); }
+
+  /* ═══ KPI CARDS ═════════════════════════════════ */
+  .kpi-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px; }
+  .kpi-icon { width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px; }
+  .kpi-value { font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:var(--t1);letter-spacing:-.02em; }
+  .kpi-label { font-size:.78rem;color:var(--t2);margin-top:2px; }
+  .kpi-sub { font-size:.73rem;color:var(--t3);margin-top:8px;display:flex;align-items:center;gap:4px; }
+  .kpi-sub .ms { font-size:14px; }
+
+  /* ═══ PLANNER ════════════════════════════════════ */
+  .planner-grid { display:grid;grid-template-columns:1fr 1fr;gap:18px; }
+  @media(max-width:860px){.planner-grid{grid-template-columns:1fr;}}
+
+  /* Input groups */
+  .igroup { margin-bottom:18px; }
+  .ilabel { display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--t2);margin-bottom:8px; }
+  .ilabel .ms { font-size:16px;color:var(--t3); }
+  .tooltip-btn { background:none;border:none;cursor:pointer;color:var(--t3);display:flex;align-items:center;margin-left:auto; }
+  .tooltip-btn .ms { font-size:16px; }
+  .iselect { width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:#FAFCFB;font-size:.875rem;color:var(--t1);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s,box-shadow .15s;cursor:pointer; }
+  .iselect:focus { border-color:var(--g700);box-shadow:0 0 0 3px rgba(0,108,73,.1);background:#fff; }
+
+  /* Pill toggle group */
+  .pill-group { display:flex;flex-wrap:wrap;gap:6px; }
+  .pill { padding:7px 14px;border-radius:9999px;border:1.5px solid var(--border);background:var(--surface);font-size:.8rem;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif; }
+  .pill:hover { border-color:var(--g700);color:var(--g700); }
+  .pill.on { background:var(--g700);border-color:var(--g700);color:#fff;box-shadow:0 2px 8px rgba(0,108,73,.22); }
+  .pill.sev-mild.on { background:#059669;border-color:#059669; }
+  .pill.sev-mod.on  { background:#D97706;border-color:#D97706; }
+  .pill.sev-sev.on  { background:#EA580C;border-color:#EA580C; }
+  .pill.sev-crit.on { background:#DC2626;border-color:#DC2626; }
+
+  /* Range slider */
+  .slider-row { display:flex;align-items:center;gap:12px; }
+  .slider-val { font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:var(--g700);min-width:48px;text-align:right;flex-shrink:0; }
+  input[type=range] { flex:1;-webkit-appearance:none;height:5px;border-radius:3px;background:var(--border);outline:none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--g700);cursor:pointer;border:2.5px solid #fff;box-shadow:0 0 0 2px rgba(0,108,73,.25),0 2px 6px rgba(0,108,73,.2); }
+
+  /* Toggle switch */
+  .switch { position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0; }
+  .switch input { opacity:0;width:0;height:0; }
+  .sw-track { position:absolute;cursor:pointer;inset:0;border-radius:12px;background:#D8E8E2;transition:.2s; }
+  .sw-track::before { content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2); }
+  input:checked + .sw-track { background:var(--g700); }
+  input:checked + .sw-track::before { transform:translateX(20px); }
+  .switch-row { display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;background:var(--g50);border:1px solid var(--border2); }
+  .switch-info h4 { font-size:.85rem;font-weight:600;color:var(--t1); }
+  .switch-info p { font-size:.75rem;color:var(--t2);margin-top:1px; }
+
+  /* CTA */
+  .btn-primary { width:100%;padding:13px;border-radius:10px;background:var(--g700);color:#fff;font-weight:700;font-size:.9rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .18s;box-shadow:0 2px 14px rgba(0,108,73,.28);font-family:'Inter',sans-serif;margin-top:6px; }
+  .btn-primary:hover { background:var(--g800);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,108,73,.32); }
+  .btn-primary:active { transform:translateY(0); }
+  .btn-secondary { width:100%;padding:11px;border-radius:10px;background:transparent;color:var(--g700);font-weight:600;font-size:.875rem;border:1.5px solid var(--g700);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;font-family:'Inter',sans-serif;margin-top:8px; }
+  .btn-secondary:hover { background:var(--g100); }
+
+  /* ═══ RESULT CARD ════════════════════════════════ */
+  .result-banner {
+    background:linear-gradient(135deg,var(--g900) 0%,var(--g800) 50%,var(--g700) 100%);
+    border-radius:16px;padding:22px;color:#fff;margin-bottom:14px;
+  }
+  .result-banner-top { display:flex;align-items:center;justify-content:space-between;margin-bottom:18px; }
+  .result-tag { background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:9999px;padding:4px 12px;font-size:.7rem;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.04em; }
+  .result-row { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px; }
+  .result-item { background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px 16px; }
+  .result-item-label { font-size:.72rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:5px; }
+  .result-item-label .ms { font-size:14px; }
+  .result-item-val { font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:#fff; }
+  .result-item-sub { font-size:.7rem;color:rgba(255,255,255,.5);margin-top:3px; }
+  .result-gauge-row { display:flex;align-items:center;gap:16px; }
+  .gauge-labels p:first-child { font-size:.75rem;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:2px; }
+  .gauge-labels p:last-child { font-size:.75rem;color:rgba(255,255,255,.55); }
+
+  /* Gauge SVG */
+  .gauge-arc { fill:none;stroke:var(--g700);stroke-width:9;stroke-linecap:round;stroke-dasharray:226;stroke-dashoffset:226;transition:stroke-dashoffset .9s cubic-bezier(.33,1,.68,1),stroke .4s;transform-origin:50% 50%;transform:rotate(-90deg); }
+  .gauge-track { fill:none;stroke:rgba(255,255,255,.12);stroke-width:9; }
+
+  /* Context bar (below result) */
+  .context-bar { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px; }
+  .context-item { background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px; }
+  .context-icon { width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .context-label { font-size:.72rem;color:var(--t2); }
+  .context-value { font-size:.85rem;font-weight:700;color:var(--t1); }
+
+  /* Disclaimer */
+  .disclaimer { background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px; }
+  .disclaimer .ms { font-size:18px;color:var(--amber);flex-shrink:0;margin-top:1px; }
+  .disclaimer p { font-size:.78rem;color:#92400e;line-height:1.55; }
+
+  /* Empty state */
+  .empty-state { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center; }
+  .empty-icon { width:72px;height:72px;border-radius:20px;display:flex;align-items:center;justify-content:center;background:var(--g100);margin-bottom:16px; }
+  .empty-title { font-weight:700;font-size:.95rem;color:var(--t1);margin-bottom:6px; }
+  .empty-sub { font-size:.82rem;color:var(--t2);max-width:200px;line-height:1.55; }
+
+  /* ═══ CHARTS & DATA VIZ ══════════════════════════ */
+  .chart-card { position:relative; }
+  .chart-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px; }
+  .chart-legend { display:flex;flex-direction:column;gap:8px; }
+  .legend-item { display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--t2); }
+  .legend-dot { width:10px;height:10px;border-radius:2px;flex-shrink:0; }
+  .legend-pct { font-weight:700;color:var(--t1);margin-left:auto; }
+
+  /* Horizontal bar */
+  .h-bars { display:flex;flex-direction:column;gap:10px; }
+  .h-bar-row { display:flex;align-items:center;gap:10px; }
+  .h-bar-label { font-size:.78rem;color:var(--t2);width:130px;flex-shrink:0;text-align:right; }
+  .h-bar-track { flex:1;height:20px;background:var(--border2);border-radius:4px;overflow:hidden; }
+  .h-bar-fill { height:100%;border-radius:4px;transition:width .8s ease; }
+  .h-bar-val { font-size:.75rem;font-weight:700;color:var(--t1);width:40px;flex-shrink:0; }
+
+  /* Heatmap */
+  .hm-grid { display:grid;gap:3px; }
+  .hm-cell { border-radius:4px;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;height:26px;cursor:default;transition:transform .1s; }
+  .hm-cell:hover { transform:scale(1.12); }
+  .hm-label { font-size:.68rem;color:var(--t2);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-weight:600; }
+
+  /* Season card */
+  .season-cards { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px; }
+  .season-card { background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;border-left:4px solid transparent; }
+
+  /* Age bar */
+  .age-bar { display:flex;flex-direction:column;gap:8px; }
+  .age-row { display:grid;grid-template-columns:60px 1fr 56px;align-items:center;gap:10px; }
+  .age-label { font-size:.78rem;font-weight:600;color:var(--t2);text-align:right; }
+  .age-track { height:18px;background:var(--border2);border-radius:4px;overflow:hidden; }
+  .age-fill { height:100%;border-radius:4px;transition:width .8s ease; }
+  .age-val { font-size:.75rem;font-weight:700;color:var(--t1); }
+
+  /* Insight callout */
+  .insight { background:var(--g50);border:1px solid rgba(0,108,73,.15);border-radius:14px;padding:18px;display:flex;gap:14px;align-items:flex-start;margin-top:16px; }
+  .insight-icon { width:40px;height:40px;border-radius:10px;background:var(--g700);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .insight p { font-size:.85rem;color:var(--t2);line-height:1.65; }
+  .insight strong { color:var(--g700); }
+
+  /* ═══ HOME ════════════════════════════════════════ */
+  .welcome-banner {
+    background:linear-gradient(120deg,var(--g900) 0%,var(--g700) 100%);
+    border-radius:18px;padding:28px 28px;margin-bottom:22px;
+    display:flex;align-items:center;justify-content:space-between;
+    overflow:hidden;position:relative;
+  }
+  .welcome-text h2 { font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;letter-spacing:-.02em; }
+  .welcome-text p { font-size:.875rem;color:rgba(255,255,255,.7);margin-top:5px; }
+  .welcome-art { font-size:72px;opacity:.2;position:absolute;right:24px;bottom:-8px;user-select:none; }
+  .quick-action { background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 18px;display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600;color:#fff;cursor:pointer;margin-top:14px;border:none;font-family:'Inter',sans-serif;transition:background .15s; }
+  .quick-action:hover { background:rgba(255,255,255,.22); }
+
+  /* Quick tip cards */
+  .tips-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px; }
+  .tip-card { background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:16px;display:flex;align-items:flex-start;gap:12px; }
+  .tip-icon { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .tip-card h4 { font-size:.82rem;font-weight:700;color:var(--t1);margin-bottom:3px; }
+  .tip-card p { font-size:.75rem;color:var(--t2);line-height:1.5; }
+
+  /* Animations */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)} }
+  .fu { animation:fadeUp .26s ease both; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .spin { animation:spin 1s linear infinite;display:inline-block; }
+
+  /* Grid utils */
+  .g2 { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+  .g3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px; }
+  @media(max-width:700px){.g2,.g3{grid-template-columns:1fr;}.result-row,.context-bar{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ SIDEBAR OVERLAY (mobile) ══ -->
+  <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon"><span class="ms ms-f" style="font-size:20px;color:#fff">add</span></div>
+      <span class="sb-brand">Bagmati Care</span>
+    </div>
+
+    <div class="sb-user">
+      <div class="sb-avatar">PT</div>
+      <div>
+        <div class="sb-uname">Patient</div>
+        <span class="sb-role">Patient Portal</span>
+      </div>
+    </div>
+
+    <nav class="sb-nav" id="sb-nav">
+      <div class="sb-section">Overview</div>
+      <button class="nav-item active" onclick="goPage('home')">
+        <span class="ms">home</span> Overview
+      </button>
+
+      <div class="sb-section">Planning Tools</div>
+      <button class="nav-item" onclick="goPage('planner')">
+        <span class="ms">calculate</span> Cost &amp; Stay Planner
+        <span class="nav-badge">AI</span>
+      </button>
+      <button class="nav-item" onclick="goPage('insights')">
+        <span class="ms">insights</span> What to Expect
+      </button>
+      <button class="nav-item" onclick="goPage('season')">
+        <span class="ms">event_available</span> Best Time to Visit
+      </button>
+      <button class="nav-item" onclick="goPage('age')">
+        <span class="ms">elderly</span> Plan by Age
+      </button>
+    </nav>
+
+    <div class="sb-bottom">
+      <button class="sb-logout" onclick="alert('Signed out')">
+        <span class="ms">logout</span> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main">
+
+    <!-- Mobile topbar -->
+    <div class="topbar">
+      <div class="topbar-brand">
+        <div class="topbar-logo"><span class="ms ms-f" style="font-size:18px;color:#fff">add</span></div>
+        <span class="topbar-name">Bagmati Care</span>
+      </div>
+      <button class="hamburger" onclick="openSidebar()"><span class="ms" style="font-size:24px">menu</span></button>
+    </div>
+
+    <div class="content">
+
+      <!-- ══════════ PAGE: HOME ══════════════════════ -->
+      <div id="page-home" class="fu">
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h2>Good day, Patient 👋</h2>
+            <p>Here's your personalised healthcare overview. Explore the tools below.</p>
+            <button class="quick-action" onclick="goPage('planner')">
+              <span class="ms ms-f" style="font-size:16px">bolt</span> Get My Estimate
+            </button>
+          </div>
+          <div class="welcome-art" aria-hidden="true">🏥</div>
+        </div>
+
+        <!-- KPI grid -->
+        <div class="kpi-grid">
+          <div class="card card-p card-hover">
+            <div class="kpi-icon" style="background:#E6F4EF"><span class="ms ms-f" style="font-size:22px;color:var(--g700)">bed</span></div>
+            <div class="kpi-value">11.8</div>
+            <div class="kpi-label">Avg. Hospital Stay (days)</div>
+            <div class="kpi-sub"><span class="ms" style="color:var(--g700)">info</span> WHO benchmark: 7 days</div>
+          </div>
+          <div class="card card-p card-hover">
+            <div class="kpi-icon" style="background:#FFFBEB"><span class="ms ms-f" style="font-size:22px;color:var(--amber)">payments</span></div>
+            <div class="kpi-value">44.6k</div>
+            <div class="kpi-label">Typical Admission Cost (NPR)</div>
+            <div class="kpi-sub"><span class="ms" style="color:var(--amber)">trending_up</span> Varies by severity &amp; dept</div>
+          </div>
+          <div class="card card-p card-hover">
+            <div class="kpi-icon" style="background:#EEF2FF"><span class="ms ms-f" style="font-size:22px;color:var(--indigo)">sunny</span></div>
+            <div class="kpi-value">Summer</div>
+            <div class="kpi-label">Best Season to Visit</div>
+            <div class="kpi-sub"><span class="ms" style="color:var(--indigo)">calendar_month</span> Jun–Aug · 68% occupancy</div>
+          </div>
+          <div class="card card-p card-hover">
+            <div class="kpi-icon" style="background:var(--red-bg)"><span class="ms ms-f" style="font-size:22px;color:var(--red)">local_hospital</span></div>
+            <div class="kpi-value">5</div>
+            <div class="kpi-label">Hospitals, Bagmati Region</div>
+            <div class="kpi-sub"><span class="ms" style="color:var(--red)">groups</span> 120k+ admissions, 2021–2024</div>
+          </div>
+        </div>
+
+        <!-- Quick tips -->
+        <div style="margin-top:6px;margin-bottom:12px">
+          <div class="section-label" style="margin-bottom:10px">Quick Tips</div>
+        </div>
+        <div class="tips-grid">
+          <div class="tip-card" onclick="goPage('planner')" style="cursor:pointer">
+            <div class="tip-icon" style="background:var(--g100)"><span class="ms ms-f" style="color:var(--g700);font-size:20px">calculate</span></div>
+            <div>
+              <h4>Cost &amp; Stay Planner</h4>
+              <p>Enter your profile to get an AI estimate of your likely stay and costs.</p>
+            </div>
+          </div>
+          <div class="tip-card" onclick="goPage('season')" style="cursor:pointer">
+            <div class="tip-icon" style="background:#EEF2FF"><span class="ms ms-f" style="color:var(--indigo);font-size:20px">event_available</span></div>
+            <div>
+              <h4>Best Time to Visit</h4>
+              <p>Summer (Jun–Aug) has the lowest hospital load. Avoid monsoon season if possible.</p>
+            </div>
+          </div>
+          <div class="tip-card" onclick="goPage('age')" style="cursor:pointer">
+            <div class="tip-icon" style="background:var(--amber-bg)"><span class="ms ms-f" style="color:var(--amber);font-size:20px">elderly</span></div>
+            <div>
+              <h4>65+ Patients</h4>
+              <p>Seniors stay 83% longer on average. Plan for extended budgets and summer visits.</p>
+            </div>
+          </div>
+          <div class="tip-card" onclick="goPage('insights')" style="cursor:pointer">
+            <div class="tip-icon" style="background:var(--red-bg)"><span class="ms ms-f" style="color:var(--red);font-size:20px">warning</span></div>
+            <div>
+              <h4>Critical Cases</h4>
+              <p>Critical severity averages 22+ days. Emergency admissions are 22% longer than walk-ins.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Research note -->
+        <div style="margin-top:22px;padding:14px 16px;border-radius:10px;background:var(--indigo-bg);border:1px solid rgba(70,72,212,.15);display:flex;gap:10px;align-items:flex-start;">
+          <span class="ms ms-f" style="font-size:18px;color:var(--indigo);flex-shrink:0;margin-top:1px">school</span>
+          <p style="font-size:.78rem;color:#3730a3;line-height:1.55">
+            This system uses <strong>synthetic data</strong> from 5 Bagmati Region hospitals (2021–2024) for academic research at Coventry University. It does not contain real patient records and should not be used for medical decisions.
+          </p>
+        </div>
+      </div>
+
+      <!-- ══════════ PAGE: PLANNER ═══════════════════ -->
+      <div id="page-planner" class="hidden fu">
+        <div style="margin-bottom:22px">
+          <div class="page-title">Cost &amp; Stay Planner</div>
+          <div class="page-sub">Fill in your details below to get an AI-powered estimate of your likely hospital stay and costs.</div>
+        </div>
+
+        <div class="planner-grid">
+
+          <!-- LEFT: Form -->
+          <div class="card card-p">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+              <div style="width:36px;height:36px;border-radius:10px;background:var(--g100);display:flex;align-items:center;justify-content:center">
+                <span class="ms ms-f" style="font-size:18px;color:var(--g700)">tune</span>
+              </div>
+              <div>
+                <div class="section-title">Your Profile</div>
+                <div style="font-size:.73rem;color:var(--t3)">All fields affect the AI estimate</div>
+              </div>
+            </div>
+
+            <!-- Age -->
+            <div class="igroup">
+              <div class="ilabel">
+                <span class="ms" style="font-size:16px;color:var(--g700)">person</span>
+                Age
+              </div>
+              <div class="slider-row">
+                <input type="range" min="1" max="90" value="38" id="age-sl" oninput="onAge(this.value)">
+                <div class="slider-val" id="age-disp">38 yrs</div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--t3);margin-top:4px"><span>1</span><span>45</span><span>90+</span></div>
+            </div>
+
+            <!-- Severity -->
+            <div class="igroup">
+              <div class="ilabel"><span class="ms" style="font-size:16px;color:var(--amber)">monitor_heart</span>Condition Severity</div>
+              <div class="pill-group" id="sev-group">
+                <button class="pill sev-mild on" data-val="Mild" onclick="selectPill('sev-group',this)">Mild</button>
+                <button class="pill sev-mod"  data-val="Moderate" onclick="selectPill('sev-group',this)">Moderate</button>
+                <button class="pill sev-sev"  data-val="Severe" onclick="selectPill('sev-group',this)">Severe</button>
+                <button class="pill sev-crit" data-val="Critical" onclick="selectPill('sev-group',this)">Critical</button>
+              </div>
+            </div>
+
+            <!-- Admission Type -->
+            <div class="igroup">
+              <div class="ilabel"><span class="ms" style="font-size:16px;color:var(--indigo)">door_front</span>Admission Type</div>
+              <div class="pill-group" id="at-group">
+                <button class="pill on" data-val="Walk-in" onclick="selectPill('at-group',this)">Walk-in</button>
+                <button class="pill" data-val="Elective" onclick="selectPill('at-group',this)">Elective</button>
+                <button class="pill" data-val="Emergency" onclick="selectPill('at-group',this)">Emergency</button>
+                <button class="pill" data-val="Referral" onclick="selectPill('at-group',this)">Referral</button>
+              </div>
+            </div>
+
+            <!-- Department -->
+            <div class="igroup">
+              <div class="ilabel"><span class="ms" style="font-size:16px;color:var(--red)">domain</span>Department</div>
+              <select class="iselect" id="dept-sel">
+                <optgroup label="Medical">
+                  <option>General Medicine</option><option>Cardiology</option>
+                  <option>Neurology</option><option>Pulmonology</option>
+                  <option>Gastroenterology</option><option>Endocrinology</option>
+                  <option>Nephrology</option><option>Rheumatology</option>
+                </optgroup>
+                <optgroup label="Surgical">
+                  <option>General Surgery</option><option>Orthopedics</option>
+                  <option>Urology</option><option>ENT</option>
+                  <option>Ophthalmology</option><option>Dermatology</option>
+                </optgroup>
+                <optgroup label="Specialist">
+                  <option>Maternity &amp; Obstetrics</option><option>Pediatrics</option>
+                  <option>Oncology</option><option>Psychiatry</option>
+                  <option>Dialysis Unit</option><option>Radiology</option>
+                </optgroup>
+                <optgroup label="Critical Care">
+                  <option>ICU</option><option>Emergency</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Chronic condition -->
+            <div class="igroup">
+              <div class="switch-row">
+                <div class="switch-info">
+                  <h4>Chronic Condition</h4>
+                  <p>Diabetes, hypertension, asthma, etc.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="chronic-sw">
+                  <span class="sw-track"></span>
+                </label>
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="runEstimate()">
+              <span class="ms ms-f" style="font-size:18px">bolt</span>
+              <span id="est-label">Get My Estimate</span>
+            </button>
+            <button class="btn-secondary" id="reset-btn" onclick="resetPlanner()" style="display:none">
+              <span class="ms" style="font-size:16px">refresh</span> Start Over
+            </button>
+          </div>
+
+          <!-- RIGHT: Result -->
+          <div>
+            <!-- Empty state -->
+            <div class="card" id="plan-empty">
+              <div class="empty-state">
+                <div class="empty-icon"><span class="ms" style="font-size:36px;color:var(--g700)">calculate</span></div>
+                <div class="empty-title">Your estimate will appear here</div>
+                <div class="empty-sub">Fill in your profile and tap <strong>Get My Estimate</strong>.</div>
+              </div>
+            </div>
+
+            <!-- Result (hidden until estimate) -->
+            <div id="plan-result" class="hidden fu">
+              <div class="result-banner">
+                <div class="result-banner-top">
+                  <div>
+                    <div style="font-size:.68rem;font-weight:700;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">AI Estimate</div>
+                    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1rem;color:#fff;" id="res-title">—</div>
+                  </div>
+                  <div class="result-tag">Random Forest</div>
+                </div>
+                <div class="result-row">
+                  <div class="result-item">
+                    <div class="result-item-label"><span class="ms">bed</span>Projected Stay</div>
+                    <div class="result-item-val" id="res-los">—</div>
+                    <div class="result-item-sub">estimated range</div>
+                  </div>
+                  <div class="result-item">
+                    <div class="result-item-label"><span class="ms">payments</span>Est. Cost</div>
+                    <div class="result-item-val" id="res-cost">—</div>
+                    <div class="result-item-sub">estimated range (NPR)</div>
+                  </div>
+                </div>
+                <div class="result-gauge-row">
+                  <svg width="72" height="72" viewBox="0 0 72 72">
+                    <circle class="gauge-track" cx="36" cy="36" r="28"/>
+                    <circle class="gauge-arc" id="g-arc" cx="36" cy="36" r="28"/>
+                    <text x="36" y="41" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" font-family="Plus Jakarta Sans,sans-serif" id="g-pct">—</text>
+                  </svg>
+                  <div class="gauge-labels">
+                    <p id="g-label">Complexity Index</p>
+                    <p id="g-sub">Based on your inputs</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="context-bar">
+                <div class="context-item">
+                  <div class="context-icon" style="background:var(--g100)">
+                    <span class="ms ms-f" style="font-size:18px;color:var(--g700)">timeline</span>
+                  </div>
+                  <div>
+                    <div class="context-label">LOS Model Accuracy</div>
+                    <div class="context-value">±6.5 days (MAE)</div>
+                  </div>
+                </div>
+                <div class="context-item">
+                  <div class="context-icon" style="background:var(--amber-bg)">
+                    <span class="ms ms-f" style="font-size:18px;color:var(--amber)">analytics</span>
+                  </div>
+                  <div>
+                    <div class="context-label">Cost Model Accuracy</div>
+                    <div class="context-value">±NPR 16,288 (MAE)</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="disclaimer">
+                <span class="ms ms-f">warning</span>
+                <p>Estimate from a model trained on synthetic data. <strong>Not a diagnosis, final bill, or prediction of your outcome.</strong> Always consult your doctor before making healthcare decisions.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ PAGE: INSIGHTS ══════════════════ -->
+      <div id="page-insights" class="hidden fu">
+        <div style="margin-bottom:22px">
+          <div class="page-title">What to Expect</div>
+          <div class="page-sub">Statistical insights from 120k+ admissions across the Bagmati Region.</div>
+        </div>
+
+        <div class="g2" style="margin-bottom:14px">
+          <div class="card card-p chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="section-label">Avg Stay by Severity</div>
+                <div class="section-title" style="margin-top:3px">Days · WHO 7-day benchmark</div>
+              </div>
+            </div>
+            <canvas id="sev-chart" height="220"></canvas>
+          </div>
+          <div class="card card-p chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="section-label">Admission Type Split</div>
+                <div class="section-title" style="margin-top:3px">Across 120k admissions</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:20px">
+              <canvas id="donut-chart" width="140" height="140" style="flex-shrink:0"></canvas>
+              <div class="chart-legend" id="donut-leg"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-p">
+          <div class="chart-header">
+            <div>
+              <div class="section-label">Top 10 Diagnosis Categories</div>
+              <div class="section-title" style="margin-top:3px">Admissions 2021–2024</div>
+            </div>
+          </div>
+          <div class="h-bars" id="diag-bars"></div>
+        </div>
+      </div>
+
+      <!-- ══════════ PAGE: SEASON ════════════════════ -->
+      <div id="page-season" class="hidden fu">
+        <div style="margin-bottom:22px">
+          <div class="page-title">Best Time to Visit</div>
+          <div class="page-sub">Seasonal patterns help you pick the least-busy time for a planned admission.</div>
+        </div>
+
+        <div class="card card-p" style="margin-bottom:14px">
+          <div class="chart-header">
+            <div>
+              <div class="section-label">Bed Occupancy by Season</div>
+              <div class="section-title" style="margin-top:3px">Avg % · WHO 85% surge threshold (red dashed)</div>
+            </div>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--g100);border:1px solid rgba(0,108,73,.15);border-radius:9999px;padding:4px 10px;font-size:.72rem;font-weight:700;color:var(--g700)">
+              <span class="ms ms-f" style="font-size:14px">recommend</span>Summer best
+            </span>
+          </div>
+          <canvas id="season-chart" height="220"></canvas>
+        </div>
+
+        <div class="card card-p" style="margin-bottom:14px">
+          <div class="chart-header">
+            <div>
+              <div class="section-label">Monthly Occupancy Heatmap</div>
+              <div class="section-title" style="margin-top:3px">5 hospitals · darker = higher load · red = surge</div>
+            </div>
+          </div>
+          <div class="hm-grid" id="heatmap" style="grid-template-columns:auto repeat(12,1fr)"></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:flex-end">
+            <span style="font-size:.7rem;color:var(--t3)">Low</span>
+            <div style="display:flex;gap:3px">
+              <div style="width:18px;height:12px;border-radius:3px;background:#C1EDDA"></div>
+              <div style="width:18px;height:12px;border-radius:3px;background:#5FCEA4"></div>
+              <div style="width:18px;height:12px;border-radius:3px;background:#006C49"></div>
+              <div style="width:18px;height:12px;border-radius:3px;background:#004D34"></div>
+              <div style="width:18px;height:12px;border-radius:3px;background:#DC2626"></div>
+            </div>
+            <span style="font-size:.7rem;color:var(--t3)">High (surge)</span>
+          </div>
+        </div>
+
+        <div class="season-cards">
+          <div class="season-card" style="border-color:var(--g700)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:1.4rem">🌸</span>
+              <div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;color:var(--t1)">Spring (Mar–May)</div>
+                <span style="background:#FEF9C3;color:#713F12;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:9999px">72% — Moderate</span>
+              </div>
+            </div>
+            <p style="font-size:.77rem;color:var(--t2);line-height:1.55">Moderate load. Good for elective procedures. Book 2–3 weeks ahead.</p>
+          </div>
+          <div class="season-card" style="border-color:#059669">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:1.4rem">☀️</span>
+              <div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;color:var(--t1)">Summer (Jun–Aug)</div>
+                <span style="background:#D1FAE5;color:#065F46;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:9999px">68% — Recommended</span>
+              </div>
+            </div>
+            <p style="font-size:.77rem;color:var(--t2);line-height:1.55">Lowest occupancy. Best for planned admissions — faster beds, shorter queues.</p>
+          </div>
+          <div class="season-card" style="border-color:var(--red)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:1.4rem">🌧️</span>
+              <div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;color:var(--t1)">Monsoon (Jul–Sep)</div>
+                <span style="background:#FEE2E2;color:#991B1B;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:9999px">84% — Near Surge</span>
+              </div>
+            </div>
+            <p style="font-size:.77rem;color:var(--t2);line-height:1.55">Waterborne illness spike. Avoid elective admissions during this period.</p>
+          </div>
+          <div class="season-card" style="border-color:#D97706">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:1.4rem">🍂</span>
+              <div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;color:var(--t1)">Autumn (Sep–Nov)</div>
+                <span style="background:#FEF3C7;color:#92400E;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:9999px">79% — Busy</span>
+              </div>
+            </div>
+            <p style="font-size:.77rem;color:var(--t2);line-height:1.55">Post-monsoon respiratory surge. Urgent care only if possible.</p>
+          </div>
+          <div class="season-card" style="border-color:#60A5FA">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:1.4rem">❄️</span>
+              <div>
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;color:var(--t1)">Winter (Dec–Feb)</div>
+                <span style="background:#EFF6FF;color:#1E40AF;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:9999px">75% — Moderate</span>
+              </div>
+            </div>
+            <p style="font-size:.77rem;color:var(--t2);line-height:1.55">Cold-season illnesses raise demand. Cardiac &amp; respiratory wards peak.</p>
+          </div>
+          <div style="background:var(--g50);border:1px solid rgba(0,108,73,.2);border-radius:14px;padding:16px;display:flex;align-items:flex-start;gap:12px">
+            <span class="ms ms-f" style="font-size:22px;color:var(--g700);flex-shrink:0;margin-top:2px">lightbulb</span>
+            <div>
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;color:var(--g700);margin-bottom:4px">Pro Tip</div>
+              <p style="font-size:.77rem;color:var(--t2);line-height:1.55">Plan elective admissions for <strong style="color:var(--g700)">June–August</strong>. Shortest waits, lowest occupancy, and the highest chance of bed availability.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ PAGE: AGE ════════════════════════ -->
+      <div id="page-age" class="hidden fu">
+        <div style="margin-bottom:22px">
+          <div class="page-title">Plan by Age</div>
+          <div class="page-sub">How does age affect your typical hospital stay and estimated costs?</div>
+        </div>
+
+        <div class="g2" style="margin-bottom:14px">
+          <div class="card card-p">
+            <div style="margin-bottom:16px">
+              <div class="section-label">Avg Stay by Age Group</div>
+              <div class="section-title" style="margin-top:3px">Days · 65+ highlighted</div>
+            </div>
+            <div class="age-bar" id="los-bars"></div>
+          </div>
+          <div class="card card-p">
+            <div style="margin-bottom:16px">
+              <div class="section-label">Avg Cost by Age Group</div>
+              <div class="section-title" style="margin-top:3px">NPR · 65+ highlighted</div>
+            </div>
+            <div class="age-bar" id="cost-bars"></div>
+          </div>
+        </div>
+
+        <div class="insight">
+          <div class="insight-icon"><span class="ms ms-f" style="font-size:20px;color:#fff">lightbulb</span></div>
+          <div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:var(--t1);margin-bottom:6px">Key Insight for Older Patients</div>
+            <p>Patients aged <strong>65+</strong> stay on average <strong>83% longer</strong> (16.9 vs 9.2 days for under-18s) and incur <strong>93% higher costs</strong>. Seniors should plan for larger budgets and visit during <strong>Summer</strong> to maximise bed availability.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- content -->
+  </div><!-- main -->
+</div><!-- app -->
+
+<script>
+// ═══ NAV ═══════════════════════════════════════════════════════════
+const pages = ['home','planner','insights','season','age'];
+let builtInsights=false, builtSeason=false, builtAge=false;
+
+function goPage(id){
+  pages.forEach(p=>{
+    document.getElementById('page-'+p).classList.toggle('hidden',p!==id);
+  });
+  // Update active nav
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    const label = el.textContent.toLowerCase();
+    const match = {home:'overview',planner:'planner',insights:'expect',season:'best time',age:'age'};
+    el.classList.toggle('active', label.includes(match[id]||id));
+  });
+  // Animate new page
+  const page = document.getElementById('page-'+id);
+  page.classList.remove('fu'); void page.offsetWidth; page.classList.add('fu');
+  // Build charts lazily
+  if(id==='insights' && !builtInsights){ buildInsights(); builtInsights=true; }
+  if(id==='season'   && !builtSeason)  { buildSeason();   builtSeason=true; }
+  if(id==='age'      && !builtAge)     { buildAge();      builtAge=true; }
+  closeSidebar();
+}
+
+// ═══ SIDEBAR (mobile) ═════════════════════════════════════════════
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('sb-overlay').classList.add('open'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sb-overlay').classList.remove('open'); }
+
+// ═══ PLANNER ══════════════════════════════════════════════════════
+function onAge(v){ document.getElementById('age-disp').textContent=v+' yrs'; }
+
+function selectPill(groupId, btn){
+  document.getElementById(groupId).querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+const LOS_BASE  = {Mild:7.2, Moderate:11.8, Severe:16.4, Critical:22.1};
+const AT_MUL    = {'Walk-in':1.0,'Elective':1.05,'Emergency':1.22,'Referral':1.1};
+const DEPT_MUL  = {
+  'ICU':1.72,'Oncology':1.55,'Dialysis Unit':1.45,'Cardiology':1.3,'Neurology':1.25,
+  'Emergency':1.2,'General Surgery':1.15,'Nephrology':1.12,'Pulmonology':1.1,'Orthopedics':1.12,
+  'Gastroenterology':1.08,'Endocrinology':1.06,'Maternity & Obstetrics':1.05,'Urology':1.05,
+  'Rheumatology':1.04,'Psychiatry':0.95,'Pediatrics':0.88,'General Medicine':1.0,
+  'ENT':0.85,'Ophthalmology':0.8,'Dermatology':0.82,'Radiology':0.6
+};
+
+function runEstimate(){
+  const age     = parseInt(document.getElementById('age-sl').value);
+  const sev     = document.querySelector('#sev-group .pill.on')?.dataset.val || 'Mild';
+  const at      = document.querySelector('#at-group .pill.on')?.dataset.val  || 'Walk-in';
+  const dept    = document.getElementById('dept-sel').value;
+  const chronic = document.getElementById('chronic-sw').checked;
+
+  const ageMul = age<18?0.85:age<35?0.95:age<50?1.0:age<65?1.1:1.38;
+  const dm     = DEPT_MUL[dept]||1.0;
+  const losPt  = LOS_BASE[sev]*AT_MUL[at]*ageMul*dm*(chronic?1.18:1.0);
+  const losLo  = Math.max(1,Math.round(losPt-6.5));
+  const losHi  = Math.round(losPt+6.5);
+
+  const costPt  = losPt*3800*(chronic?1.12:1.0);
+  const costLo  = Math.max(0,Math.round((costPt-16288)/100)*100);
+  const costHi  = Math.round((costPt+16288)/100)*100;
+  const cplx    = Math.min(99,Math.round(losPt/30*99));
+
+  document.getElementById('res-title').textContent  = dept+' · '+sev+(chronic?' · Chronic':'');
+  document.getElementById('res-los').textContent    = losLo+'–'+losHi+' days';
+  document.getElementById('res-cost').textContent   = 'NPR '+fmt(costLo)+'–'+fmt(costHi);
+  document.getElementById('g-pct').textContent      = cplx+'%';
+
+  const arc  = document.getElementById('g-arc');
+  const c    = 2*Math.PI*28; // r=28
+  arc.style.strokeDasharray  = c;
+  arc.style.strokeDashoffset = c-(cplx/100)*c;
+  arc.style.stroke = cplx<40?'#059669':cplx<65?'#D97706':'#DC2626';
+
+  document.getElementById('g-label').textContent = cplx<40?'Low Complexity':cplx<65?'Moderate Complexity':'High Complexity';
+  document.getElementById('g-sub').textContent   = 'Age '+age+' · '+sev+' · '+at;
+
+  document.getElementById('plan-empty').classList.add('hidden');
+  const res=document.getElementById('plan-result');
+  res.classList.remove('hidden');
+  res.classList.remove('fu'); void res.offsetWidth; res.classList.add('fu');
+  document.getElementById('reset-btn').style.display='flex';
+}
+
+function resetPlanner(){
+  document.getElementById('plan-result').classList.add('hidden');
+  document.getElementById('plan-empty').classList.remove('hidden');
+  document.getElementById('reset-btn').style.display='none';
+}
+
+function fmt(n){ return n>=1000?(n/1000).toFixed(1)+'k':String(n); }
+
+// ═══ INSIGHTS CHARTS ══════════════════════════════════════════════
+function buildInsights(){
+  // Severity vs LOS
+  new Chart(document.getElementById('sev-chart'),{
+    type:'bar',
+    data:{
+      labels:['Mild','Moderate','Severe','Critical'],
+      datasets:[{
+        data:[7.2,11.8,16.4,22.1],
+        backgroundColor:['#059669','#D97706','#EA580C','#DC2626'],
+        borderRadius:7, borderSkipped:false,
+      }]
+    },
+    options:{
+      responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+' days'}}},
+      scales:{
+        y:{beginAtZero:true,title:{display:true,text:'Days',font:{size:11}},ticks:{font:{size:11}}},
+        x:{ticks:{font:{size:11,weight:'600'}}}
+      }
+    },
+    plugins:[{afterDraw(chart){
+      const {ctx,scales:{y,x}}=chart;
+      const yp=y.getPixelForValue(7);
+      ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='#4648D4';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x.left,yp);ctx.lineTo(x.right,yp);ctx.stroke();
+      ctx.font='bold 10px Inter';ctx.fillStyle='#4648D4';ctx.fillText('WHO 7d benchmark',x.left+6,yp-6);
+      ctx.restore();
+    }}]
+  });
+
+  // Admission donut
+  const adm=[{l:'Walk-in',v:32,c:'#006C49'},{l:'Elective',v:28,c:'#059669'},{l:'Emergency',v:25,c:'#4648D4'},{l:'Referral',v:15,c:'#D97706'}];
+  new Chart(document.getElementById('donut-chart'),{
+    type:'doughnut',
+    data:{labels:adm.map(d=>d.l),datasets:[{data:adm.map(d=>d.v),backgroundColor:adm.map(d=>d.c),borderWidth:3,borderColor:'#fff',hoverOffset:6}]},
+    options:{responsive:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+'%'}}}}
+  });
+  const leg=document.getElementById('donut-leg');
+  adm.forEach(d=>{ leg.innerHTML+=`<div class="legend-item"><div class="legend-dot" style="background:${d.c}"></div>${d.l}<span class="legend-pct">${d.v}%</span></div>`; });
+
+  // Diagnosis bars
+  const diags=[
+    {n:'Respiratory',v:18400},{n:'Cardiovascular',v:15200},{n:'Digestive',v:12800},
+    {n:'Injuries / Trauma',v:11600},{n:'Musculoskeletal',v:9400},{n:'Maternal',v:8900},
+    {n:'Neurological',v:7200},{n:'Metabolic',v:6800},{n:'Renal',v:5600},{n:'Mental Health',v:4200},
+  ];
+  const mx=Math.max(...diags.map(d=>d.v));
+  const colors=['#006C49','#059669','#0D9E6A','#4648D4','#6063EE','#D97706','#EA580C','#DC2626','#7C3AED','#0891B2'];
+  const el=document.getElementById('diag-bars');
+  diags.forEach((d,i)=>{
+    el.innerHTML+=`<div class="h-bar-row"><div class="h-bar-label">${d.n}</div><div class="h-bar-track"><div class="h-bar-fill" style="background:${colors[i]};width:0" data-w="${d.v/mx*100}%"></div></div><div class="h-bar-val">${(d.v/1000).toFixed(1)}k</div></div>`;
+  });
+  requestAnimationFrame(()=>{ document.querySelectorAll('.h-bar-fill[data-w]').forEach(e=>e.style.width=e.dataset.w); });
+}
+
+// ═══ SEASON CHART & HEATMAP ══════════════════════════════════════
+function buildSeason(){
+  new Chart(document.getElementById('season-chart'),{
+    type:'bar',
+    data:{
+      labels:['Spring','Summer','Monsoon','Autumn','Winter'],
+      datasets:[{
+        data:[72.4,68.1,83.6,78.9,75.2],
+        backgroundColor:['#059669','#006C49','#DC2626','#D97706','#4648D4'],
+        borderRadius:8,borderSkipped:false,barThickness:44,
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(1)+'%'}}},
+      scales:{
+        y:{min:50,max:100,title:{display:true,text:'Occupancy %',font:{size:11}},ticks:{font:{size:11},callback:v=>v+'%'}},
+        x:{ticks:{font:{size:12,weight:'600'}}}
+      }
+    },
+    plugins:[{afterDraw(chart){
+      const {ctx,scales:{y,x}}=chart;
+      const yp=y.getPixelForValue(85);
+      ctx.save();ctx.setLineDash([6,5]);ctx.strokeStyle='#DC2626';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x.left,yp);ctx.lineTo(x.right,yp);ctx.stroke();
+      ctx.font='bold 10px Inter';ctx.fillStyle='#DC2626';
+      ctx.fillText('WHO 85% Surge',x.right-120,yp-6);
+      ctx.restore();
+    }}]
+  });
+
+  // Heatmap
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const hosps=['H-1','H-2','H-3','H-4','H-5'];
+  const raw=[[74,76,72,70,68,65,84,83,79,77,74,75],[70,72,71,69,66,62,82,81,78,74,71,72],[78,80,74,73,71,68,87,86,81,79,76,77],[72,73,69,67,65,61,80,79,77,74,70,71],[76,79,73,71,69,66,85,84,80,77,74,75]];
+  const all=raw.flat(),mn=Math.min(...all),mx2=Math.max(...all);
+  function hc(v){
+    if(v>=85) return {bg:'#DC2626',fg:'#fff'};
+    const t=(v-mn)/(mx2-mn);
+    if(t<.25) return {bg:'#C1EDDA',fg:'#003D28'};
+    if(t<.5)  return {bg:'#5FCEA4',fg:'#003D28'};
+    if(t<.75) return {bg:'#006C49',fg:'#fff'};
+    return {bg:'#004D34',fg:'#fff'};
+  }
+  const hm=document.getElementById('heatmap');
+  hm.innerHTML='<div></div>'+months.map(m=>`<div style="text-align:center;font-size:.62rem;font-weight:600;color:var(--t3);padding-bottom:4px">${m}</div>`).join('');
+  hosps.forEach((h,hi)=>{
+    hm.innerHTML+=`<div class="hm-label">${h}</div>`;
+    raw[hi].forEach(v=>{ const {bg,fg}=hc(v); hm.innerHTML+=`<div class="hm-cell" style="background:${bg};color:${fg}" title="${v}%">${v}</div>`; });
+  });
+}
+
+// ═══ AGE BARS ═════════════════════════════════════════════════════
+function buildAge(){
+  const groups=['0–17','18–34','35–49','50–64','65+'];
+  const los=[9.2,10.1,11.8,13.4,16.9];
+  const costs=[32400,38200,44600,51800,62400];
+  const mxL=Math.max(...los),mxC=Math.max(...costs);
+
+  const losel=document.getElementById('los-bars');
+  groups.forEach((g,i)=>{
+    const hl=i===4;
+    const color=hl?'linear-gradient(90deg,var(--g700),var(--g600))':'var(--g700)';
+    losel.innerHTML+=`<div class="age-row"><div class="age-label" style="${hl?'color:var(--g700);font-weight:700':''}">${g}</div><div class="age-track"><div class="age-fill" style="width:0;background:${color}" data-w="${los[i]/mxL*100}%"></div></div><div class="age-val" style="${hl?'color:var(--g700)':''}">${los[i]}d</div></div>`;
+  });
+  const costel=document.getElementById('cost-bars');
+  groups.forEach((g,i)=>{
+    const hl=i===4;
+    const color=hl?'linear-gradient(90deg,var(--g700),var(--g600))':'var(--g700)';
+    costel.innerHTML+=`<div class="age-row"><div class="age-label" style="${hl?'color:var(--g700);font-weight:700':''}">${g}</div><div class="age-track"><div class="age-fill" style="width:0;background:${color}" data-w="${costs[i]/mxC*100}%"></div></div><div class="age-val" style="${hl?'color:var(--g700)':''}">${(costs[i]/1000).toFixed(1)}k</div></div>`;
+  });
+  requestAnimationFrame(()=>{ document.querySelectorAll('.age-fill[data-w]').forEach(e=>e.style.width=e.dataset.w); });
+}
+</script>
+</body>
+</html>
