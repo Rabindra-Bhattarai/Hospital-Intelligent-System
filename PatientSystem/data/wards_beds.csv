@@ -1,0 +1,661 @@
+bed_id,ward_name,bed_type,department_id,hospital_id,is_functional
+BED00001,Emergency Ward 1,Emergency,DEP0001,HOSP01,True
+BED00002,Emergency Ward 1,Emergency,DEP0001,HOSP01,True
+BED00003,Emergency Ward 1,Emergency,DEP0001,HOSP01,True
+BED00004,Emergency Ward 1,Emergency,DEP0001,HOSP01,True
+BED00005,Emergency Ward 1,Emergency,DEP0001,HOSP01,True
+BED00006,Emergency Ward 1,Emergency,DEP0001,HOSP01,True
+BED00007,Emergency Ward 1,Emergency,DEP0001,HOSP01,True
+BED00008,Emergency Ward 1,Emergency,DEP0001,HOSP01,True
+BED00009,Emergency Ward 2,Emergency,DEP0001,HOSP01,True
+BED00010,Emergency Ward 2,Emergency,DEP0001,HOSP01,True
+BED00011,Emergency Ward 2,Emergency,DEP0001,HOSP01,True
+BED00012,Emergency Ward 2,Emergency,DEP0001,HOSP01,True
+BED00013,ICU Ward 1,ICU,DEP0002,HOSP01,True
+BED00014,ICU Ward 1,ICU,DEP0002,HOSP01,True
+BED00015,ICU Ward 1,ICU,DEP0002,HOSP01,True
+BED00016,ICU Ward 1,ICU,DEP0002,HOSP01,False
+BED00017,ICU Ward 1,ICU,DEP0002,HOSP01,True
+BED00018,ICU Ward 1,ICU,DEP0002,HOSP01,True
+BED00019,ICU Ward 1,ICU,DEP0002,HOSP01,True
+BED00020,ICU Ward 1,ICU,DEP0002,HOSP01,True
+BED00021,ICU Ward 2,ICU,DEP0002,HOSP01,True
+BED00022,ICU Ward 2,ICU,DEP0002,HOSP01,True
+BED00023,ICU Ward 2,ICU,DEP0002,HOSP01,True
+BED00024,HDU Ward 1,HDU,DEP0003,HOSP01,True
+BED00025,HDU Ward 1,HDU,DEP0003,HOSP01,True
+BED00026,HDU Ward 1,HDU,DEP0003,HOSP01,True
+BED00027,HDU Ward 1,HDU,DEP0003,HOSP01,True
+BED00028,HDU Ward 1,HDU,DEP0003,HOSP01,True
+BED00029,HDU Ward 1,HDU,DEP0003,HOSP01,True
+BED00030,HDU Ward 1,HDU,DEP0003,HOSP01,True
+BED00031,General Medici Ward 1,General,DEP0004,HOSP01,True
+BED00032,General Medici Ward 1,General,DEP0004,HOSP01,True
+BED00033,General Medici Ward 1,Semi-Private,DEP0004,HOSP01,True
+BED00034,General Medici Ward 1,General,DEP0004,HOSP01,True
+BED00035,General Medici Ward 1,Private,DEP0004,HOSP01,True
+BED00036,General Medici Ward 1,General,DEP0004,HOSP01,True
+BED00037,General Medici Ward 1,Semi-Private,DEP0004,HOSP01,True
+BED00038,General Medici Ward 1,General,DEP0004,HOSP01,True
+BED00039,General Medici Ward 2,Semi-Private,DEP0004,HOSP01,True
+BED00040,General Medici Ward 2,General,DEP0004,HOSP01,True
+BED00041,General Medici Ward 2,Semi-Private,DEP0004,HOSP01,True
+BED00042,General Medici Ward 2,General,DEP0004,HOSP01,True
+BED00043,General Medici Ward 2,General,DEP0004,HOSP01,True
+BED00044,General Medici Ward 2,General,DEP0004,HOSP01,True
+BED00045,General Surger Ward 1,Semi-Private,DEP0005,HOSP01,True
+BED00046,General Surger Ward 1,General,DEP0005,HOSP01,True
+BED00047,General Surger Ward 1,Semi-Private,DEP0005,HOSP01,True
+BED00048,General Surger Ward 1,Private,DEP0005,HOSP01,True
+BED00049,General Surger Ward 1,General,DEP0005,HOSP01,True
+BED00050,General Surger Ward 1,General,DEP0005,HOSP01,True
+BED00051,General Surger Ward 1,General,DEP0005,HOSP01,True
+BED00052,General Surger Ward 1,Private,DEP0005,HOSP01,True
+BED00053,General Surger Ward 2,Semi-Private,DEP0005,HOSP01,True
+BED00054,General Surger Ward 2,General,DEP0005,HOSP01,True
+BED00055,General Surger Ward 2,General,DEP0005,HOSP01,True
+BED00056,Orthopedics Ward 1,General,DEP0006,HOSP01,True
+BED00057,Orthopedics Ward 1,Semi-Private,DEP0006,HOSP01,True
+BED00058,Orthopedics Ward 1,General,DEP0006,HOSP01,True
+BED00059,Orthopedics Ward 1,Semi-Private,DEP0006,HOSP01,True
+BED00060,Orthopedics Ward 1,General,DEP0006,HOSP01,True
+BED00061,Orthopedics Ward 1,Semi-Private,DEP0006,HOSP01,True
+BED00062,Orthopedics Ward 1,Private,DEP0006,HOSP01,True
+BED00063,Orthopedics Ward 1,General,DEP0006,HOSP01,True
+BED00064,Orthopedics Ward 2,Semi-Private,DEP0006,HOSP01,True
+BED00065,Orthopedics Ward 2,General,DEP0006,HOSP01,True
+BED00066,Orthopedics Ward 2,General,DEP0006,HOSP01,True
+BED00067,Orthopedics Ward 2,Private,DEP0006,HOSP01,True
+BED00068,Orthopedics Ward 2,General,DEP0006,HOSP01,True
+BED00069,Orthopedics Ward 2,Private,DEP0006,HOSP01,True
+BED00070,Maternity & Ob Ward 1,Maternity,DEP0007,HOSP01,True
+BED00071,Maternity & Ob Ward 1,Maternity,DEP0007,HOSP01,True
+BED00072,Maternity & Ob Ward 1,Maternity,DEP0007,HOSP01,True
+BED00073,Maternity & Ob Ward 1,Maternity,DEP0007,HOSP01,True
+BED00074,Maternity & Ob Ward 1,Maternity,DEP0007,HOSP01,True
+BED00075,Maternity & Ob Ward 1,Maternity,DEP0007,HOSP01,True
+BED00076,Maternity & Ob Ward 1,Maternity,DEP0007,HOSP01,True
+BED00077,Maternity & Ob Ward 1,Maternity,DEP0007,HOSP01,True
+BED00078,Maternity & Ob Ward 2,Maternity,DEP0007,HOSP01,True
+BED00079,Maternity & Ob Ward 2,Maternity,DEP0007,HOSP01,True
+BED00080,Maternity & Ob Ward 2,Maternity,DEP0007,HOSP01,True
+BED00081,Maternity & Ob Ward 2,Maternity,DEP0007,HOSP01,True
+BED00082,Pediatrics Ward 1,General,DEP0008,HOSP01,True
+BED00083,Pediatrics Ward 1,Semi-Private,DEP0008,HOSP01,True
+BED00084,Pediatrics Ward 1,Semi-Private,DEP0008,HOSP01,True
+BED00085,Pediatrics Ward 1,General,DEP0008,HOSP01,True
+BED00086,Pediatrics Ward 1,General,DEP0008,HOSP01,True
+BED00087,Pediatrics Ward 1,Private,DEP0008,HOSP01,True
+BED00088,Pediatrics Ward 1,General,DEP0008,HOSP01,True
+BED00089,Pediatrics Ward 1,Semi-Private,DEP0008,HOSP01,True
+BED00090,Pediatrics Ward 2,General,DEP0008,HOSP01,True
+BED00091,Pediatrics Ward 2,General,DEP0008,HOSP01,True
+BED00092,Pediatrics Ward 2,Private,DEP0008,HOSP01,True
+BED00093,Pediatrics Ward 2,General,DEP0008,HOSP01,True
+BED00094,Pediatrics Ward 2,Private,DEP0008,HOSP01,True
+BED00095,Pediatrics Ward 2,Semi-Private,DEP0008,HOSP01,True
+BED00096,Pediatrics Ward 2,General,DEP0008,HOSP01,True
+BED00097,Pediatrics Ward 2,General,DEP0008,HOSP01,True
+BED00098,Cardiology Ward 1,Semi-Private,DEP0009,HOSP01,True
+BED00099,Cardiology Ward 1,General,DEP0009,HOSP01,True
+BED00100,Cardiology Ward 1,General,DEP0009,HOSP01,True
+BED00101,Cardiology Ward 1,Private,DEP0009,HOSP01,True
+BED00102,Cardiology Ward 1,General,DEP0009,HOSP01,True
+BED00103,Cardiology Ward 1,General,DEP0009,HOSP01,True
+BED00104,Cardiology Ward 1,General,DEP0009,HOSP01,True
+BED00105,Cardiology Ward 1,Semi-Private,DEP0009,HOSP01,True
+BED00106,Cardiology Ward 2,General,DEP0009,HOSP01,True
+BED00107,Cardiology Ward 2,General,DEP0009,HOSP01,True
+BED00108,Cardiology Ward 2,General,DEP0009,HOSP01,True
+BED00109,Cardiology Ward 2,General,DEP0009,HOSP01,True
+BED00110,Cardiology Ward 2,General,DEP0009,HOSP01,True
+BED00111,Neurology Ward 1,General,DEP0010,HOSP01,True
+BED00112,Neurology Ward 1,General,DEP0010,HOSP01,True
+BED00113,Neurology Ward 1,General,DEP0010,HOSP01,True
+BED00114,Neurology Ward 1,General,DEP0010,HOSP01,True
+BED00115,Neurology Ward 1,General,DEP0010,HOSP01,True
+BED00116,Neurology Ward 1,General,DEP0010,HOSP01,True
+BED00117,Neurology Ward 1,General,DEP0010,HOSP01,True
+BED00118,Neurology Ward 1,Semi-Private,DEP0010,HOSP01,True
+BED00119,Neurology Ward 2,General,DEP0010,HOSP01,True
+BED00120,Neurology Ward 2,Semi-Private,DEP0010,HOSP01,True
+BED00121,Neurology Ward 2,General,DEP0010,HOSP01,True
+BED00122,Neurology Ward 2,Semi-Private,DEP0010,HOSP01,True
+BED00123,Neurology Ward 2,General,DEP0010,HOSP01,True
+BED00124,Neurology Ward 2,General,DEP0010,HOSP01,True
+BED00125,Neurology Ward 2,General,DEP0010,HOSP01,True
+BED00126,Neurology Ward 2,Semi-Private,DEP0010,HOSP01,True
+BED00127,Neurology Ward 3,General,DEP0010,HOSP01,True
+BED00128,Neurology Ward 3,General,DEP0010,HOSP01,True
+BED00129,Nephrology Ward 1,General,DEP0011,HOSP01,True
+BED00130,Nephrology Ward 1,Private,DEP0011,HOSP01,True
+BED00131,Nephrology Ward 1,Private,DEP0011,HOSP01,True
+BED00132,Nephrology Ward 1,General,DEP0011,HOSP01,True
+BED00133,Nephrology Ward 1,Semi-Private,DEP0011,HOSP01,True
+BED00134,Nephrology Ward 1,Semi-Private,DEP0011,HOSP01,True
+BED00135,Nephrology Ward 1,General,DEP0011,HOSP01,True
+BED00136,Nephrology Ward 1,General,DEP0011,HOSP01,True
+BED00137,Nephrology Ward 2,General,DEP0011,HOSP01,True
+BED00138,Nephrology Ward 2,Private,DEP0011,HOSP01,True
+BED00139,Nephrology Ward 2,Semi-Private,DEP0011,HOSP01,True
+BED00140,Nephrology Ward 2,Private,DEP0011,HOSP01,True
+BED00141,Nephrology Ward 2,General,DEP0011,HOSP01,True
+BED00142,Nephrology Ward 2,Semi-Private,DEP0011,HOSP01,True
+BED00143,Nephrology Ward 2,General,DEP0011,HOSP01,False
+BED00144,Oncology Ward 1,Semi-Private,DEP0012,HOSP01,True
+BED00145,Oncology Ward 1,General,DEP0012,HOSP01,True
+BED00146,Oncology Ward 1,General,DEP0012,HOSP01,True
+BED00147,Oncology Ward 1,General,DEP0012,HOSP01,True
+BED00148,Oncology Ward 1,General,DEP0012,HOSP01,True
+BED00149,Oncology Ward 1,General,DEP0012,HOSP01,True
+BED00150,Oncology Ward 1,Semi-Private,DEP0012,HOSP01,True
+BED00151,Oncology Ward 1,Private,DEP0012,HOSP01,True
+BED00152,Oncology Ward 2,General,DEP0012,HOSP01,True
+BED00153,Oncology Ward 2,Semi-Private,DEP0012,HOSP01,True
+BED00154,Oncology Ward 2,General,DEP0012,HOSP01,True
+BED00155,Oncology Ward 2,General,DEP0012,HOSP01,True
+BED00156,Oncology Ward 2,General,DEP0012,HOSP01,True
+BED00157,Oncology Ward 2,Semi-Private,DEP0012,HOSP01,True
+BED00158,Pulmonology Ward 1,General,DEP0013,HOSP01,True
+BED00159,Pulmonology Ward 1,General,DEP0013,HOSP01,True
+BED00160,Pulmonology Ward 1,General,DEP0013,HOSP01,True
+BED00161,Pulmonology Ward 1,Private,DEP0013,HOSP01,True
+BED00162,Pulmonology Ward 1,General,DEP0013,HOSP01,True
+BED00163,Pulmonology Ward 1,Semi-Private,DEP0013,HOSP01,True
+BED00164,Pulmonology Ward 1,Semi-Private,DEP0013,HOSP01,True
+BED00165,Pulmonology Ward 1,General,DEP0013,HOSP01,True
+BED00166,Pulmonology Ward 2,Private,DEP0013,HOSP01,True
+BED00167,Pulmonology Ward 2,Semi-Private,DEP0013,HOSP01,True
+BED00168,Pulmonology Ward 2,General,DEP0013,HOSP01,True
+BED00169,Pulmonology Ward 2,Private,DEP0013,HOSP01,True
+BED00170,Pulmonology Ward 2,General,DEP0013,HOSP01,True
+BED00171,Gastroenterolo Ward 1,General,DEP0014,HOSP01,True
+BED00172,Gastroenterolo Ward 1,Semi-Private,DEP0014,HOSP01,True
+BED00173,Gastroenterolo Ward 1,Private,DEP0014,HOSP01,True
+BED00174,Gastroenterolo Ward 1,Private,DEP0014,HOSP01,True
+BED00175,Gastroenterolo Ward 1,General,DEP0014,HOSP01,True
+BED00176,Gastroenterolo Ward 1,Private,DEP0014,HOSP01,True
+BED00177,Gastroenterolo Ward 1,Semi-Private,DEP0014,HOSP01,True
+BED00178,Gastroenterolo Ward 1,General,DEP0014,HOSP01,True
+BED00179,Gastroenterolo Ward 2,Semi-Private,DEP0014,HOSP01,True
+BED00180,Gastroenterolo Ward 2,Private,DEP0014,HOSP01,True
+BED00181,Gastroenterolo Ward 2,General,DEP0014,HOSP01,True
+BED00182,Urology Ward 1,General,DEP0015,HOSP01,True
+BED00183,Urology Ward 1,General,DEP0015,HOSP01,True
+BED00184,Urology Ward 1,Private,DEP0015,HOSP01,True
+BED00185,Urology Ward 1,Semi-Private,DEP0015,HOSP01,True
+BED00186,Urology Ward 1,General,DEP0015,HOSP01,True
+BED00187,Urology Ward 1,General,DEP0015,HOSP01,True
+BED00188,Urology Ward 1,General,DEP0015,HOSP01,True
+BED00189,Urology Ward 1,Private,DEP0015,HOSP01,True
+BED00190,Urology Ward 2,Private,DEP0015,HOSP01,True
+BED00191,Urology Ward 2,General,DEP0015,HOSP01,True
+BED00192,Urology Ward 2,General,DEP0015,HOSP01,True
+BED00193,Urology Ward 2,Private,DEP0015,HOSP01,True
+BED00194,Urology Ward 2,General,DEP0015,HOSP01,True
+BED00195,Urology Ward 2,General,DEP0015,HOSP01,True
+BED00196,Urology Ward 2,General,DEP0015,HOSP01,True
+BED00197,ENT Ward 1,General,DEP0016,HOSP01,True
+BED00198,ENT Ward 1,Private,DEP0016,HOSP01,True
+BED00199,ENT Ward 1,General,DEP0016,HOSP01,True
+BED00200,ENT Ward 1,General,DEP0016,HOSP01,True
+BED00201,ENT Ward 1,General,DEP0016,HOSP01,True
+BED00202,ENT Ward 1,General,DEP0016,HOSP01,True
+BED00203,ENT Ward 1,General,DEP0016,HOSP01,True
+BED00204,ENT Ward 1,General,DEP0016,HOSP01,True
+BED00205,ENT Ward 2,General,DEP0016,HOSP01,True
+BED00206,ENT Ward 2,Semi-Private,DEP0016,HOSP01,True
+BED00207,ENT Ward 2,Semi-Private,DEP0016,HOSP01,True
+BED00208,ENT Ward 2,General,DEP0016,HOSP01,True
+BED00209,ENT Ward 2,Private,DEP0016,HOSP01,True
+BED00210,ENT Ward 2,Semi-Private,DEP0016,HOSP01,True
+BED00211,ENT Ward 2,General,DEP0016,HOSP01,True
+BED00212,ENT Ward 2,General,DEP0016,HOSP01,True
+BED00213,ENT Ward 3,Semi-Private,DEP0016,HOSP01,True
+BED00214,ENT Ward 3,Semi-Private,DEP0016,HOSP01,True
+BED00215,Ophthalmology Ward 1,Semi-Private,DEP0017,HOSP01,True
+BED00216,Ophthalmology Ward 1,General,DEP0017,HOSP01,True
+BED00217,Ophthalmology Ward 1,General,DEP0017,HOSP01,True
+BED00218,Ophthalmology Ward 1,General,DEP0017,HOSP01,True
+BED00219,Ophthalmology Ward 1,General,DEP0017,HOSP01,False
+BED00220,Ophthalmology Ward 1,Semi-Private,DEP0017,HOSP01,True
+BED00221,Ophthalmology Ward 1,Private,DEP0017,HOSP01,True
+BED00222,Ophthalmology Ward 1,General,DEP0017,HOSP01,True
+BED00223,Ophthalmology Ward 2,General,DEP0017,HOSP01,True
+BED00224,Ophthalmology Ward 2,General,DEP0017,HOSP01,True
+BED00225,Ophthalmology Ward 2,General,DEP0017,HOSP01,True
+BED00226,Dermatology Ward 1,General,DEP0018,HOSP01,True
+BED00227,Dermatology Ward 1,Private,DEP0018,HOSP01,True
+BED00228,Psychiatry Ward 1,Semi-Private,DEP0019,HOSP01,True
+BED00229,Psychiatry Ward 1,Semi-Private,DEP0019,HOSP01,True
+BED00230,Psychiatry Ward 1,General,DEP0019,HOSP01,True
+BED00231,Psychiatry Ward 1,General,DEP0019,HOSP01,True
+BED00232,Psychiatry Ward 1,Semi-Private,DEP0019,HOSP01,False
+BED00233,Psychiatry Ward 1,General,DEP0019,HOSP01,True
+BED00234,Psychiatry Ward 1,General,DEP0019,HOSP01,True
+BED00235,Psychiatry Ward 1,Private,DEP0019,HOSP01,True
+BED00236,Psychiatry Ward 2,Semi-Private,DEP0019,HOSP01,True
+BED00237,Psychiatry Ward 2,General,DEP0019,HOSP01,True
+BED00238,Psychiatry Ward 2,General,DEP0019,HOSP01,True
+BED00239,Burn Unit Ward 1,ICU,DEP0020,HOSP01,True
+BED00240,Burn Unit Ward 1,ICU,DEP0020,HOSP01,True
+BED00241,Burn Unit Ward 1,ICU,DEP0020,HOSP01,True
+BED00242,Burn Unit Ward 1,ICU,DEP0020,HOSP01,True
+BED00243,Burn Unit Ward 1,ICU,DEP0020,HOSP01,True
+BED00244,Burn Unit Ward 1,ICU,DEP0020,HOSP01,True
+BED00245,Burn Unit Ward 1,ICU,DEP0020,HOSP01,True
+BED00246,Burn Unit Ward 1,ICU,DEP0020,HOSP01,True
+BED00247,Burn Unit Ward 2,ICU,DEP0020,HOSP01,True
+BED00248,Burn Unit Ward 2,ICU,DEP0020,HOSP01,True
+BED00249,Burn Unit Ward 2,ICU,DEP0020,HOSP01,False
+BED00250,Neonatal ICU Ward 1,NICU,DEP0021,HOSP01,False
+BED00251,Neonatal ICU Ward 1,NICU,DEP0021,HOSP01,True
+BED00252,Neonatal ICU Ward 1,NICU,DEP0021,HOSP01,True
+BED00253,Neonatal ICU Ward 1,NICU,DEP0021,HOSP01,True
+BED00254,Neonatal ICU Ward 1,NICU,DEP0021,HOSP01,True
+BED00255,Neonatal ICU Ward 1,NICU,DEP0021,HOSP01,True
+BED00256,Neonatal ICU Ward 1,NICU,DEP0021,HOSP01,True
+BED00257,Neonatal ICU Ward 1,NICU,DEP0021,HOSP01,True
+BED00258,Neonatal ICU Ward 2,NICU,DEP0021,HOSP01,True
+BED00259,Neonatal ICU Ward 2,NICU,DEP0021,HOSP01,True
+BED00260,Dialysis Unit Ward 1,Dialysis,DEP0022,HOSP01,True
+BED00261,Dialysis Unit Ward 1,Dialysis,DEP0022,HOSP01,True
+BED00262,Dialysis Unit Ward 1,Dialysis,DEP0022,HOSP01,True
+BED00263,Emergency Ward 1,Emergency,DEP0023,HOSP02,True
+BED00264,Emergency Ward 1,Emergency,DEP0023,HOSP02,True
+BED00265,Emergency Ward 1,Emergency,DEP0023,HOSP02,True
+BED00266,Emergency Ward 1,Emergency,DEP0023,HOSP02,True
+BED00267,Emergency Ward 1,Emergency,DEP0023,HOSP02,True
+BED00268,ICU Ward 1,ICU,DEP0024,HOSP02,True
+BED00269,ICU Ward 1,ICU,DEP0024,HOSP02,True
+BED00270,ICU Ward 1,ICU,DEP0024,HOSP02,True
+BED00271,ICU Ward 1,ICU,DEP0024,HOSP02,True
+BED00272,ICU Ward 1,ICU,DEP0024,HOSP02,True
+BED00273,ICU Ward 1,ICU,DEP0024,HOSP02,True
+BED00274,ICU Ward 1,ICU,DEP0024,HOSP02,True
+BED00275,ICU Ward 1,ICU,DEP0024,HOSP02,True
+BED00276,ICU Ward 2,ICU,DEP0024,HOSP02,True
+BED00277,ICU Ward 2,ICU,DEP0024,HOSP02,True
+BED00278,ICU Ward 2,ICU,DEP0024,HOSP02,True
+BED00279,ICU Ward 2,ICU,DEP0024,HOSP02,True
+BED00280,HDU Ward 1,HDU,DEP0025,HOSP02,True
+BED00281,HDU Ward 1,HDU,DEP0025,HOSP02,True
+BED00282,HDU Ward 1,HDU,DEP0025,HOSP02,True
+BED00283,HDU Ward 1,HDU,DEP0025,HOSP02,True
+BED00284,HDU Ward 1,HDU,DEP0025,HOSP02,True
+BED00285,HDU Ward 1,HDU,DEP0025,HOSP02,True
+BED00286,HDU Ward 1,HDU,DEP0025,HOSP02,True
+BED00287,HDU Ward 1,HDU,DEP0025,HOSP02,True
+BED00288,HDU Ward 2,HDU,DEP0025,HOSP02,True
+BED00289,HDU Ward 2,HDU,DEP0025,HOSP02,True
+BED00290,HDU Ward 2,HDU,DEP0025,HOSP02,True
+BED00291,General Medici Ward 1,Private,DEP0026,HOSP02,True
+BED00292,General Medici Ward 1,Semi-Private,DEP0026,HOSP02,True
+BED00293,General Medici Ward 1,General,DEP0026,HOSP02,True
+BED00294,General Medici Ward 1,Private,DEP0026,HOSP02,True
+BED00295,General Medici Ward 1,Private,DEP0026,HOSP02,True
+BED00296,General Medici Ward 1,Semi-Private,DEP0026,HOSP02,True
+BED00297,General Medici Ward 1,General,DEP0026,HOSP02,True
+BED00298,General Medici Ward 1,Private,DEP0026,HOSP02,True
+BED00299,General Medici Ward 2,General,DEP0026,HOSP02,True
+BED00300,General Medici Ward 2,General,DEP0026,HOSP02,True
+BED00301,General Medici Ward 2,General,DEP0026,HOSP02,True
+BED00302,General Medici Ward 2,General,DEP0026,HOSP02,True
+BED00303,General Surger Ward 1,General,DEP0027,HOSP02,True
+BED00304,General Surger Ward 1,Semi-Private,DEP0027,HOSP02,True
+BED00305,General Surger Ward 1,General,DEP0027,HOSP02,True
+BED00306,General Surger Ward 1,Semi-Private,DEP0027,HOSP02,True
+BED00307,General Surger Ward 1,General,DEP0027,HOSP02,True
+BED00308,General Surger Ward 1,General,DEP0027,HOSP02,True
+BED00309,General Surger Ward 1,General,DEP0027,HOSP02,True
+BED00310,General Surger Ward 1,General,DEP0027,HOSP02,True
+BED00311,General Surger Ward 2,Semi-Private,DEP0027,HOSP02,True
+BED00312,General Surger Ward 2,Private,DEP0027,HOSP02,True
+BED00313,General Surger Ward 2,General,DEP0027,HOSP02,True
+BED00314,General Surger Ward 2,General,DEP0027,HOSP02,True
+BED00315,Orthopedics Ward 1,General,DEP0028,HOSP02,True
+BED00316,Orthopedics Ward 1,Private,DEP0028,HOSP02,True
+BED00317,Orthopedics Ward 1,Semi-Private,DEP0028,HOSP02,True
+BED00318,Orthopedics Ward 1,General,DEP0028,HOSP02,False
+BED00319,Orthopedics Ward 1,General,DEP0028,HOSP02,True
+BED00320,Orthopedics Ward 1,General,DEP0028,HOSP02,True
+BED00321,Orthopedics Ward 1,General,DEP0028,HOSP02,True
+BED00322,Orthopedics Ward 1,Private,DEP0028,HOSP02,True
+BED00323,Orthopedics Ward 2,General,DEP0028,HOSP02,True
+BED00324,Orthopedics Ward 2,Semi-Private,DEP0028,HOSP02,True
+BED00325,Orthopedics Ward 2,General,DEP0028,HOSP02,True
+BED00326,Orthopedics Ward 2,General,DEP0028,HOSP02,True
+BED00327,Orthopedics Ward 2,General,DEP0028,HOSP02,True
+BED00328,Orthopedics Ward 2,Semi-Private,DEP0028,HOSP02,True
+BED00329,Orthopedics Ward 2,Semi-Private,DEP0028,HOSP02,False
+BED00330,Orthopedics Ward 2,Semi-Private,DEP0028,HOSP02,False
+BED00331,Orthopedics Ward 3,General,DEP0028,HOSP02,True
+BED00332,Orthopedics Ward 3,General,DEP0028,HOSP02,True
+BED00333,Maternity & Ob Ward 1,Maternity,DEP0029,HOSP02,True
+BED00334,Maternity & Ob Ward 1,Maternity,DEP0029,HOSP02,True
+BED00335,Maternity & Ob Ward 1,Maternity,DEP0029,HOSP02,True
+BED00336,Maternity & Ob Ward 1,Maternity,DEP0029,HOSP02,True
+BED00337,Maternity & Ob Ward 1,Maternity,DEP0029,HOSP02,True
+BED00338,Maternity & Ob Ward 1,Maternity,DEP0029,HOSP02,True
+BED00339,Maternity & Ob Ward 1,Maternity,DEP0029,HOSP02,True
+BED00340,Maternity & Ob Ward 1,Maternity,DEP0029,HOSP02,True
+BED00341,Maternity & Ob Ward 2,Maternity,DEP0029,HOSP02,True
+BED00342,Maternity & Ob Ward 2,Maternity,DEP0029,HOSP02,True
+BED00343,Maternity & Ob Ward 2,Maternity,DEP0029,HOSP02,True
+BED00344,Maternity & Ob Ward 2,Maternity,DEP0029,HOSP02,True
+BED00345,Maternity & Ob Ward 2,Maternity,DEP0029,HOSP02,True
+BED00346,Maternity & Ob Ward 2,Maternity,DEP0029,HOSP02,True
+BED00347,Maternity & Ob Ward 2,Maternity,DEP0029,HOSP02,True
+BED00348,Pediatrics Ward 1,Semi-Private,DEP0030,HOSP02,True
+BED00349,Pediatrics Ward 1,General,DEP0030,HOSP02,True
+BED00350,Pediatrics Ward 1,General,DEP0030,HOSP02,True
+BED00351,Pediatrics Ward 1,General,DEP0030,HOSP02,True
+BED00352,Pediatrics Ward 1,Private,DEP0030,HOSP02,True
+BED00353,Pediatrics Ward 1,General,DEP0030,HOSP02,True
+BED00354,Pediatrics Ward 1,General,DEP0030,HOSP02,True
+BED00355,Pediatrics Ward 1,Semi-Private,DEP0030,HOSP02,True
+BED00356,Pediatrics Ward 2,Private,DEP0030,HOSP02,True
+BED00357,Pediatrics Ward 2,General,DEP0030,HOSP02,True
+BED00358,Pediatrics Ward 2,General,DEP0030,HOSP02,True
+BED00359,Pediatrics Ward 2,General,DEP0030,HOSP02,True
+BED00360,Cardiology Ward 1,Semi-Private,DEP0031,HOSP02,True
+BED00361,Cardiology Ward 1,General,DEP0031,HOSP02,True
+BED00362,Cardiology Ward 1,Private,DEP0031,HOSP02,True
+BED00363,Cardiology Ward 1,Semi-Private,DEP0031,HOSP02,True
+BED00364,Cardiology Ward 1,General,DEP0031,HOSP02,True
+BED00365,Cardiology Ward 1,General,DEP0031,HOSP02,True
+BED00366,Cardiology Ward 1,General,DEP0031,HOSP02,True
+BED00367,Cardiology Ward 1,General,DEP0031,HOSP02,True
+BED00368,Cardiology Ward 2,Semi-Private,DEP0031,HOSP02,True
+BED00369,Cardiology Ward 2,General,DEP0031,HOSP02,True
+BED00370,Cardiology Ward 2,General,DEP0031,HOSP02,True
+BED00371,Cardiology Ward 2,General,DEP0031,HOSP02,True
+BED00372,Cardiology Ward 2,Semi-Private,DEP0031,HOSP02,True
+BED00373,Cardiology Ward 2,Private,DEP0031,HOSP02,False
+BED00374,Neurology Ward 1,Private,DEP0032,HOSP02,True
+BED00375,Neurology Ward 1,General,DEP0032,HOSP02,True
+BED00376,Neurology Ward 1,Semi-Private,DEP0032,HOSP02,True
+BED00377,Neurology Ward 1,Semi-Private,DEP0032,HOSP02,True
+BED00378,Neurology Ward 1,Semi-Private,DEP0032,HOSP02,True
+BED00379,Neurology Ward 1,General,DEP0032,HOSP02,True
+BED00380,Neurology Ward 1,General,DEP0032,HOSP02,True
+BED00381,Neurology Ward 1,General,DEP0032,HOSP02,True
+BED00382,Neurology Ward 2,General,DEP0032,HOSP02,True
+BED00383,Neurology Ward 2,General,DEP0032,HOSP02,True
+BED00384,Neurology Ward 2,Private,DEP0032,HOSP02,True
+BED00385,Neurology Ward 2,General,DEP0032,HOSP02,True
+BED00386,Nephrology Ward 1,General,DEP0033,HOSP02,True
+BED00387,Nephrology Ward 1,Semi-Private,DEP0033,HOSP02,True
+BED00388,Nephrology Ward 1,Private,DEP0033,HOSP02,True
+BED00389,Nephrology Ward 1,General,DEP0033,HOSP02,True
+BED00390,Nephrology Ward 1,Private,DEP0033,HOSP02,True
+BED00391,Nephrology Ward 1,Private,DEP0033,HOSP02,True
+BED00392,Nephrology Ward 1,General,DEP0033,HOSP02,True
+BED00393,Nephrology Ward 1,General,DEP0033,HOSP02,True
+BED00394,Nephrology Ward 2,General,DEP0033,HOSP02,True
+BED00395,Nephrology Ward 2,General,DEP0033,HOSP02,True
+BED00396,Nephrology Ward 2,Semi-Private,DEP0033,HOSP02,True
+BED00397,Nephrology Ward 2,General,DEP0033,HOSP02,True
+BED00398,Nephrology Ward 2,General,DEP0033,HOSP02,True
+BED00399,Oncology Ward 1,General,DEP0034,HOSP02,True
+BED00400,Oncology Ward 1,Private,DEP0034,HOSP02,True
+BED00401,Oncology Ward 1,General,DEP0034,HOSP02,True
+BED00402,Oncology Ward 1,General,DEP0034,HOSP02,True
+BED00403,Oncology Ward 1,Semi-Private,DEP0034,HOSP02,True
+BED00404,Oncology Ward 1,Semi-Private,DEP0034,HOSP02,True
+BED00405,Oncology Ward 1,General,DEP0034,HOSP02,False
+BED00406,Oncology Ward 1,General,DEP0034,HOSP02,True
+BED00407,Oncology Ward 2,Private,DEP0034,HOSP02,True
+BED00408,Oncology Ward 2,General,DEP0034,HOSP02,True
+BED00409,Oncology Ward 2,Private,DEP0034,HOSP02,True
+BED00410,Oncology Ward 2,General,DEP0034,HOSP02,True
+BED00411,Oncology Ward 2,General,DEP0034,HOSP02,True
+BED00412,Oncology Ward 2,Semi-Private,DEP0034,HOSP02,True
+BED00413,Oncology Ward 2,Semi-Private,DEP0034,HOSP02,True
+BED00414,Pulmonology Ward 1,General,DEP0035,HOSP02,True
+BED00415,Pulmonology Ward 1,General,DEP0035,HOSP02,True
+BED00416,Pulmonology Ward 1,General,DEP0035,HOSP02,True
+BED00417,Pulmonology Ward 1,General,DEP0035,HOSP02,True
+BED00418,Pulmonology Ward 1,Private,DEP0035,HOSP02,True
+BED00419,Pulmonology Ward 1,General,DEP0035,HOSP02,True
+BED00420,Pulmonology Ward 1,Private,DEP0035,HOSP02,True
+BED00421,Pulmonology Ward 1,Private,DEP0035,HOSP02,True
+BED00422,Pulmonology Ward 2,Semi-Private,DEP0035,HOSP02,True
+BED00423,Pulmonology Ward 2,General,DEP0035,HOSP02,True
+BED00424,Pulmonology Ward 2,General,DEP0035,HOSP02,True
+BED00425,Pulmonology Ward 2,Private,DEP0035,HOSP02,True
+BED00426,Pulmonology Ward 2,Semi-Private,DEP0035,HOSP02,True
+BED00427,Pulmonology Ward 2,General,DEP0035,HOSP02,True
+BED00428,Pulmonology Ward 2,General,DEP0035,HOSP02,True
+BED00429,Pulmonology Ward 2,General,DEP0035,HOSP02,True
+BED00430,Pulmonology Ward 3,General,DEP0035,HOSP02,True
+BED00431,Gastroenterolo Ward 1,General,DEP0036,HOSP02,True
+BED00432,Gastroenterolo Ward 1,General,DEP0036,HOSP02,True
+BED00433,Gastroenterolo Ward 1,Private,DEP0036,HOSP02,True
+BED00434,Gastroenterolo Ward 1,General,DEP0036,HOSP02,True
+BED00435,Gastroenterolo Ward 1,Semi-Private,DEP0036,HOSP02,True
+BED00436,Gastroenterolo Ward 1,Private,DEP0036,HOSP02,True
+BED00437,Gastroenterolo Ward 1,Semi-Private,DEP0036,HOSP02,True
+BED00438,Gastroenterolo Ward 1,General,DEP0036,HOSP02,True
+BED00439,Gastroenterolo Ward 2,General,DEP0036,HOSP02,True
+BED00440,Gastroenterolo Ward 2,General,DEP0036,HOSP02,True
+BED00441,Gastroenterolo Ward 2,General,DEP0036,HOSP02,True
+BED00442,Gastroenterolo Ward 2,General,DEP0036,HOSP02,True
+BED00443,Gastroenterolo Ward 2,General,DEP0036,HOSP02,True
+BED00444,Gastroenterolo Ward 2,General,DEP0036,HOSP02,True
+BED00445,Gastroenterolo Ward 2,Semi-Private,DEP0036,HOSP02,True
+BED00446,Urology Ward 1,Private,DEP0037,HOSP02,True
+BED00447,Urology Ward 1,Private,DEP0037,HOSP02,True
+BED00448,Urology Ward 1,Semi-Private,DEP0037,HOSP02,True
+BED00449,Urology Ward 1,Semi-Private,DEP0037,HOSP02,True
+BED00450,Urology Ward 1,General,DEP0037,HOSP02,True
+BED00451,Urology Ward 1,General,DEP0037,HOSP02,True
+BED00452,Urology Ward 1,Private,DEP0037,HOSP02,True
+BED00453,Urology Ward 1,Semi-Private,DEP0037,HOSP02,True
+BED00454,Urology Ward 2,Semi-Private,DEP0037,HOSP02,True
+BED00455,Urology Ward 2,General,DEP0037,HOSP02,True
+BED00456,Urology Ward 2,Semi-Private,DEP0037,HOSP02,True
+BED00457,Urology Ward 2,General,DEP0037,HOSP02,True
+BED00458,ENT Ward 1,General,DEP0038,HOSP02,True
+BED00459,ENT Ward 1,General,DEP0038,HOSP02,False
+BED00460,ENT Ward 1,Private,DEP0038,HOSP02,True
+BED00461,ENT Ward 1,Private,DEP0038,HOSP02,True
+BED00462,ENT Ward 1,General,DEP0038,HOSP02,True
+BED00463,ENT Ward 1,General,DEP0038,HOSP02,True
+BED00464,ENT Ward 1,Private,DEP0038,HOSP02,True
+BED00465,ENT Ward 1,General,DEP0038,HOSP02,True
+BED00466,ENT Ward 2,Semi-Private,DEP0038,HOSP02,True
+BED00467,ENT Ward 2,Semi-Private,DEP0038,HOSP02,True
+BED00468,ENT Ward 2,General,DEP0038,HOSP02,True
+BED00469,ENT Ward 2,Semi-Private,DEP0038,HOSP02,True
+BED00470,ENT Ward 2,General,DEP0038,HOSP02,True
+BED00471,ENT Ward 2,Semi-Private,DEP0038,HOSP02,True
+BED00472,ENT Ward 2,General,DEP0038,HOSP02,True
+BED00473,ENT Ward 2,Semi-Private,DEP0038,HOSP02,False
+BED00474,ENT Ward 3,General,DEP0038,HOSP02,True
+BED00475,ENT Ward 3,General,DEP0038,HOSP02,True
+BED00476,Ophthalmology Ward 1,Semi-Private,DEP0039,HOSP02,True
+BED00477,Ophthalmology Ward 1,General,DEP0039,HOSP02,True
+BED00478,Ophthalmology Ward 1,General,DEP0039,HOSP02,True
+BED00479,Ophthalmology Ward 1,General,DEP0039,HOSP02,True
+BED00480,Ophthalmology Ward 1,General,DEP0039,HOSP02,True
+BED00481,Ophthalmology Ward 1,Private,DEP0039,HOSP02,True
+BED00482,Ophthalmology Ward 1,General,DEP0039,HOSP02,True
+BED00483,Ophthalmology Ward 1,Private,DEP0039,HOSP02,True
+BED00484,Ophthalmology Ward 2,Private,DEP0039,HOSP02,True
+BED00485,Ophthalmology Ward 2,Semi-Private,DEP0039,HOSP02,True
+BED00486,Ophthalmology Ward 2,General,DEP0039,HOSP02,True
+BED00487,Ophthalmology Ward 2,General,DEP0039,HOSP02,True
+BED00488,Ophthalmology Ward 2,General,DEP0039,HOSP02,True
+BED00489,Ophthalmology Ward 2,General,DEP0039,HOSP02,True
+BED00490,Ophthalmology Ward 2,General,DEP0039,HOSP02,True
+BED00491,Ophthalmology Ward 2,General,DEP0039,HOSP02,True
+BED00492,Dermatology Ward 1,General,DEP0040,HOSP02,True
+BED00493,Dermatology Ward 1,General,DEP0040,HOSP02,True
+BED00494,Psychiatry Ward 1,General,DEP0041,HOSP02,True
+BED00495,Psychiatry Ward 1,General,DEP0041,HOSP02,True
+BED00496,Psychiatry Ward 1,General,DEP0041,HOSP02,True
+BED00497,Psychiatry Ward 1,General,DEP0041,HOSP02,True
+BED00498,Psychiatry Ward 1,Private,DEP0041,HOSP02,True
+BED00499,Psychiatry Ward 1,General,DEP0041,HOSP02,True
+BED00500,Psychiatry Ward 1,General,DEP0041,HOSP02,True
+BED00501,Psychiatry Ward 1,General,DEP0041,HOSP02,True
+BED00502,Psychiatry Ward 2,General,DEP0041,HOSP02,True
+BED00503,Psychiatry Ward 2,Semi-Private,DEP0041,HOSP02,True
+BED00504,Psychiatry Ward 2,General,DEP0041,HOSP02,True
+BED00505,Psychiatry Ward 2,Private,DEP0041,HOSP02,True
+BED00506,Psychiatry Ward 2,Private,DEP0041,HOSP02,True
+BED00507,Psychiatry Ward 2,General,DEP0041,HOSP02,True
+BED00508,Psychiatry Ward 2,General,DEP0041,HOSP02,True
+BED00509,Psychiatry Ward 2,Semi-Private,DEP0041,HOSP02,True
+BED00510,Burn Unit Ward 1,ICU,DEP0042,HOSP02,True
+BED00511,Burn Unit Ward 1,ICU,DEP0042,HOSP02,True
+BED00512,Burn Unit Ward 1,ICU,DEP0042,HOSP02,True
+BED00513,Burn Unit Ward 1,ICU,DEP0042,HOSP02,True
+BED00514,Burn Unit Ward 1,ICU,DEP0042,HOSP02,True
+BED00515,Burn Unit Ward 1,ICU,DEP0042,HOSP02,True
+BED00516,Burn Unit Ward 1,ICU,DEP0042,HOSP02,False
+BED00517,Neonatal ICU Ward 1,NICU,DEP0043,HOSP02,True
+BED00518,Neonatal ICU Ward 1,NICU,DEP0043,HOSP02,True
+BED00519,Neonatal ICU Ward 1,NICU,DEP0043,HOSP02,True
+BED00520,Neonatal ICU Ward 1,NICU,DEP0043,HOSP02,True
+BED00521,Neonatal ICU Ward 1,NICU,DEP0043,HOSP02,True
+BED00522,Neonatal ICU Ward 1,NICU,DEP0043,HOSP02,True
+BED00523,Neonatal ICU Ward 1,NICU,DEP0043,HOSP02,True
+BED00524,Dialysis Unit Ward 1,Dialysis,DEP0044,HOSP02,True
+BED00525,Dialysis Unit Ward 1,Dialysis,DEP0044,HOSP02,True
+BED00526,Dialysis Unit Ward 1,Dialysis,DEP0044,HOSP02,True
+BED00527,Dialysis Unit Ward 1,Dialysis,DEP0044,HOSP02,True
+BED00528,Emergency Ward 1,Emergency,DEP0045,HOSP03,True
+BED00529,Emergency Ward 1,Emergency,DEP0045,HOSP03,True
+BED00530,Emergency Ward 1,Emergency,DEP0045,HOSP03,True
+BED00531,Emergency Ward 1,Emergency,DEP0045,HOSP03,True
+BED00532,Emergency Ward 1,Emergency,DEP0045,HOSP03,True
+BED00533,Emergency Ward 1,Emergency,DEP0045,HOSP03,True
+BED00534,Emergency Ward 1,Emergency,DEP0045,HOSP03,True
+BED00535,Emergency Ward 1,Emergency,DEP0045,HOSP03,True
+BED00536,ICU Ward 1,ICU,DEP0046,HOSP03,True
+BED00537,ICU Ward 1,ICU,DEP0046,HOSP03,True
+BED00538,ICU Ward 1,ICU,DEP0046,HOSP03,True
+BED00539,ICU Ward 1,ICU,DEP0046,HOSP03,True
+BED00540,ICU Ward 1,ICU,DEP0046,HOSP03,True
+BED00541,ICU Ward 1,ICU,DEP0046,HOSP03,True
+BED00542,ICU Ward 1,ICU,DEP0046,HOSP03,True
+BED00543,ICU Ward 1,ICU,DEP0046,HOSP03,True
+BED00544,ICU Ward 2,ICU,DEP0046,HOSP03,True
+BED00545,ICU Ward 2,ICU,DEP0046,HOSP03,True
+BED00546,ICU Ward 2,ICU,DEP0046,HOSP03,True
+BED00547,HDU Ward 1,HDU,DEP0047,HOSP03,True
+BED00548,HDU Ward 1,HDU,DEP0047,HOSP03,True
+BED00549,HDU Ward 1,HDU,DEP0047,HOSP03,True
+BED00550,HDU Ward 1,HDU,DEP0047,HOSP03,True
+BED00551,HDU Ward 1,HDU,DEP0047,HOSP03,True
+BED00552,HDU Ward 1,HDU,DEP0047,HOSP03,True
+BED00553,HDU Ward 1,HDU,DEP0047,HOSP03,True
+BED00554,HDU Ward 1,HDU,DEP0047,HOSP03,True
+BED00555,General Medici Ward 1,Semi-Private,DEP0048,HOSP03,True
+BED00556,General Medici Ward 1,Private,DEP0048,HOSP03,True
+BED00557,General Medici Ward 1,General,DEP0048,HOSP03,True
+BED00558,General Medici Ward 1,Private,DEP0048,HOSP03,True
+BED00559,General Medici Ward 1,General,DEP0048,HOSP03,True
+BED00560,General Medici Ward 1,Semi-Private,DEP0048,HOSP03,True
+BED00561,General Medici Ward 1,General,DEP0048,HOSP03,True
+BED00562,General Medici Ward 1,General,DEP0048,HOSP03,True
+BED00563,General Medici Ward 2,General,DEP0048,HOSP03,True
+BED00564,General Medici Ward 2,General,DEP0048,HOSP03,True
+BED00565,General Medici Ward 2,Semi-Private,DEP0048,HOSP03,True
+BED00566,General Medici Ward 2,Private,DEP0048,HOSP03,True
+BED00567,General Medici Ward 2,Semi-Private,DEP0048,HOSP03,True
+BED00568,General Medici Ward 2,Private,DEP0048,HOSP03,True
+BED00569,General Medici Ward 2,Private,DEP0048,HOSP03,True
+BED00570,General Medici Ward 2,General,DEP0048,HOSP03,True
+BED00571,General Surger Ward 1,General,DEP0049,HOSP03,True
+BED00572,General Surger Ward 1,General,DEP0049,HOSP03,False
+BED00573,General Surger Ward 1,General,DEP0049,HOSP03,True
+BED00574,General Surger Ward 1,General,DEP0049,HOSP03,True
+BED00575,General Surger Ward 1,General,DEP0049,HOSP03,True
+BED00576,General Surger Ward 1,General,DEP0049,HOSP03,True
+BED00577,General Surger Ward 1,Semi-Private,DEP0049,HOSP03,True
+BED00578,General Surger Ward 1,Private,DEP0049,HOSP03,True
+BED00579,General Surger Ward 2,Semi-Private,DEP0049,HOSP03,True
+BED00580,General Surger Ward 2,General,DEP0049,HOSP03,True
+BED00581,General Surger Ward 2,General,DEP0049,HOSP03,True
+BED00582,General Surger Ward 2,General,DEP0049,HOSP03,True
+BED00583,General Surger Ward 2,General,DEP0049,HOSP03,True
+BED00584,General Surger Ward 2,General,DEP0049,HOSP03,True
+BED00585,General Surger Ward 2,General,DEP0049,HOSP03,False
+BED00586,General Surger Ward 2,Private,DEP0049,HOSP03,True
+BED00587,Orthopedics Ward 1,Private,DEP0050,HOSP03,True
+BED00588,Orthopedics Ward 1,General,DEP0050,HOSP03,True
+BED00589,Orthopedics Ward 1,General,DEP0050,HOSP03,True
+BED00590,Orthopedics Ward 1,General,DEP0050,HOSP03,True
+BED00591,Orthopedics Ward 1,General,DEP0050,HOSP03,True
+BED00592,Orthopedics Ward 1,General,DEP0050,HOSP03,False
+BED00593,Orthopedics Ward 1,General,DEP0050,HOSP03,True
+BED00594,Orthopedics Ward 1,General,DEP0050,HOSP03,False
+BED00595,Orthopedics Ward 2,Private,DEP0050,HOSP03,True
+BED00596,Orthopedics Ward 2,Private,DEP0050,HOSP03,True
+BED00597,Orthopedics Ward 2,General,DEP0050,HOSP03,True
+BED00598,Orthopedics Ward 2,Semi-Private,DEP0050,HOSP03,True
+BED00599,Orthopedics Ward 2,Semi-Private,DEP0050,HOSP03,True
+BED00600,Orthopedics Ward 2,General,DEP0050,HOSP03,True
+BED00601,Orthopedics Ward 2,General,DEP0050,HOSP03,True
+BED00602,Orthopedics Ward 2,General,DEP0050,HOSP03,True
+BED00603,Maternity & Ob Ward 1,Maternity,DEP0051,HOSP03,True
+BED00604,Maternity & Ob Ward 1,Maternity,DEP0051,HOSP03,True
+BED00605,Maternity & Ob Ward 1,Maternity,DEP0051,HOSP03,True
+BED00606,Maternity & Ob Ward 1,Maternity,DEP0051,HOSP03,True
+BED00607,Maternity & Ob Ward 1,Maternity,DEP0051,HOSP03,True
+BED00608,Maternity & Ob Ward 1,Maternity,DEP0051,HOSP03,True
+BED00609,Maternity & Ob Ward 1,Maternity,DEP0051,HOSP03,True
+BED00610,Maternity & Ob Ward 1,Maternity,DEP0051,HOSP03,True
+BED00611,Maternity & Ob Ward 2,Maternity,DEP0051,HOSP03,False
+BED00612,Maternity & Ob Ward 2,Maternity,DEP0051,HOSP03,True
+BED00613,Maternity & Ob Ward 2,Maternity,DEP0051,HOSP03,True
+BED00614,Pediatrics Ward 1,General,DEP0052,HOSP03,True
+BED00615,Pediatrics Ward 1,Semi-Private,DEP0052,HOSP03,True
+BED00616,Pediatrics Ward 1,General,DEP0052,HOSP03,True
+BED00617,Pediatrics Ward 1,General,DEP0052,HOSP03,True
+BED00618,Pediatrics Ward 1,General,DEP0052,HOSP03,True
+BED00619,Pediatrics Ward 1,General,DEP0052,HOSP03,True
+BED00620,Pediatrics Ward 1,General,DEP0052,HOSP03,False
+BED00621,Pediatrics Ward 1,Private,DEP0052,HOSP03,True
+BED00622,Pediatrics Ward 2,Private,DEP0052,HOSP03,True
+BED00623,Pediatrics Ward 2,General,DEP0052,HOSP03,True
+BED00624,Pediatrics Ward 2,General,DEP0052,HOSP03,False
+BED00625,Pediatrics Ward 2,General,DEP0052,HOSP03,True
+BED00626,Cardiology Ward 1,Semi-Private,DEP0053,HOSP03,True
+BED00627,Cardiology Ward 1,Semi-Private,DEP0053,HOSP03,True
+BED00628,Cardiology Ward 1,General,DEP0053,HOSP03,True
+BED00629,Cardiology Ward 1,General,DEP0053,HOSP03,True
+BED00630,Cardiology Ward 1,General,DEP0053,HOSP03,True
+BED00631,Cardiology Ward 1,Private,DEP0053,HOSP03,True
+BED00632,Cardiology Ward 1,Semi-Private,DEP0053,HOSP03,True
+BED00633,Cardiology Ward 1,General,DEP0053,HOSP03,True
+BED00634,Cardiology Ward 2,General,DEP0053,HOSP03,True
+BED00635,Cardiology Ward 2,General,DEP0053,HOSP03,True
+BED00636,Cardiology Ward 2,General,DEP0053,HOSP03,True
+BED00637,Cardiology Ward 2,General,DEP0053,HOSP03,True
+BED00638,Cardiology Ward 2,General,DEP0053,HOSP03,True
+BED00639,Cardiology Ward 2,General,DEP0053,HOSP03,True
+BED00640,Cardiology Ward 2,General,DEP0053,HOSP03,True
+BED00641,Cardiology Ward 2,General,DEP0053,HOSP03,True
+BED00642,Neurology Ward 1,Private,DEP0054,HOSP03,True
+BED00643,Neurology Ward 1,General,DEP0054,HOSP03,True
+BED00644,Neurology Ward 1,Semi-Private,DEP0054,HOSP03,True
+BED00645,Neurology Ward 1,General,DEP0054,HOSP03,True
+BED00646,Neurology Ward 1,Semi-Private,DEP0054,HOSP03,True
+BED00647,Neurology Ward 1,Semi-Private,DEP0054,HOSP03,True
+BED00648,Neurology Ward 1,General,DEP0054,HOSP03,True
+BED00649,Neurology Ward 1,Private,DEP0054,HOSP03,True
+BED00650,Neurology Ward 2,General,DEP0054,HOSP03,True
+BED00651,Neurology Ward 2,Private,DEP0054,HOSP03,True
+BED00652,Neurology Ward 2,Private,DEP0054,HOSP03,True
+BED00653,Neurology Ward 2,Semi-Private,DEP0054,HOSP03,True
+BED00654,Neurology Ward 2,Private,DEP0054,HOSP03,False
+BED00655,Neurology Ward 2,General,DEP0054,HOSP03,True
+BED00656,Nephrology Ward 1,General,DEP0055,HOSP03,True
+BED00657,Nephrology Ward 1,General,DEP0055,HOSP03,True
+BED00658,Nephrology Ward 1,General,DEP0055,HOSP03,True
+BED00659,Nephrology Ward 1,Semi-Private,DEP0055,HOSP03,True
+BED00660,Nephrology Ward 1,Semi-Private,DEP0055,HOSP03,True
