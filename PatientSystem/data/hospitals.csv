@@ -1,0 +1,6 @@
+hospital_id,hospital_name,hospital_type,district,total_beds,level
+HOSP01,Valley General Hospital,Public,Kathmandu,420,Tertiary
+HOSP02,Bagmati Community Hospital,Public,Lalitpur,180,Secondary
+HOSP03,Himal Teaching Hospital,Teaching,Kathmandu,520,Tertiary
+HOSP04,Bhaktapur District Hospital,Public,Bhaktapur,120,Secondary
+HOSP05,Trishuli Referral Hospital,Public,Nuwakot,90,Secondary
