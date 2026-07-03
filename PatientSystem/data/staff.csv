@@ -1,0 +1,1201 @@
+staff_id,role,department_id,hospital_id,specialization,shift_type,employment_type,years_experience,on_roster
+STF00001,Resident Doctor,DEP0043,HOSP02,General,Morning,Contract,3.5,True
+STF00002,Staff Nurse,DEP0078,HOSP04,-,Morning,Contract,5.9,True
+STF00003,Support Staff,DEP0048,HOSP03,-,Rotating,Permanent,9.8,True
+STF00004,Staff Nurse,DEP0089,HOSP05,-,Night,Permanent,4.8,True
+STF00005,Lab Technician,DEP0094,HOSP05,-,Morning,Permanent,8.0,False
+STF00006,Staff Nurse,DEP0023,HOSP02,-,Rotating,Permanent,11.7,True
+STF00007,Senior Nurse,DEP0073,HOSP04,-,Evening,Intern,20.7,True
+STF00008,Lab Technician,DEP0073,HOSP04,-,Evening,Permanent,7.7,True
+STF00009,Staff Nurse,DEP0093,HOSP05,-,Rotating,Contract,20.3,True
+STF00010,Lab Technician,DEP0002,HOSP01,-,Rotating,Contract,3.2,True
+STF00011,Consultant,DEP0001,HOSP01,General,Morning,Contract,7.4,True
+STF00012,Support Staff,DEP0093,HOSP05,-,Morning,Contract,13.3,True
+STF00013,Support Staff,DEP0093,HOSP05,-,Morning,Permanent,12.5,True
+STF00014,Medical Officer,DEP0048,HOSP03,General,Morning,Contract,15.0,True
+STF00015,Staff Nurse,DEP0015,HOSP01,-,Rotating,Permanent,15.5,True
+STF00016,Resident Doctor,DEP0097,HOSP05,Cardiologist,Evening,Permanent,19.7,True
+STF00017,Lab Technician,DEP0087,HOSP04,-,Evening,Contract,5.3,True
+STF00018,Staff Nurse,DEP0036,HOSP02,-,Rotating,Intern,1.7,True
+STF00019,Senior Nurse,DEP0017,HOSP01,-,Rotating,Contract,9.4,False
+STF00020,Support Staff,DEP0002,HOSP01,-,Night,Intern,3.0,True
+STF00021,Lab Technician,DEP0004,HOSP01,-,Evening,Permanent,2.3,True
+STF00022,Medical Officer,DEP0007,HOSP01,Obstetrician,Morning,Permanent,4.6,True
+STF00023,Senior Nurse,DEP0068,HOSP04,-,Morning,Permanent,14.9,True
+STF00024,Consultant,DEP0001,HOSP01,General,Evening,Contract,8.9,True
+STF00025,Senior Nurse,DEP0025,HOSP02,-,Morning,Contract,1.6,True
+STF00026,Lab Technician,DEP0092,HOSP05,-,Morning,Visiting,1.5,True
+STF00027,Support Staff,DEP0024,HOSP02,-,Rotating,Contract,14.7,True
+STF00028,Resident Doctor,DEP0023,HOSP02,General,Night,Contract,20.3,True
+STF00029,Resident Doctor,DEP0025,HOSP02,General,Morning,Contract,8.6,True
+STF00030,Radiology Technician,DEP0092,HOSP05,-,Morning,Permanent,11.6,True
+STF00031,Pharmacist,DEP0011,HOSP01,-,Evening,Contract,13.3,True
+STF00032,Staff Nurse,DEP0018,HOSP01,-,Night,Permanent,8.8,True
+STF00033,Medical Officer,DEP0001,HOSP01,General,Rotating,Visiting,6.6,True
+STF00034,Consultant,DEP0008,HOSP01,Pediatrician,Rotating,Contract,9.6,True
+STF00035,Staff Nurse,DEP0026,HOSP02,-,Evening,Permanent,8.4,True
+STF00036,Support Staff,DEP0028,HOSP02,-,Night,Visiting,1.8,True
+STF00037,Medical Officer,DEP0067,HOSP04,General,Rotating,Contract,7.3,True
+STF00038,Staff Nurse,DEP0052,HOSP03,-,Morning,Visiting,14.5,True
+STF00039,Resident Doctor,DEP0033,HOSP02,Nephrologist,Rotating,Permanent,19.2,True
+STF00040,Medical Officer,DEP0092,HOSP05,General,Morning,Contract,13.5,True
+STF00041,Medical Officer,DEP0071,HOSP04,Surgeon,Night,Permanent,3.0,True
+STF00042,Staff Nurse,DEP0008,HOSP01,-,Evening,Permanent,2.9,True
+STF00043,Radiology Technician,DEP0028,HOSP02,-,Rotating,Intern,6.9,True
+STF00044,Medical Officer,DEP0092,HOSP05,General,Rotating,Intern,27.2,True
+STF00045,Radiology Technician,DEP0070,HOSP04,-,Rotating,Permanent,3.4,True
+STF00046,Consultant,DEP0015,HOSP01,General,Morning,Visiting,6.5,False
+STF00047,Resident Doctor,DEP0094,HOSP05,Orthopedic Surgeon,Rotating,Visiting,25.8,False
+STF00048,Senior Nurse,DEP0004,HOSP01,-,Evening,Permanent,9.6,True
+STF00049,Staff Nurse,DEP0093,HOSP05,-,Night,Permanent,10.1,True
+STF00050,Support Staff,DEP0026,HOSP02,-,Night,Permanent,25.6,True
+STF00051,Resident Doctor,DEP0049,HOSP03,Surgeon,Morning,Contract,11.3,True
+STF00052,Pharmacist,DEP0098,HOSP05,-,Rotating,Permanent,40.0,True
+STF00053,Consultant,DEP0073,HOSP04,Obstetrician,Night,Contract,6.4,False
+STF00054,Lab Technician,DEP0030,HOSP02,-,Night,Permanent,11.2,True
+STF00055,Senior Nurse,DEP0027,HOSP02,-,Night,Permanent,11.0,True
+STF00056,Staff Nurse,DEP0011,HOSP01,-,Night,Permanent,10.1,True
+STF00057,Resident Doctor,DEP0093,HOSP05,Surgeon,Morning,Permanent,5.5,True
+STF00058,Support Staff,DEP0026,HOSP02,-,Rotating,Permanent,6.2,True
+STF00059,Medical Officer,DEP0077,HOSP04,Nephrologist,Rotating,Contract,11.4,True
+STF00060,Support Staff,DEP0006,HOSP01,-,Rotating,Permanent,7.4,True
+STF00061,Staff Nurse,DEP0021,HOSP01,-,Rotating,Permanent,4.0,True
+STF00062,Lab Technician,DEP0005,HOSP01,-,Rotating,Permanent,1.0,True
+STF00063,Pharmacist,DEP0027,HOSP02,-,Morning,Contract,5.2,True
+STF00064,Medical Officer,DEP0007,HOSP01,Obstetrician,Morning,Permanent,3.9,True
+STF00065,Medical Officer,DEP0001,HOSP01,General,Rotating,Contract,9.8,True
+STF00066,Staff Nurse,DEP0082,HOSP04,-,Morning,Permanent,9.5,True
+STF00067,Resident Doctor,DEP0074,HOSP04,Pediatrician,Evening,Contract,4.6,True
+STF00068,Staff Nurse,DEP0082,HOSP04,-,Morning,Contract,5.4,False
+STF00069,Lab Technician,DEP0030,HOSP02,-,Evening,Intern,22.6,True
+STF00070,Staff Nurse,DEP0007,HOSP01,-,Night,Contract,6.4,True
+STF00071,Medical Officer,DEP0026,HOSP02,General,Night,Permanent,7.1,True
+STF00072,Consultant,DEP0092,HOSP05,General,Evening,Permanent,3.2,True
+STF00073,Support Staff,DEP0067,HOSP04,-,Rotating,Permanent,12.5,True
+STF00074,Medical Officer,DEP0067,HOSP04,General,Rotating,Permanent,21.6,True
+STF00075,Staff Nurse,DEP0086,HOSP04,-,Morning,Permanent,12.5,False
+STF00076,Staff Nurse,DEP0091,HOSP05,-,Night,Permanent,7.0,True
+STF00077,Consultant,DEP0032,HOSP02,Neurologist,Night,Contract,18.2,True
+STF00078,Staff Nurse,DEP0102,HOSP05,-,Morning,Permanent,9.5,True
+STF00079,Staff Nurse,DEP0104,HOSP05,-,Morning,Contract,14.2,False
+STF00080,Staff Nurse,DEP0027,HOSP02,-,Night,Permanent,5.6,True
+STF00081,Consultant,DEP0053,HOSP03,Cardiologist,Morning,Permanent,21.2,True
+STF00082,Medical Officer,DEP0071,HOSP04,Surgeon,Night,Permanent,5.6,True
+STF00083,Staff Nurse,DEP0027,HOSP02,-,Evening,Contract,10.2,True
+STF00084,Support Staff,DEP0009,HOSP01,-,Morning,Intern,10.8,True
+STF00085,Medical Officer,DEP0087,HOSP04,General,Rotating,Contract,15.2,False
+STF00086,Pharmacist,DEP0004,HOSP01,-,Morning,Contract,6.6,True
+STF00087,Resident Doctor,DEP0066,HOSP03,General,Evening,Contract,4.5,True
+STF00088,Medical Officer,DEP0049,HOSP03,Surgeon,Rotating,Permanent,6.3,True
+STF00089,Medical Officer,DEP0067,HOSP04,General,Night,Permanent,5.0,True
+STF00090,Support Staff,DEP0069,HOSP04,-,Rotating,Permanent,4.5,True
+STF00091,Medical Officer,DEP0055,HOSP03,Nephrologist,Morning,Permanent,9.5,False
+STF00092,Senior Nurse,DEP0068,HOSP04,-,Rotating,Permanent,19.0,False
+STF00093,Consultant,DEP0064,HOSP03,General,Evening,Permanent,9.8,True
+STF00094,Consultant,DEP0045,HOSP03,General,Rotating,Permanent,6.7,True
+STF00095,Medical Officer,DEP0067,HOSP04,General,Evening,Contract,3.7,True
+STF00096,Resident Doctor,DEP0026,HOSP02,General,Night,Permanent,13.2,True
+STF00097,Resident Doctor,DEP0077,HOSP04,Nephrologist,Night,Permanent,8.7,True
+STF00098,Staff Nurse,DEP0046,HOSP03,-,Rotating,Permanent,5.7,True
+STF00099,Staff Nurse,DEP0092,HOSP05,-,Evening,Permanent,24.4,True
+STF00100,Medical Officer,DEP0028,HOSP02,Orthopedic Surgeon,Night,Permanent,16.6,False
+STF00101,Support Staff,DEP0005,HOSP01,-,Rotating,Contract,1.3,True
+STF00102,Support Staff,DEP0073,HOSP04,-,Rotating,Permanent,5.1,True
+STF00103,Support Staff,DEP0095,HOSP05,-,Morning,Permanent,4.0,True
+STF00104,Pharmacist,DEP0109,HOSP05,-,Morning,Permanent,7.0,True
+STF00105,Support Staff,DEP0089,HOSP05,-,Morning,Permanent,3.2,True
+STF00106,Resident Doctor,DEP0080,HOSP04,General,Morning,Intern,21.0,True
+STF00107,Senior Nurse,DEP0089,HOSP05,-,Evening,Permanent,13.4,False
+STF00108,Radiology Technician,DEP0078,HOSP04,-,Night,Permanent,19.5,True
+STF00109,Staff Nurse,DEP0087,HOSP04,-,Morning,Permanent,0.7,True
+STF00110,Consultant,DEP0087,HOSP04,General,Night,Permanent,2.4,False
+STF00111,Support Staff,DEP0067,HOSP04,-,Rotating,Permanent,13.6,True
+STF00112,Medical Officer,DEP0096,HOSP05,Pediatrician,Evening,Intern,5.2,True
+STF00113,Senior Nurse,DEP0052,HOSP03,-,Rotating,Permanent,5.4,False
+STF00114,Support Staff,DEP0093,HOSP05,-,Evening,Permanent,10.4,True
+STF00115,Medical Officer,DEP0067,HOSP04,General,Morning,Permanent,6.5,True
+STF00116,Lab Technician,DEP0079,HOSP04,-,Morning,Permanent,9.0,True
+STF00117,Radiology Technician,DEP0070,HOSP04,-,Night,Contract,11.5,True
+STF00118,Consultant,DEP0099,HOSP05,Nephrologist,Night,Contract,3.6,True
+STF00119,Staff Nurse,DEP0028,HOSP02,-,Rotating,Contract,7.2,True
+STF00120,Pharmacist,DEP0095,HOSP05,-,Rotating,Permanent,12.6,True
+STF00121,Staff Nurse,DEP0076,HOSP04,-,Rotating,Contract,27.3,True
+STF00122,Consultant,DEP0072,HOSP04,Orthopedic Surgeon,Evening,Permanent,3.9,True
+STF00123,Staff Nurse,DEP0021,HOSP01,-,Rotating,Permanent,8.8,True
+STF00124,Staff Nurse,DEP0051,HOSP03,-,Evening,Intern,9.8,True
+STF00125,Staff Nurse,DEP0105,HOSP05,-,Rotating,Contract,16.4,True
+STF00126,Resident Doctor,DEP0067,HOSP04,General,Night,Visiting,2.4,True
+STF00127,Staff Nurse,DEP0089,HOSP05,-,Morning,Permanent,7.5,True
+STF00128,Resident Doctor,DEP0089,HOSP05,General,Morning,Permanent,20.8,True
+STF00129,Staff Nurse,DEP0013,HOSP01,-,Rotating,Contract,12.9,True
+STF00130,Staff Nurse,DEP0061,HOSP03,-,Evening,Intern,1.2,True
+STF00131,Resident Doctor,DEP0048,HOSP03,General,Rotating,Permanent,4.6,True
+STF00132,Senior Nurse,DEP0100,HOSP05,-,Rotating,Contract,11.8,False
+STF00133,Staff Nurse,DEP0001,HOSP01,-,Evening,Permanent,8.2,True
+STF00134,Staff Nurse,DEP0029,HOSP02,-,Morning,Intern,5.3,True
+STF00135,Lab Technician,DEP0070,HOSP04,-,Evening,Permanent,22.1,True
+STF00136,Resident Doctor,DEP0095,HOSP05,Obstetrician,Night,Intern,13.0,True
+STF00137,Resident Doctor,DEP0045,HOSP03,General,Rotating,Visiting,3.6,True
+STF00138,Resident Doctor,DEP0024,HOSP02,Intensivist,Morning,Contract,13.0,True
+STF00139,Staff Nurse,DEP0089,HOSP05,-,Evening,Permanent,7.0,False
+STF00140,Staff Nurse,DEP0031,HOSP02,-,Morning,Permanent,6.6,True
+STF00141,Staff Nurse,DEP0005,HOSP01,-,Evening,Contract,7.1,True
+STF00142,Staff Nurse,DEP0068,HOSP04,-,Morning,Permanent,2.0,True
+STF00143,Senior Nurse,DEP0074,HOSP04,-,Night,Permanent,9.1,True
+STF00144,Lab Technician,DEP0027,HOSP02,-,Evening,Contract,18.5,True
+STF00145,Resident Doctor,DEP0079,HOSP04,General,Rotating,Visiting,5.6,True
+STF00146,Radiology Technician,DEP0068,HOSP04,-,Evening,Permanent,7.7,True
+STF00147,Support Staff,DEP0068,HOSP04,-,Morning,Visiting,4.3,True
+STF00148,Support Staff,DEP0089,HOSP05,-,Evening,Visiting,2.2,True
+STF00149,Consultant,DEP0091,HOSP05,General,Rotating,Contract,3.0,True
+STF00150,Support Staff,DEP0050,HOSP03,-,Rotating,Contract,24.0,True
+STF00151,Pharmacist,DEP0089,HOSP05,-,Evening,Permanent,12.7,True
+STF00152,Senior Nurse,DEP0004,HOSP01,-,Morning,Visiting,11.4,True
+STF00153,Support Staff,DEP0104,HOSP05,-,Night,Permanent,6.6,True
+STF00154,Radiology Technician,DEP0030,HOSP02,-,Rotating,Permanent,1.4,True
+STF00155,Pharmacist,DEP0073,HOSP04,-,Evening,Intern,10.0,True
+STF00156,Staff Nurse,DEP0001,HOSP01,-,Night,Permanent,16.1,True
+STF00157,Radiology Technician,DEP0049,HOSP03,-,Morning,Contract,1.2,True
+STF00158,Staff Nurse,DEP0035,HOSP02,-,Night,Permanent,1.2,True
+STF00159,Lab Technician,DEP0066,HOSP03,-,Rotating,Permanent,7.0,True
+STF00160,Radiology Technician,DEP0081,HOSP04,-,Morning,Permanent,5.4,True
+STF00161,Staff Nurse,DEP0050,HOSP03,-,Rotating,Contract,6.4,True
+STF00162,Resident Doctor,DEP0004,HOSP01,General,Rotating,Permanent,12.3,True
+STF00163,Staff Nurse,DEP0030,HOSP02,-,Evening,Visiting,2.0,True
+STF00164,Support Staff,DEP0096,HOSP05,-,Morning,Permanent,7.0,True
+STF00165,Staff Nurse,DEP0044,HOSP02,-,Rotating,Contract,16.1,True
+STF00166,Consultant,DEP0035,HOSP02,General,Morning,Contract,13.6,True
+STF00167,Consultant,DEP0070,HOSP04,General,Rotating,Contract,14.8,True
+STF00168,Radiology Technician,DEP0048,HOSP03,-,Evening,Contract,6.3,True
+STF00169,Support Staff,DEP0094,HOSP05,-,Rotating,Permanent,3.6,True
+STF00170,Support Staff,DEP0050,HOSP03,-,Rotating,Visiting,15.1,False
+STF00171,Medical Officer,DEP0051,HOSP03,Obstetrician,Evening,Contract,8.2,True
+STF00172,Staff Nurse,DEP0049,HOSP03,-,Evening,Intern,3.2,True
+STF00173,Staff Nurse,DEP0047,HOSP03,-,Evening,Permanent,7.8,False
+STF00174,Radiology Technician,DEP0001,HOSP01,-,Rotating,Visiting,3.6,True
+STF00175,Resident Doctor,DEP0066,HOSP03,General,Evening,Visiting,3.0,True
+STF00176,Consultant,DEP0041,HOSP02,General,Evening,Permanent,12.0,True
+STF00177,Radiology Technician,DEP0050,HOSP03,-,Evening,Intern,8.7,True
+STF00178,Lab Technician,DEP0026,HOSP02,-,Morning,Intern,1.2,True
+STF00179,Staff Nurse,DEP0008,HOSP01,-,Morning,Contract,10.1,True
+STF00180,Staff Nurse,DEP0095,HOSP05,-,Evening,Contract,6.9,True
+STF00181,Pharmacist,DEP0091,HOSP05,-,Rotating,Contract,5.8,True
+STF00182,Staff Nurse,DEP0027,HOSP02,-,Morning,Permanent,11.3,True
+STF00183,Senior Nurse,DEP0072,HOSP04,-,Rotating,Contract,7.5,True
+STF00184,Staff Nurse,DEP0049,HOSP03,-,Morning,Contract,18.5,True
+STF00185,Senior Nurse,DEP0004,HOSP01,-,Morning,Permanent,5.4,False
+STF00186,Staff Nurse,DEP0049,HOSP03,-,Night,Permanent,2.5,True
+STF00187,Pharmacist,DEP0014,HOSP01,-,Night,Permanent,12.3,True
+STF00188,Pharmacist,DEP0030,HOSP02,-,Evening,Permanent,8.7,True
+STF00189,Staff Nurse,DEP0089,HOSP05,-,Morning,Permanent,3.6,True
+STF00190,Support Staff,DEP0025,HOSP02,-,Morning,Permanent,9.2,True
+STF00191,Support Staff,DEP0104,HOSP05,-,Rotating,Contract,10.4,True
+STF00192,Support Staff,DEP0002,HOSP01,-,Morning,Permanent,7.1,True
+STF00193,Pharmacist,DEP0073,HOSP04,-,Rotating,Permanent,7.1,True
+STF00194,Resident Doctor,DEP0017,HOSP01,General,Night,Intern,13.2,True
+STF00195,Consultant,DEP0045,HOSP03,General,Rotating,Permanent,5.2,True
+STF00196,Consultant,DEP0092,HOSP05,General,Night,Permanent,11.5,True
+STF00197,Staff Nurse,DEP0006,HOSP01,-,Morning,Contract,10.1,True
+STF00198,Support Staff,DEP0071,HOSP04,-,Morning,Contract,5.0,True
+STF00199,Staff Nurse,DEP0094,HOSP05,-,Rotating,Contract,7.4,True
+STF00200,Staff Nurse,DEP0007,HOSP01,-,Rotating,Permanent,8.4,True
+STF00201,Lab Technician,DEP0027,HOSP02,-,Evening,Contract,7.6,True
+STF00202,Consultant,DEP0067,HOSP04,General,Morning,Intern,11.3,False
+STF00203,Staff Nurse,DEP0073,HOSP04,-,Morning,Contract,20.8,True
+STF00204,Resident Doctor,DEP0025,HOSP02,General,Morning,Contract,18.6,True
+STF00205,Staff Nurse,DEP0099,HOSP05,-,Morning,Permanent,6.7,True
+STF00206,Staff Nurse,DEP0067,HOSP04,-,Morning,Permanent,1.3,False
+STF00207,Staff Nurse,DEP0002,HOSP01,-,Morning,Contract,9.4,True
+STF00208,Senior Nurse,DEP0064,HOSP03,-,Morning,Permanent,19.5,True
+STF00209,Medical Officer,DEP0070,HOSP04,General,Evening,Contract,2.0,True
+STF00210,Resident Doctor,DEP0071,HOSP04,Surgeon,Morning,Intern,12.2,True
+STF00211,Staff Nurse,DEP0028,HOSP02,-,Night,Permanent,0.8,True
+STF00212,Staff Nurse,DEP0008,HOSP01,-,Morning,Permanent,9.8,True
+STF00213,Staff Nurse,DEP0035,HOSP02,-,Morning,Contract,5.3,True
+STF00214,Staff Nurse,DEP0053,HOSP03,-,Morning,Contract,0.7,True
+STF00215,Pharmacist,DEP0069,HOSP04,-,Rotating,Permanent,9.2,True
+STF00216,Staff Nurse,DEP0023,HOSP02,-,Night,Contract,19.3,True
+STF00217,Support Staff,DEP0028,HOSP02,-,Morning,Contract,7.6,True
+STF00218,Senior Nurse,DEP0072,HOSP04,-,Evening,Permanent,9.3,True
+STF00219,Radiology Technician,DEP0089,HOSP05,-,Evening,Permanent,3.2,True
+STF00220,Senior Nurse,DEP0099,HOSP05,-,Morning,Permanent,4.6,False
+STF00221,Support Staff,DEP0089,HOSP05,-,Evening,Visiting,7.6,True
+STF00222,Consultant,DEP0071,HOSP04,Surgeon,Morning,Intern,10.9,True
+STF00223,Staff Nurse,DEP0028,HOSP02,-,Evening,Permanent,6.7,True
+STF00224,Medical Officer,DEP0051,HOSP03,Obstetrician,Rotating,Intern,7.0,True
+STF00225,Senior Nurse,DEP0088,HOSP04,-,Morning,Permanent,11.2,True
+STF00226,Medical Officer,DEP0098,HOSP05,Neurologist,Night,Permanent,4.6,True
+STF00227,Support Staff,DEP0071,HOSP04,-,Evening,Visiting,2.6,True
+STF00228,Senior Nurse,DEP0049,HOSP03,-,Rotating,Permanent,3.3,True
+STF00229,Lab Technician,DEP0099,HOSP05,-,Morning,Permanent,2.0,True
+STF00230,Staff Nurse,DEP0001,HOSP01,-,Rotating,Intern,3.1,True
+STF00231,Staff Nurse,DEP0048,HOSP03,-,Evening,Permanent,6.6,True
+STF00232,Consultant,DEP0024,HOSP02,Intensivist,Evening,Permanent,2.8,True
+STF00233,Consultant,DEP0005,HOSP01,Surgeon,Morning,Permanent,2.6,True
+STF00234,Staff Nurse,DEP0096,HOSP05,-,Morning,Permanent,16.6,True
+STF00235,Medical Officer,DEP0102,HOSP05,General,Night,Permanent,22.7,True
+STF00236,Staff Nurse,DEP0051,HOSP03,-,Evening,Intern,7.4,True
+STF00237,Resident Doctor,DEP0049,HOSP03,Surgeon,Morning,Contract,3.9,True
+STF00238,Senior Nurse,DEP0097,HOSP05,-,Rotating,Permanent,7.8,True
+STF00239,Pharmacist,DEP0008,HOSP01,-,Night,Permanent,4.9,False
+STF00240,Staff Nurse,DEP0094,HOSP05,-,Night,Visiting,10.2,True
+STF00241,Support Staff,DEP0097,HOSP05,-,Morning,Permanent,3.5,True
+STF00242,Medical Officer,DEP0054,HOSP03,Neurologist,Rotating,Permanent,4.3,True
+STF00243,Staff Nurse,DEP0089,HOSP05,-,Rotating,Permanent,13.2,True
+STF00244,Staff Nurse,DEP0100,HOSP05,-,Rotating,Permanent,5.4,True
+STF00245,Senior Nurse,DEP0096,HOSP05,-,Rotating,Contract,5.1,True
+STF00246,Radiology Technician,DEP0045,HOSP03,-,Morning,Visiting,7.6,False
+STF00247,Staff Nurse,DEP0092,HOSP05,-,Rotating,Contract,4.6,False
+STF00248,Lab Technician,DEP0023,HOSP02,-,Rotating,Contract,4.4,True
+STF00249,Staff Nurse,DEP0093,HOSP05,-,Rotating,Contract,6.7,True
+STF00250,Staff Nurse,DEP0049,HOSP03,-,Evening,Contract,7.8,False
+STF00251,Staff Nurse,DEP0027,HOSP02,-,Morning,Contract,4.3,True
+STF00252,Support Staff,DEP0017,HOSP01,-,Night,Permanent,9.9,True
+STF00253,Support Staff,DEP0078,HOSP04,-,Night,Contract,7.0,True
+STF00254,Medical Officer,DEP0005,HOSP01,Surgeon,Evening,Permanent,20.0,True
+STF00255,Resident Doctor,DEP0079,HOSP04,General,Morning,Intern,17.4,True
+STF00256,Consultant,DEP0075,HOSP04,Cardiologist,Morning,Intern,5.3,True
+STF00257,Staff Nurse,DEP0046,HOSP03,-,Morning,Permanent,14.5,True
+STF00258,Medical Officer,DEP0048,HOSP03,General,Rotating,Contract,3.4,True
+STF00259,Support Staff,DEP0070,HOSP04,-,Evening,Permanent,16.3,True
+STF00260,Staff Nurse,DEP0075,HOSP04,-,Morning,Permanent,6.1,True
+STF00261,Staff Nurse,DEP0029,HOSP02,-,Rotating,Permanent,6.0,False
+STF00262,Resident Doctor,DEP0057,HOSP03,General,Evening,Permanent,7.4,False
+STF00263,Staff Nurse,DEP0093,HOSP05,-,Morning,Permanent,9.8,True
+STF00264,Staff Nurse,DEP0070,HOSP04,-,Evening,Permanent,10.5,True
+STF00265,Consultant,DEP0045,HOSP03,General,Evening,Visiting,8.0,True
+STF00266,Consultant,DEP0069,HOSP04,General,Rotating,Permanent,6.2,True
+STF00267,Staff Nurse,DEP0053,HOSP03,-,Morning,Contract,0.4,True
+STF00268,Staff Nurse,DEP0094,HOSP05,-,Morning,Permanent,6.2,True
+STF00269,Medical Officer,DEP0070,HOSP04,General,Rotating,Permanent,2.9,True
+STF00270,Staff Nurse,DEP0013,HOSP01,-,Rotating,Permanent,10.9,True
+STF00271,Staff Nurse,DEP0026,HOSP02,-,Evening,Contract,3.6,True
+STF00272,Medical Officer,DEP0099,HOSP05,Nephrologist,Night,Permanent,7.2,True
+STF00273,Staff Nurse,DEP0031,HOSP02,-,Morning,Permanent,10.6,True
+STF00274,Radiology Technician,DEP0015,HOSP01,-,Morning,Visiting,2.8,True
+STF00275,Staff Nurse,DEP0010,HOSP01,-,Rotating,Permanent,11.3,True
+STF00276,Staff Nurse,DEP0074,HOSP04,-,Night,Contract,9.4,True
+STF00277,Staff Nurse,DEP0078,HOSP04,-,Morning,Intern,3.9,True
+STF00278,Senior Nurse,DEP0009,HOSP01,-,Morning,Contract,17.2,True
+STF00279,Support Staff,DEP0089,HOSP05,-,Evening,Permanent,18.9,True
+STF00280,Lab Technician,DEP0004,HOSP01,-,Morning,Permanent,6.9,True
+STF00281,Resident Doctor,DEP0030,HOSP02,Pediatrician,Evening,Permanent,7.4,True
+STF00282,Resident Doctor,DEP0045,HOSP03,General,Night,Contract,9.6,True
+STF00283,Lab Technician,DEP0074,HOSP04,-,Morning,Permanent,12.2,True
+STF00284,Resident Doctor,DEP0049,HOSP03,Surgeon,Evening,Intern,14.2,True
+STF00285,Medical Officer,DEP0023,HOSP02,General,Morning,Permanent,12.5,False
+STF00286,Senior Nurse,DEP0037,HOSP02,-,Morning,Contract,7.3,True
+STF00287,Consultant,DEP0028,HOSP02,Orthopedic Surgeon,Evening,Permanent,7.6,True
+STF00288,Medical Officer,DEP0025,HOSP02,General,Rotating,Permanent,5.9,False
+STF00289,Staff Nurse,DEP0070,HOSP04,-,Evening,Permanent,3.6,True
+STF00290,Consultant,DEP0053,HOSP03,Cardiologist,Night,Permanent,17.2,False
+STF00291,Medical Officer,DEP0008,HOSP01,Pediatrician,Evening,Permanent,9.2,True
+STF00292,Staff Nurse,DEP0089,HOSP05,-,Evening,Contract,9.3,True
+STF00293,Staff Nurse,DEP0036,HOSP02,-,Rotating,Permanent,6.3,True
+STF00294,Support Staff,DEP0068,HOSP04,-,Evening,Permanent,3.8,True
+STF00295,Staff Nurse,DEP0004,HOSP01,-,Evening,Intern,21.0,True
+STF00296,Resident Doctor,DEP0058,HOSP03,General,Morning,Permanent,17.0,False
+STF00297,Consultant,DEP0007,HOSP01,Obstetrician,Morning,Permanent,6.6,True
+STF00298,Resident Doctor,DEP0026,HOSP02,General,Rotating,Contract,5.5,True
+STF00299,Consultant,DEP0048,HOSP03,General,Morning,Permanent,1.8,True
+STF00300,Consultant,DEP0097,HOSP05,Cardiologist,Evening,Contract,1.0,True
+STF00301,Consultant,DEP0106,HOSP05,General,Evening,Contract,9.3,True
+STF00302,Consultant,DEP0004,HOSP01,General,Night,Permanent,11.5,True
+STF00303,Support Staff,DEP0092,HOSP05,-,Evening,Intern,11.0,True
+STF00304,Support Staff,DEP0067,HOSP04,-,Morning,Permanent,19.9,True
+STF00305,Staff Nurse,DEP0093,HOSP05,-,Evening,Contract,2.3,True
+STF00306,Resident Doctor,DEP0095,HOSP05,Obstetrician,Evening,Contract,5.9,True
+STF00307,Resident Doctor,DEP0045,HOSP03,General,Morning,Visiting,8.8,True
+STF00308,Resident Doctor,DEP0051,HOSP03,Obstetrician,Rotating,Permanent,1.3,True
+STF00309,Support Staff,DEP0089,HOSP05,-,Evening,Permanent,9.7,True
+STF00310,Staff Nurse,DEP0058,HOSP03,-,Morning,Permanent,3.6,True
+STF00311,Staff Nurse,DEP0045,HOSP03,-,Morning,Contract,8.6,True
+STF00312,Radiology Technician,DEP0049,HOSP03,-,Rotating,Contract,1.9,True
+STF00313,Staff Nurse,DEP0051,HOSP03,-,Evening,Contract,4.3,True
+STF00314,Support Staff,DEP0045,HOSP03,-,Morning,Permanent,6.3,True
+STF00315,Resident Doctor,DEP0067,HOSP04,General,Rotating,Permanent,3.2,True
+STF00316,Senior Nurse,DEP0052,HOSP03,-,Night,Contract,17.7,True
+STF00317,Medical Officer,DEP0002,HOSP01,Intensivist,Evening,Permanent,3.4,True
+STF00318,Support Staff,DEP0052,HOSP03,-,Evening,Permanent,10.9,True
+STF00319,Staff Nurse,DEP0030,HOSP02,-,Evening,Visiting,2.5,True
+STF00320,Medical Officer,DEP0007,HOSP01,Obstetrician,Evening,Permanent,2.9,False
+STF00321,Staff Nurse,DEP0048,HOSP03,-,Rotating,Contract,6.1,True
+STF00322,Medical Officer,DEP0033,HOSP02,Nephrologist,Evening,Contract,4.9,True
+STF00323,Staff Nurse,DEP0006,HOSP01,-,Rotating,Contract,10.8,True
+STF00324,Support Staff,DEP0027,HOSP02,-,Morning,Contract,9.6,False
+STF00325,Support Staff,DEP0095,HOSP05,-,Evening,Contract,8.6,True
+STF00326,Pharmacist,DEP0071,HOSP04,-,Rotating,Contract,27.8,False
+STF00327,Staff Nurse,DEP0094,HOSP05,-,Rotating,Intern,12.9,True
+STF00328,Lab Technician,DEP0070,HOSP04,-,Rotating,Permanent,6.9,True
+STF00329,Pharmacist,DEP0071,HOSP04,-,Evening,Contract,15.0,True
+STF00330,Consultant,DEP0074,HOSP04,Pediatrician,Night,Contract,7.1,True
+STF00331,Medical Officer,DEP0098,HOSP05,Neurologist,Morning,Contract,5.9,True
+STF00332,Staff Nurse,DEP0073,HOSP04,-,Morning,Permanent,13.8,True
+STF00333,Staff Nurse,DEP0007,HOSP01,-,Evening,Contract,21.8,False
+STF00334,Staff Nurse,DEP0051,HOSP03,-,Evening,Permanent,1.9,True
+STF00335,Support Staff,DEP0049,HOSP03,-,Morning,Intern,3.4,True
+STF00336,Staff Nurse,DEP0071,HOSP04,-,Morning,Permanent,3.8,True
+STF00337,Support Staff,DEP0073,HOSP04,-,Morning,Permanent,4.8,True
+STF00338,Support Staff,DEP0006,HOSP01,-,Evening,Intern,9.5,True
+STF00339,Staff Nurse,DEP0075,HOSP04,-,Night,Intern,10.0,True
+STF00340,Support Staff,DEP0073,HOSP04,-,Evening,Permanent,9.3,True
+STF00341,Senior Nurse,DEP0108,HOSP05,-,Morning,Contract,11.3,True
+STF00342,Staff Nurse,DEP0056,HOSP03,-,Morning,Intern,3.6,True
+STF00343,Radiology Technician,DEP0097,HOSP05,-,Rotating,Permanent,6.8,True
+STF00344,Staff Nurse,DEP0084,HOSP04,-,Night,Contract,4.0,True
+STF00345,Staff Nurse,DEP0048,HOSP03,-,Evening,Permanent,10.2,True
+STF00346,Medical Officer,DEP0058,HOSP03,General,Evening,Permanent,8.9,True
+STF00347,Lab Technician,DEP0067,HOSP04,-,Rotating,Permanent,10.2,True
+STF00348,Medical Officer,DEP0012,HOSP01,Oncologist,Morning,Intern,7.5,True
+STF00349,Medical Officer,DEP0057,HOSP03,General,Rotating,Contract,4.3,True
+STF00350,Medical Officer,DEP0084,HOSP04,General,Rotating,Intern,6.0,True
+STF00351,Staff Nurse,DEP0028,HOSP02,-,Evening,Permanent,8.6,True
+STF00352,Staff Nurse,DEP0008,HOSP01,-,Morning,Permanent,14.1,True
+STF00353,Lab Technician,DEP0063,HOSP03,-,Rotating,Intern,14.6,True
+STF00354,Medical Officer,DEP0092,HOSP05,General,Night,Permanent,5.4,True
+STF00355,Staff Nurse,DEP0027,HOSP02,-,Rotating,Contract,8.8,False
+STF00356,Resident Doctor,DEP0057,HOSP03,General,Evening,Permanent,2.9,True
+STF00357,Support Staff,DEP0049,HOSP03,-,Morning,Contract,9.5,True
+STF00358,Support Staff,DEP0001,HOSP01,-,Rotating,Permanent,11.9,True
+STF00359,Lab Technician,DEP0033,HOSP02,-,Morning,Permanent,4.2,True
+STF00360,Staff Nurse,DEP0067,HOSP04,-,Rotating,Permanent,30.6,False
+STF00361,Support Staff,DEP0094,HOSP05,-,Morning,Visiting,4.9,True
+STF00362,Staff Nurse,DEP0077,HOSP04,-,Morning,Permanent,14.2,True
+STF00363,Senior Nurse,DEP0002,HOSP01,-,Evening,Visiting,16.8,True
+STF00364,Medical Officer,DEP0006,HOSP01,Orthopedic Surgeon,Evening,Permanent,6.0,True
+STF00365,Staff Nurse,DEP0083,HOSP04,-,Morning,Visiting,16.9,True
+STF00366,Resident Doctor,DEP0001,HOSP01,General,Evening,Permanent,7.2,True
+STF00367,Resident Doctor,DEP0102,HOSP05,General,Evening,Contract,9.8,True
+STF00368,Staff Nurse,DEP0074,HOSP04,-,Morning,Permanent,6.4,True
+STF00369,Senior Nurse,DEP0005,HOSP01,-,Morning,Contract,21.8,True
+STF00370,Consultant,DEP0071,HOSP04,Surgeon,Morning,Visiting,20.5,False
+STF00371,Staff Nurse,DEP0076,HOSP04,-,Rotating,Contract,15.4,True
+STF00372,Consultant,DEP0106,HOSP05,General,Night,Contract,7.5,True
+STF00373,Medical Officer,DEP0070,HOSP04,General,Rotating,Permanent,8.7,True
+STF00374,Support Staff,DEP0032,HOSP02,-,Rotating,Permanent,6.6,True
+STF00375,Medical Officer,DEP0001,HOSP01,General,Morning,Permanent,6.5,True
+STF00376,Staff Nurse,DEP0029,HOSP02,-,Night,Contract,10.2,True
+STF00377,Staff Nurse,DEP0025,HOSP02,-,Night,Intern,16.9,True
+STF00378,Staff Nurse,DEP0004,HOSP01,-,Rotating,Intern,12.7,True
+STF00379,Medical Officer,DEP0045,HOSP03,General,Rotating,Intern,8.3,True
+STF00380,Senior Nurse,DEP0099,HOSP05,-,Evening,Permanent,5.3,True
+STF00381,Consultant,DEP0089,HOSP05,General,Rotating,Permanent,0.9,True
+STF00382,Staff Nurse,DEP0048,HOSP03,-,Rotating,Contract,9.3,True
+STF00383,Resident Doctor,DEP0096,HOSP05,Pediatrician,Evening,Permanent,13.1,False
+STF00384,Staff Nurse,DEP0026,HOSP02,-,Rotating,Contract,0.8,True
+STF00385,Staff Nurse,DEP0045,HOSP03,-,Night,Permanent,3.2,True
+STF00386,Staff Nurse,DEP0024,HOSP02,-,Rotating,Permanent,2.7,False
+STF00387,Staff Nurse,DEP0070,HOSP04,-,Rotating,Permanent,6.0,True
+STF00388,Consultant,DEP0007,HOSP01,Obstetrician,Evening,Contract,10.9,True
+STF00389,Staff Nurse,DEP0026,HOSP02,-,Rotating,Permanent,12.0,True
+STF00390,Staff Nurse,DEP0073,HOSP04,-,Night,Permanent,10.3,True
+STF00391,Medical Officer,DEP0099,HOSP05,Nephrologist,Morning,Permanent,7.1,True
+STF00392,Lab Technician,DEP0070,HOSP04,-,Rotating,Permanent,4.7,True
+STF00393,Support Staff,DEP0067,HOSP04,-,Night,Contract,18.8,True
+STF00394,Resident Doctor,DEP0049,HOSP03,Surgeon,Evening,Permanent,5.0,True
+STF00395,Medical Officer,DEP0029,HOSP02,Obstetrician,Night,Contract,13.0,True
+STF00396,Staff Nurse,DEP0031,HOSP02,-,Rotating,Permanent,10.8,True
+STF00397,Senior Nurse,DEP0026,HOSP02,-,Rotating,Contract,9.7,True
+STF00398,Staff Nurse,DEP0001,HOSP01,-,Morning,Permanent,7.1,True
+STF00399,Staff Nurse,DEP0015,HOSP01,-,Evening,Permanent,9.2,True
+STF00400,Medical Officer,DEP0093,HOSP05,Surgeon,Night,Contract,5.2,True
+STF00401,Medical Officer,DEP0093,HOSP05,Surgeon,Evening,Intern,4.0,False
+STF00402,Staff Nurse,DEP0070,HOSP04,-,Rotating,Contract,4.4,True
+STF00403,Medical Officer,DEP0051,HOSP03,Obstetrician,Evening,Contract,5.4,True
+STF00404,Resident Doctor,DEP0092,HOSP05,General,Evening,Permanent,11.3,True
+STF00405,Consultant,DEP0067,HOSP04,General,Morning,Permanent,2.5,True
+STF00406,Staff Nurse,DEP0055,HOSP03,-,Morning,Permanent,15.6,True
+STF00407,Medical Officer,DEP0061,HOSP03,General,Morning,Intern,1.0,True
+STF00408,Staff Nurse,DEP0054,HOSP03,-,Morning,Contract,9.2,True
+STF00409,Support Staff,DEP0048,HOSP03,-,Evening,Permanent,5.7,True
+STF00410,Consultant,DEP0033,HOSP02,Nephrologist,Morning,Permanent,6.0,True
+STF00411,Radiology Technician,DEP0073,HOSP04,-,Rotating,Permanent,19.7,True
+STF00412,Lab Technician,DEP0029,HOSP02,-,Night,Permanent,5.4,True
+STF00413,Radiology Technician,DEP0070,HOSP04,-,Morning,Permanent,30.5,True
+STF00414,Support Staff,DEP0052,HOSP03,-,Rotating,Contract,18.1,True
+STF00415,Medical Officer,DEP0067,HOSP04,General,Evening,Intern,1.6,True
+STF00416,Staff Nurse,DEP0059,HOSP03,-,Night,Permanent,3.9,True
+STF00417,Senior Nurse,DEP0048,HOSP03,-,Rotating,Contract,8.9,True
+STF00418,Resident Doctor,DEP0092,HOSP05,General,Evening,Visiting,4.1,True
+STF00419,Staff Nurse,DEP0097,HOSP05,-,Rotating,Permanent,0.5,True
+STF00420,Staff Nurse,DEP0012,HOSP01,-,Rotating,Permanent,9.5,True
+STF00421,Consultant,DEP0048,HOSP03,General,Night,Permanent,8.0,True
+STF00422,Staff Nurse,DEP0074,HOSP04,-,Morning,Permanent,13.7,False
+STF00423,Consultant,DEP0071,HOSP04,Surgeon,Rotating,Intern,3.3,True
+STF00424,Staff Nurse,DEP0092,HOSP05,-,Evening,Contract,14.0,False
+STF00425,Support Staff,DEP0004,HOSP01,-,Morning,Visiting,25.1,False
+STF00426,Medical Officer,DEP0048,HOSP03,General,Rotating,Permanent,7.1,False
+STF00427,Staff Nurse,DEP0077,HOSP04,-,Rotating,Contract,9.3,True
+STF00428,Consultant,DEP0031,HOSP02,Cardiologist,Rotating,Permanent,5.7,True
+STF00429,Staff Nurse,DEP0029,HOSP02,-,Evening,Contract,7.9,True
+STF00430,Resident Doctor,DEP0045,HOSP03,General,Night,Visiting,15.5,True
+STF00431,Staff Nurse,DEP0007,HOSP01,-,Morning,Contract,18.3,False
+STF00432,Pharmacist,DEP0072,HOSP04,-,Morning,Permanent,1.3,True
+STF00433,Resident Doctor,DEP0075,HOSP04,Cardiologist,Rotating,Permanent,8.2,True
+STF00434,Support Staff,DEP0104,HOSP05,-,Night,Visiting,2.8,True
+STF00435,Staff Nurse,DEP0029,HOSP02,-,Rotating,Intern,3.5,True
+STF00436,Staff Nurse,DEP0026,HOSP02,-,Morning,Contract,5.1,True
+STF00437,Staff Nurse,DEP0045,HOSP03,-,Rotating,Intern,1.4,True
+STF00438,Staff Nurse,DEP0059,HOSP03,-,Evening,Permanent,1.6,True
+STF00439,Medical Officer,DEP0001,HOSP01,General,Rotating,Contract,5.6,True
+STF00440,Support Staff,DEP0095,HOSP05,-,Morning,Permanent,11.8,True
+STF00441,Medical Officer,DEP0083,HOSP04,General,Morning,Intern,13.2,False
+STF00442,Senior Nurse,DEP0035,HOSP02,-,Morning,Intern,2.0,True
+STF00443,Staff Nurse,DEP0071,HOSP04,-,Rotating,Contract,10.2,True
+STF00444,Medical Officer,DEP0029,HOSP02,Obstetrician,Evening,Permanent,3.9,True
+STF00445,Radiology Technician,DEP0089,HOSP05,-,Morning,Permanent,3.8,True
+STF00446,Medical Officer,DEP0073,HOSP04,Obstetrician,Rotating,Permanent,3.9,True
+STF00447,Lab Technician,DEP0030,HOSP02,-,Morning,Permanent,2.9,True
+STF00448,Senior Nurse,DEP0087,HOSP04,-,Rotating,Contract,6.8,True
+STF00449,Resident Doctor,DEP0095,HOSP05,Obstetrician,Evening,Permanent,6.4,True
+STF00450,Staff Nurse,DEP0001,HOSP01,-,Morning,Contract,4.2,True
+STF00451,Staff Nurse,DEP0045,HOSP03,-,Evening,Permanent,2.2,True
+STF00452,Pharmacist,DEP0004,HOSP01,-,Evening,Permanent,8.8,True
+STF00453,Staff Nurse,DEP0001,HOSP01,-,Night,Contract,3.8,True
+STF00454,Staff Nurse,DEP0009,HOSP01,-,Evening,Intern,21.6,True
+STF00455,Medical Officer,DEP0027,HOSP02,Surgeon,Night,Visiting,6.2,False
+STF00456,Staff Nurse,DEP0072,HOSP04,-,Evening,Visiting,10.1,True
+STF00457,Medical Officer,DEP0049,HOSP03,Surgeon,Morning,Contract,12.0,True
+STF00458,Staff Nurse,DEP0109,HOSP05,-,Night,Permanent,3.4,True
+STF00459,Lab Technician,DEP0089,HOSP05,-,Evening,Contract,2.6,False
+STF00460,Medical Officer,DEP0032,HOSP02,Neurologist,Night,Permanent,4.3,True
+STF00461,Medical Officer,DEP0023,HOSP02,General,Rotating,Permanent,11.2,True
+STF00462,Consultant,DEP0033,HOSP02,Nephrologist,Evening,Visiting,11.8,True
+STF00463,Consultant,DEP0001,HOSP01,General,Rotating,Permanent,11.3,True
+STF00464,Staff Nurse,DEP0046,HOSP03,-,Evening,Permanent,7.0,True
+STF00465,Medical Officer,DEP0096,HOSP05,Pediatrician,Evening,Permanent,12.4,True
+STF00466,Staff Nurse,DEP0027,HOSP02,-,Rotating,Permanent,7.7,False
+STF00467,Resident Doctor,DEP0074,HOSP04,Pediatrician,Night,Permanent,6.1,True
+STF00468,Medical Officer,DEP0045,HOSP03,General,Rotating,Permanent,11.2,True
+STF00469,Consultant,DEP0072,HOSP04,Orthopedic Surgeon,Morning,Permanent,25.8,True
+STF00470,Resident Doctor,DEP0070,HOSP04,General,Morning,Permanent,20.1,True
+STF00471,Support Staff,DEP0092,HOSP05,-,Rotating,Permanent,0.8,True
+STF00472,Radiology Technician,DEP0092,HOSP05,-,Evening,Permanent,1.0,True
+STF00473,Support Staff,DEP0071,HOSP04,-,Rotating,Permanent,11.4,True
+STF00474,Radiology Technician,DEP0091,HOSP05,-,Rotating,Permanent,2.0,True
+STF00475,Radiology Technician,DEP0027,HOSP02,-,Morning,Permanent,18.0,False
+STF00476,Support Staff,DEP0027,HOSP02,-,Rotating,Contract,2.2,True
+STF00477,Pharmacist,DEP0004,HOSP01,-,Night,Contract,8.2,True
+STF00478,Staff Nurse,DEP0010,HOSP01,-,Morning,Contract,3.8,True
+STF00479,Pharmacist,DEP0004,HOSP01,-,Evening,Contract,11.2,True
+STF00480,Staff Nurse,DEP0005,HOSP01,-,Evening,Visiting,15.6,True
+STF00481,Staff Nurse,DEP0064,HOSP03,-,Rotating,Permanent,2.4,True
+STF00482,Staff Nurse,DEP0085,HOSP04,-,Evening,Contract,7.1,True
+STF00483,Consultant,DEP0091,HOSP05,General,Evening,Permanent,21.1,True
+STF00484,Medical Officer,DEP0046,HOSP03,Intensivist,Morning,Contract,3.0,False
+STF00485,Medical Officer,DEP0093,HOSP05,Surgeon,Night,Permanent,2.7,True
+STF00486,Consultant,DEP0029,HOSP02,Obstetrician,Rotating,Permanent,21.7,True
+STF00487,Consultant,DEP0067,HOSP04,General,Evening,Permanent,13.0,True
+STF00488,Staff Nurse,DEP0004,HOSP01,-,Morning,Permanent,6.4,True
+STF00489,Staff Nurse,DEP0007,HOSP01,-,Rotating,Permanent,5.7,False
+STF00490,Medical Officer,DEP0079,HOSP04,General,Rotating,Permanent,7.6,True
+STF00491,Consultant,DEP0091,HOSP05,General,Evening,Permanent,13.3,False
+STF00492,Lab Technician,DEP0001,HOSP01,-,Night,Permanent,9.3,True
+STF00493,Resident Doctor,DEP0053,HOSP03,Cardiologist,Night,Intern,5.5,True
+STF00494,Staff Nurse,DEP0089,HOSP05,-,Evening,Permanent,5.6,True
+STF00495,Senior Nurse,DEP0096,HOSP05,-,Night,Permanent,9.8,True
+STF00496,Lab Technician,DEP0083,HOSP04,-,Rotating,Permanent,8.8,True
+STF00497,Staff Nurse,DEP0023,HOSP02,-,Morning,Contract,32.4,True
+STF00498,Staff Nurse,DEP0098,HOSP05,-,Morning,Permanent,7.4,True
+STF00499,Staff Nurse,DEP0023,HOSP02,-,Night,Permanent,13.3,True
+STF00500,Resident Doctor,DEP0053,HOSP03,Cardiologist,Night,Visiting,0.9,True
+STF00501,Resident Doctor,DEP0093,HOSP05,Surgeon,Evening,Permanent,5.9,True
+STF00502,Lab Technician,DEP0049,HOSP03,-,Rotating,Contract,7.3,False
+STF00503,Medical Officer,DEP0027,HOSP02,Surgeon,Rotating,Permanent,4.0,False
+STF00504,Lab Technician,DEP0096,HOSP05,-,Evening,Permanent,4.7,True
+STF00505,Consultant,DEP0034,HOSP02,Oncologist,Morning,Permanent,18.9,True
+STF00506,Pharmacist,DEP0045,HOSP03,-,Evening,Permanent,9.7,True
+STF00507,Consultant,DEP0051,HOSP03,Obstetrician,Rotating,Permanent,7.0,True
+STF00508,Pharmacist,DEP0031,HOSP02,-,Evening,Permanent,1.6,True
+STF00509,Consultant,DEP0092,HOSP05,General,Night,Contract,7.9,True
+STF00510,Resident Doctor,DEP0048,HOSP03,General,Evening,Intern,7.4,True
+STF00511,Staff Nurse,DEP0067,HOSP04,-,Morning,Visiting,2.9,True
+STF00512,Support Staff,DEP0049,HOSP03,-,Rotating,Contract,6.8,True
+STF00513,Pharmacist,DEP0001,HOSP01,-,Morning,Intern,5.4,False
+STF00514,Radiology Technician,DEP0051,HOSP03,-,Morning,Contract,7.3,True
+STF00515,Support Staff,DEP0034,HOSP02,-,Rotating,Permanent,14.0,False
+STF00516,Senior Nurse,DEP0074,HOSP04,-,Evening,Contract,14.0,True
+STF00517,Staff Nurse,DEP0074,HOSP04,-,Morning,Permanent,0.5,True
+STF00518,Medical Officer,DEP0006,HOSP01,Orthopedic Surgeon,Evening,Permanent,7.3,True
+STF00519,Support Staff,DEP0002,HOSP01,-,Rotating,Contract,1.6,True
+STF00520,Staff Nurse,DEP0096,HOSP05,-,Rotating,Permanent,8.1,True
+STF00521,Senior Nurse,DEP0067,HOSP04,-,Evening,Permanent,14.8,True
+STF00522,Medical Officer,DEP0089,HOSP05,General,Evening,Permanent,8.8,True
+STF00523,Pharmacist,DEP0073,HOSP04,-,Morning,Intern,3.5,True
+STF00524,Resident Doctor,DEP0071,HOSP04,Surgeon,Night,Permanent,10.8,True
+STF00525,Staff Nurse,DEP0026,HOSP02,-,Morning,Permanent,12.8,True
+STF00526,Medical Officer,DEP0073,HOSP04,Obstetrician,Morning,Intern,1.1,True
+STF00527,Pharmacist,DEP0076,HOSP04,-,Rotating,Contract,2.1,True
+STF00528,Medical Officer,DEP0030,HOSP02,Pediatrician,Night,Permanent,13.6,True
+STF00529,Radiology Technician,DEP0001,HOSP01,-,Morning,Contract,4.1,True
+STF00530,Staff Nurse,DEP0074,HOSP04,-,Rotating,Intern,1.4,False
+STF00531,Resident Doctor,DEP0078,HOSP04,Oncologist,Morning,Permanent,9.0,True
+STF00532,Support Staff,DEP0089,HOSP05,-,Evening,Permanent,5.5,True
+STF00533,Staff Nurse,DEP0067,HOSP04,-,Morning,Permanent,13.5,True
+STF00534,Support Staff,DEP0071,HOSP04,-,Rotating,Permanent,19.3,True
+STF00535,Staff Nurse,DEP0010,HOSP01,-,Morning,Permanent,12.0,True
+STF00536,Staff Nurse,DEP0050,HOSP03,-,Rotating,Permanent,24.0,True
+STF00537,Support Staff,DEP0024,HOSP02,-,Evening,Permanent,6.7,True
+STF00538,Resident Doctor,DEP0024,HOSP02,Intensivist,Rotating,Permanent,3.2,True
+STF00539,Consultant,DEP0071,HOSP04,Surgeon,Morning,Permanent,18.4,True
+STF00540,Staff Nurse,DEP0045,HOSP03,-,Rotating,Permanent,15.4,True
+STF00541,Resident Doctor,DEP0077,HOSP04,Nephrologist,Rotating,Permanent,4.6,True
+STF00542,Medical Officer,DEP0007,HOSP01,Obstetrician,Morning,Contract,13.2,True
+STF00543,Lab Technician,DEP0090,HOSP05,-,Night,Permanent,9.0,True
+STF00544,Staff Nurse,DEP0049,HOSP03,-,Night,Contract,17.2,False
+STF00545,Consultant,DEP0068,HOSP04,Intensivist,Rotating,Permanent,3.1,True
+STF00546,Radiology Technician,DEP0001,HOSP01,-,Morning,Intern,12.7,True
+STF00547,Staff Nurse,DEP0001,HOSP01,-,Evening,Permanent,5.0,True
+STF00548,Staff Nurse,DEP0050,HOSP03,-,Morning,Contract,8.0,True
+STF00549,Staff Nurse,DEP0071,HOSP04,-,Rotating,Contract,1.2,True
+STF00550,Medical Officer,DEP0096,HOSP05,Pediatrician,Rotating,Contract,3.5,True
+STF00551,Medical Officer,DEP0049,HOSP03,Surgeon,Evening,Contract,10.0,True
+STF00552,Consultant,DEP0092,HOSP05,General,Night,Contract,7.6,True
+STF00553,Staff Nurse,DEP0097,HOSP05,-,Rotating,Intern,2.5,False
+STF00554,Medical Officer,DEP0045,HOSP03,General,Morning,Permanent,14.4,True
+STF00555,Medical Officer,DEP0028,HOSP02,Orthopedic Surgeon,Evening,Permanent,5.4,True
+STF00556,Support Staff,DEP0036,HOSP02,-,Rotating,Contract,15.7,False
+STF00557,Consultant,DEP0045,HOSP03,General,Rotating,Permanent,15.4,True
+STF00558,Staff Nurse,DEP0087,HOSP04,-,Rotating,Permanent,12.1,True
+STF00559,Staff Nurse,DEP0071,HOSP04,-,Evening,Permanent,1.9,True
+STF00560,Lab Technician,DEP0090,HOSP05,-,Rotating,Permanent,0.8,True
+STF00561,Staff Nurse,DEP0102,HOSP05,-,Rotating,Permanent,15.3,True
+STF00562,Lab Technician,DEP0001,HOSP01,-,Rotating,Contract,8.7,False
+STF00563,Staff Nurse,DEP0023,HOSP02,-,Morning,Permanent,5.2,False
+STF00564,Staff Nurse,DEP0005,HOSP01,-,Morning,Permanent,3.6,True
+STF00565,Support Staff,DEP0064,HOSP03,-,Evening,Permanent,3.7,True
+STF00566,Support Staff,DEP0001,HOSP01,-,Night,Contract,7.9,True
+STF00567,Staff Nurse,DEP0023,HOSP02,-,Rotating,Permanent,6.4,True
+STF00568,Staff Nurse,DEP0037,HOSP02,-,Morning,Permanent,3.7,True
+STF00569,Consultant,DEP0005,HOSP01,Surgeon,Morning,Visiting,2.5,True
+STF00570,Resident Doctor,DEP0030,HOSP02,Pediatrician,Evening,Visiting,5.6,False
+STF00571,Radiology Technician,DEP0072,HOSP04,-,Morning,Contract,9.6,True
+STF00572,Resident Doctor,DEP0048,HOSP03,General,Night,Contract,3.2,True
+STF00573,Staff Nurse,DEP0048,HOSP03,-,Evening,Contract,8.0,True
+STF00574,Consultant,DEP0006,HOSP01,Orthopedic Surgeon,Rotating,Permanent,12.6,False
+STF00575,Support Staff,DEP0055,HOSP03,-,Rotating,Permanent,31.0,True
+STF00576,Lab Technician,DEP0067,HOSP04,-,Morning,Permanent,3.1,True
+STF00577,Staff Nurse,DEP0031,HOSP02,-,Morning,Visiting,6.9,True
+STF00578,Resident Doctor,DEP0077,HOSP04,Nephrologist,Evening,Intern,10.1,True
+STF00579,Staff Nurse,DEP0055,HOSP03,-,Morning,Contract,1.9,True
+STF00580,Medical Officer,DEP0101,HOSP05,General,Morning,Contract,2.1,True
+STF00581,Staff Nurse,DEP0089,HOSP05,-,Morning,Permanent,9.2,True
+STF00582,Staff Nurse,DEP0005,HOSP01,-,Evening,Permanent,9.0,False
+STF00583,Medical Officer,DEP0067,HOSP04,General,Night,Permanent,11.4,True
+STF00584,Staff Nurse,DEP0015,HOSP01,-,Morning,Permanent,1.9,False
+STF00585,Medical Officer,DEP0048,HOSP03,General,Morning,Permanent,9.0,True
+STF00586,Consultant,DEP0043,HOSP02,General,Rotating,Permanent,4.1,False
+STF00587,Staff Nurse,DEP0070,HOSP04,-,Rotating,Permanent,10.8,False
+STF00588,Consultant,DEP0071,HOSP04,Surgeon,Rotating,Contract,8.1,True
+STF00589,Resident Doctor,DEP0079,HOSP04,General,Evening,Contract,8.5,True
+STF00590,Medical Officer,DEP0003,HOSP01,General,Morning,Permanent,14.5,True
+STF00591,Senior Nurse,DEP0008,HOSP01,-,Morning,Contract,17.1,True
+STF00592,Support Staff,DEP0092,HOSP05,-,Rotating,Permanent,19.8,True
+STF00593,Radiology Technician,DEP0047,HOSP03,-,Rotating,Contract,4.3,True
+STF00594,Medical Officer,DEP0026,HOSP02,General,Rotating,Permanent,12.4,True
+STF00595,Medical Officer,DEP0067,HOSP04,General,Night,Permanent,21.1,True
+STF00596,Medical Officer,DEP0007,HOSP01,Obstetrician,Night,Contract,25.0,True
+STF00597,Pharmacist,DEP0080,HOSP04,-,Evening,Intern,2.2,True
+STF00598,Staff Nurse,DEP0046,HOSP03,-,Morning,Contract,7.7,True
+STF00599,Senior Nurse,DEP0031,HOSP02,-,Evening,Permanent,3.1,True
+STF00600,Medical Officer,DEP0110,HOSP05,General,Rotating,Permanent,3.0,True
+STF00601,Lab Technician,DEP0014,HOSP01,-,Morning,Contract,9.9,True
+STF00602,Medical Officer,DEP0095,HOSP05,Obstetrician,Evening,Permanent,6.7,True
+STF00603,Staff Nurse,DEP0073,HOSP04,-,Night,Permanent,6.1,True
+STF00604,Staff Nurse,DEP0098,HOSP05,-,Evening,Visiting,19.9,True
+STF00605,Support Staff,DEP0079,HOSP04,-,Evening,Permanent,5.9,True
+STF00606,Staff Nurse,DEP0002,HOSP01,-,Morning,Permanent,2.5,True
+STF00607,Medical Officer,DEP0092,HOSP05,General,Rotating,Permanent,23.8,True
+STF00608,Medical Officer,DEP0095,HOSP05,Obstetrician,Rotating,Permanent,1.6,True
+STF00609,Resident Doctor,DEP0027,HOSP02,Surgeon,Morning,Intern,19.9,True
+STF00610,Support Staff,DEP0046,HOSP03,-,Night,Intern,5.7,True
+STF00611,Support Staff,DEP0074,HOSP04,-,Morning,Contract,12.6,True
+STF00612,Pharmacist,DEP0027,HOSP02,-,Night,Contract,3.8,True
+STF00613,Staff Nurse,DEP0070,HOSP04,-,Rotating,Permanent,7.0,True
+STF00614,Consultant,DEP0003,HOSP01,General,Night,Permanent,6.9,True
+STF00615,Staff Nurse,DEP0003,HOSP01,-,Rotating,Permanent,21.6,True
+STF00616,Lab Technician,DEP0022,HOSP01,-,Rotating,Contract,13.6,True
+STF00617,Staff Nurse,DEP0102,HOSP05,-,Rotating,Permanent,2.1,True
+STF00618,Staff Nurse,DEP0045,HOSP03,-,Night,Permanent,15.9,True
+STF00619,Consultant,DEP0052,HOSP03,Pediatrician,Evening,Permanent,9.1,True
+STF00620,Senior Nurse,DEP0080,HOSP04,-,Rotating,Contract,9.9,True
+STF00621,Support Staff,DEP0094,HOSP05,-,Rotating,Contract,13.2,False
+STF00622,Consultant,DEP0025,HOSP02,General,Night,Permanent,10.9,True
+STF00623,Senior Nurse,DEP0075,HOSP04,-,Night,Intern,13.1,True
+STF00624,Consultant,DEP0102,HOSP05,General,Evening,Contract,11.9,True
+STF00625,Radiology Technician,DEP0063,HOSP03,-,Morning,Permanent,2.0,True
+STF00626,Radiology Technician,DEP0104,HOSP05,-,Morning,Contract,9.1,True
+STF00627,Support Staff,DEP0049,HOSP03,-,Night,Visiting,4.0,True
+STF00628,Support Staff,DEP0007,HOSP01,-,Evening,Intern,8.4,True
+STF00629,Staff Nurse,DEP0067,HOSP04,-,Morning,Contract,2.3,True
+STF00630,Resident Doctor,DEP0004,HOSP01,General,Morning,Permanent,5.9,True
+STF00631,Resident Doctor,DEP0027,HOSP02,Surgeon,Night,Contract,11.3,True
+STF00632,Support Staff,DEP0030,HOSP02,-,Morning,Intern,10.9,True
+STF00633,Staff Nurse,DEP0059,HOSP03,-,Morning,Contract,9.3,True
+STF00634,Senior Nurse,DEP0072,HOSP04,-,Morning,Contract,3.3,False
+STF00635,Staff Nurse,DEP0101,HOSP05,-,Evening,Contract,11.2,True
+STF00636,Staff Nurse,DEP0007,HOSP01,-,Morning,Permanent,8.6,True
+STF00637,Consultant,DEP0086,HOSP04,General,Night,Intern,4.3,True
+STF00638,Pharmacist,DEP0081,HOSP04,-,Morning,Contract,11.6,True
+STF00639,Support Staff,DEP0051,HOSP03,-,Morning,Permanent,10.8,True
+STF00640,Support Staff,DEP0095,HOSP05,-,Evening,Contract,17.4,True
+STF00641,Medical Officer,DEP0005,HOSP01,Surgeon,Rotating,Permanent,19.8,True
+STF00642,Staff Nurse,DEP0097,HOSP05,-,Morning,Permanent,9.2,True
+STF00643,Medical Officer,DEP0009,HOSP01,Cardiologist,Morning,Contract,5.0,False
+STF00644,Staff Nurse,DEP0075,HOSP04,-,Evening,Permanent,4.2,True
+STF00645,Senior Nurse,DEP0102,HOSP05,-,Evening,Intern,1.7,True
+STF00646,Consultant,DEP0098,HOSP05,Neurologist,Morning,Permanent,8.2,False
+STF00647,Staff Nurse,DEP0109,HOSP05,-,Evening,Permanent,18.6,True
+STF00648,Resident Doctor,DEP0004,HOSP01,General,Rotating,Contract,6.8,True
+STF00649,Radiology Technician,DEP0095,HOSP05,-,Rotating,Visiting,12.2,True
+STF00650,Staff Nurse,DEP0093,HOSP05,-,Evening,Contract,7.7,True
+STF00651,Staff Nurse,DEP0105,HOSP05,-,Rotating,Permanent,4.6,True
+STF00652,Medical Officer,DEP0085,HOSP04,General,Rotating,Permanent,6.4,True
+STF00653,Staff Nurse,DEP0070,HOSP04,-,Evening,Intern,4.0,True
+STF00654,Senior Nurse,DEP0031,HOSP02,-,Morning,Permanent,9.1,True
+STF00655,Radiology Technician,DEP0004,HOSP01,-,Morning,Intern,8.8,True
+STF00656,Medical Officer,DEP0008,HOSP01,Pediatrician,Rotating,Permanent,8.0,True
+STF00657,Consultant,DEP0089,HOSP05,General,Morning,Permanent,14.5,True
+STF00658,Consultant,DEP0085,HOSP04,General,Night,Permanent,6.0,True
+STF00659,Staff Nurse,DEP0001,HOSP01,-,Morning,Contract,6.2,True
+STF00660,Medical Officer,DEP0072,HOSP04,Orthopedic Surgeon,Rotating,Contract,9.2,True
+STF00661,Staff Nurse,DEP0089,HOSP05,-,Morning,Visiting,5.4,True
+STF00662,Staff Nurse,DEP0079,HOSP04,-,Rotating,Permanent,5.6,True
+STF00663,Consultant,DEP0083,HOSP04,General,Rotating,Visiting,7.1,True
+STF00664,Support Staff,DEP0004,HOSP01,-,Morning,Intern,13.5,False
+STF00665,Staff Nurse,DEP0097,HOSP05,-,Evening,Contract,10.8,True
+STF00666,Support Staff,DEP0048,HOSP03,-,Rotating,Permanent,16.2,True
+STF00667,Medical Officer,DEP0001,HOSP01,General,Evening,Permanent,9.8,True
+STF00668,Resident Doctor,DEP0028,HOSP02,Orthopedic Surgeon,Morning,Contract,15.4,True
+STF00669,Support Staff,DEP0074,HOSP04,-,Evening,Visiting,3.5,True
+STF00670,Radiology Technician,DEP0096,HOSP05,-,Rotating,Permanent,11.9,True
+STF00671,Lab Technician,DEP0030,HOSP02,-,Morning,Contract,2.8,True
+STF00672,Medical Officer,DEP0004,HOSP01,General,Evening,Permanent,11.0,True
+STF00673,Staff Nurse,DEP0096,HOSP05,-,Rotating,Permanent,5.1,True
+STF00674,Resident Doctor,DEP0093,HOSP05,Surgeon,Morning,Contract,8.8,True
+STF00675,Staff Nurse,DEP0012,HOSP01,-,Morning,Visiting,2.8,True
+STF00676,Staff Nurse,DEP0023,HOSP02,-,Morning,Intern,9.6,True
+STF00677,Lab Technician,DEP0084,HOSP04,-,Night,Permanent,5.8,True
+STF00678,Senior Nurse,DEP0039,HOSP02,-,Morning,Intern,5.5,True
+STF00679,Medical Officer,DEP0053,HOSP03,Cardiologist,Morning,Contract,11.8,True
+STF00680,Staff Nurse,DEP0026,HOSP02,-,Evening,Permanent,8.2,True
+STF00681,Medical Officer,DEP0070,HOSP04,General,Morning,Visiting,15.6,True
+STF00682,Medical Officer,DEP0072,HOSP04,Orthopedic Surgeon,Morning,Permanent,7.6,False
+STF00683,Staff Nurse,DEP0040,HOSP02,-,Evening,Permanent,3.4,False
+STF00684,Pharmacist,DEP0089,HOSP05,-,Rotating,Permanent,4.0,True
+STF00685,Resident Doctor,DEP0058,HOSP03,General,Evening,Intern,11.2,True
+STF00686,Staff Nurse,DEP0052,HOSP03,-,Night,Permanent,2.7,True
+STF00687,Senior Nurse,DEP0001,HOSP01,-,Morning,Permanent,7.8,True
+STF00688,Staff Nurse,DEP0052,HOSP03,-,Rotating,Permanent,3.2,True
+STF00689,Staff Nurse,DEP0023,HOSP02,-,Night,Contract,8.0,False
+STF00690,Medical Officer,DEP0057,HOSP03,General,Morning,Permanent,8.5,True
+STF00691,Support Staff,DEP0086,HOSP04,-,Evening,Permanent,3.7,True
+STF00692,Staff Nurse,DEP0029,HOSP02,-,Morning,Permanent,10.4,True
+STF00693,Staff Nurse,DEP0045,HOSP03,-,Evening,Permanent,2.5,True
+STF00694,Staff Nurse,DEP0089,HOSP05,-,Morning,Permanent,10.4,True
+STF00695,Lab Technician,DEP0067,HOSP04,-,Evening,Contract,1.9,True
+STF00696,Consultant,DEP0013,HOSP01,General,Morning,Permanent,17.2,False
+STF00697,Consultant,DEP0093,HOSP05,Surgeon,Night,Permanent,3.1,True
+STF00698,Consultant,DEP0030,HOSP02,Pediatrician,Night,Contract,10.5,True
+STF00699,Staff Nurse,DEP0048,HOSP03,-,Evening,Permanent,7.3,True
+STF00700,Consultant,DEP0097,HOSP05,Cardiologist,Evening,Permanent,7.1,False
+STF00701,Radiology Technician,DEP0096,HOSP05,-,Morning,Permanent,2.4,True
+STF00702,Resident Doctor,DEP0003,HOSP01,General,Evening,Visiting,7.4,True
+STF00703,Resident Doctor,DEP0038,HOSP02,General,Night,Contract,16.5,True
+STF00704,Staff Nurse,DEP0007,HOSP01,-,Night,Permanent,13.6,True
+STF00705,Consultant,DEP0004,HOSP01,General,Night,Permanent,13.3,True
+STF00706,Resident Doctor,DEP0096,HOSP05,Pediatrician,Rotating,Permanent,12.9,True
+STF00707,Staff Nurse,DEP0094,HOSP05,-,Night,Contract,14.3,True
+STF00708,Senior Nurse,DEP0067,HOSP04,-,Morning,Contract,4.8,True
+STF00709,Pharmacist,DEP0051,HOSP03,-,Morning,Permanent,9.7,True
+STF00710,Staff Nurse,DEP0023,HOSP02,-,Morning,Permanent,2.8,True
+STF00711,Resident Doctor,DEP0070,HOSP04,General,Rotating,Permanent,12.2,True
+STF00712,Medical Officer,DEP0078,HOSP04,Oncologist,Night,Permanent,13.2,True
+STF00713,Senior Nurse,DEP0072,HOSP04,-,Morning,Permanent,11.1,True
+STF00714,Pharmacist,DEP0074,HOSP04,-,Evening,Permanent,5.1,True
+STF00715,Staff Nurse,DEP0032,HOSP02,-,Morning,Contract,28.5,False
+STF00716,Staff Nurse,DEP0002,HOSP01,-,Rotating,Visiting,1.5,True
+STF00717,Staff Nurse,DEP0001,HOSP01,-,Morning,Permanent,1.4,True
+STF00718,Medical Officer,DEP0068,HOSP04,Intensivist,Evening,Contract,8.5,True
+STF00719,Staff Nurse,DEP0090,HOSP05,-,Rotating,Contract,1.3,True
+STF00720,Medical Officer,DEP0006,HOSP01,Orthopedic Surgeon,Rotating,Permanent,2.7,True
+STF00721,Lab Technician,DEP0044,HOSP02,-,Evening,Permanent,5.2,True
+STF00722,Consultant,DEP0006,HOSP01,Orthopedic Surgeon,Evening,Permanent,1.8,True
+STF00723,Support Staff,DEP0067,HOSP04,-,Rotating,Contract,3.3,True
+STF00724,Medical Officer,DEP0005,HOSP01,Surgeon,Morning,Contract,5.5,True
+STF00725,Medical Officer,DEP0090,HOSP05,Intensivist,Night,Permanent,1.6,True
+STF00726,Medical Officer,DEP0051,HOSP03,Obstetrician,Night,Permanent,11.2,True
+STF00727,Staff Nurse,DEP0063,HOSP03,-,Evening,Contract,2.6,True
+STF00728,Staff Nurse,DEP0073,HOSP04,-,Rotating,Contract,5.0,True
+STF00729,Staff Nurse,DEP0023,HOSP02,-,Rotating,Permanent,4.4,False
+STF00730,Staff Nurse,DEP0007,HOSP01,-,Morning,Contract,18.0,True
+STF00731,Staff Nurse,DEP0037,HOSP02,-,Rotating,Permanent,8.8,False
+STF00732,Senior Nurse,DEP0092,HOSP05,-,Night,Permanent,1.2,True
+STF00733,Medical Officer,DEP0046,HOSP03,Intensivist,Morning,Intern,16.9,False
+STF00734,Consultant,DEP0031,HOSP02,Cardiologist,Morning,Permanent,13.7,True
+STF00735,Staff Nurse,DEP0070,HOSP04,-,Evening,Permanent,12.4,True
+STF00736,Resident Doctor,DEP0091,HOSP05,General,Morning,Permanent,14.3,True
+STF00737,Resident Doctor,DEP0070,HOSP04,General,Morning,Permanent,3.8,True
+STF00738,Senior Nurse,DEP0026,HOSP02,-,Morning,Contract,18.0,True
+STF00739,Staff Nurse,DEP0048,HOSP03,-,Evening,Permanent,3.4,True
+STF00740,Senior Nurse,DEP0010,HOSP01,-,Rotating,Contract,5.7,True
+STF00741,Medical Officer,DEP0023,HOSP02,General,Night,Intern,9.0,True
+STF00742,Senior Nurse,DEP0067,HOSP04,-,Night,Contract,3.3,False
+STF00743,Resident Doctor,DEP0001,HOSP01,General,Morning,Contract,3.9,True
+STF00744,Medical Officer,DEP0095,HOSP05,Obstetrician,Morning,Permanent,6.6,True
+STF00745,Resident Doctor,DEP0023,HOSP02,General,Night,Intern,2.7,True
+STF00746,Staff Nurse,DEP0093,HOSP05,-,Morning,Permanent,17.4,True
+STF00747,Radiology Technician,DEP0029,HOSP02,-,Morning,Permanent,5.7,True
+STF00748,Resident Doctor,DEP0077,HOSP04,Nephrologist,Evening,Contract,2.1,True
+STF00749,Medical Officer,DEP0069,HOSP04,General,Rotating,Permanent,2.4,True
+STF00750,Senior Nurse,DEP0001,HOSP01,-,Morning,Permanent,15.1,False
+STF00751,Senior Nurse,DEP0006,HOSP01,-,Rotating,Permanent,3.4,True
+STF00752,Resident Doctor,DEP0090,HOSP05,Intensivist,Rotating,Contract,7.7,True
+STF00753,Staff Nurse,DEP0071,HOSP04,-,Morning,Permanent,9.2,True
+STF00754,Staff Nurse,DEP0001,HOSP01,-,Morning,Permanent,6.1,True
+STF00755,Support Staff,DEP0046,HOSP03,-,Morning,Permanent,7.6,True
+STF00756,Consultant,DEP0009,HOSP01,Cardiologist,Evening,Permanent,8.2,True
+STF00757,Resident Doctor,DEP0054,HOSP03,Neurologist,Morning,Contract,0.9,True
+STF00758,Lab Technician,DEP0005,HOSP01,-,Night,Contract,5.7,True
+STF00759,Support Staff,DEP0095,HOSP05,-,Morning,Permanent,8.0,True
+STF00760,Resident Doctor,DEP0097,HOSP05,Cardiologist,Rotating,Permanent,6.7,True
+STF00761,Resident Doctor,DEP0002,HOSP01,Intensivist,Evening,Contract,13.6,True
+STF00762,Staff Nurse,DEP0067,HOSP04,-,Night,Permanent,8.6,True
+STF00763,Resident Doctor,DEP0027,HOSP02,Surgeon,Morning,Permanent,17.8,True
+STF00764,Resident Doctor,DEP0054,HOSP03,Neurologist,Morning,Contract,6.3,True
+STF00765,Resident Doctor,DEP0097,HOSP05,Cardiologist,Night,Permanent,13.2,True
+STF00766,Medical Officer,DEP0045,HOSP03,General,Morning,Contract,8.1,True
+STF00767,Staff Nurse,DEP0053,HOSP03,-,Night,Contract,4.2,True
+STF00768,Staff Nurse,DEP0094,HOSP05,-,Morning,Contract,2.4,True
+STF00769,Senior Nurse,DEP0076,HOSP04,-,Morning,Intern,2.6,True
+STF00770,Medical Officer,DEP0004,HOSP01,General,Rotating,Contract,0.9,True
+STF00771,Resident Doctor,DEP0098,HOSP05,Neurologist,Night,Permanent,8.6,True
+STF00772,Medical Officer,DEP0029,HOSP02,Obstetrician,Morning,Contract,4.0,True
+STF00773,Medical Officer,DEP0094,HOSP05,Orthopedic Surgeon,Morning,Permanent,6.9,True
+STF00774,Medical Officer,DEP0071,HOSP04,Surgeon,Rotating,Permanent,1.3,True
+STF00775,Pharmacist,DEP0024,HOSP02,-,Rotating,Permanent,8.8,True
+STF00776,Staff Nurse,DEP0005,HOSP01,-,Night,Permanent,1.3,False
+STF00777,Lab Technician,DEP0074,HOSP04,-,Morning,Permanent,5.9,True
+STF00778,Lab Technician,DEP0090,HOSP05,-,Morning,Permanent,5.6,True
+STF00779,Medical Officer,DEP0093,HOSP05,Surgeon,Rotating,Contract,3.1,False
+STF00780,Medical Officer,DEP0025,HOSP02,General,Night,Intern,3.5,True
+STF00781,Resident Doctor,DEP0089,HOSP05,General,Evening,Contract,6.5,True
+STF00782,Lab Technician,DEP0067,HOSP04,-,Morning,Permanent,38.1,True
+STF00783,Staff Nurse,DEP0048,HOSP03,-,Evening,Permanent,14.4,True
+STF00784,Medical Officer,DEP0032,HOSP02,Neurologist,Rotating,Contract,2.6,True
+STF00785,Radiology Technician,DEP0093,HOSP05,-,Morning,Permanent,7.2,True
+STF00786,Support Staff,DEP0036,HOSP02,-,Morning,Permanent,6.8,True
+STF00787,Staff Nurse,DEP0092,HOSP05,-,Rotating,Permanent,3.6,True
+STF00788,Support Staff,DEP0045,HOSP03,-,Night,Permanent,3.5,True
+STF00789,Consultant,DEP0028,HOSP02,Orthopedic Surgeon,Rotating,Permanent,10.4,True
+STF00790,Staff Nurse,DEP0068,HOSP04,-,Evening,Permanent,13.1,True
+STF00791,Support Staff,DEP0009,HOSP01,-,Morning,Permanent,4.2,True
+STF00792,Lab Technician,DEP0064,HOSP03,-,Evening,Permanent,15.7,True
+STF00793,Consultant,DEP0064,HOSP03,General,Rotating,Contract,4.1,True
+STF00794,Staff Nurse,DEP0096,HOSP05,-,Rotating,Permanent,5.4,True
+STF00795,Consultant,DEP0004,HOSP01,General,Rotating,Permanent,12.6,True
+STF00796,Staff Nurse,DEP0095,HOSP05,-,Evening,Visiting,4.9,True
+STF00797,Senior Nurse,DEP0026,HOSP02,-,Rotating,Permanent,2.9,True
+STF00798,Medical Officer,DEP0008,HOSP01,Pediatrician,Morning,Permanent,10.4,True
+STF00799,Lab Technician,DEP0088,HOSP04,-,Rotating,Contract,9.1,True
+STF00800,Senior Nurse,DEP0051,HOSP03,-,Morning,Contract,4.6,True
+STF00801,Medical Officer,DEP0045,HOSP03,General,Night,Contract,7.5,True
+STF00802,Staff Nurse,DEP0070,HOSP04,-,Morning,Contract,4.1,True
+STF00803,Staff Nurse,DEP0007,HOSP01,-,Night,Contract,6.8,True
+STF00804,Staff Nurse,DEP0093,HOSP05,-,Morning,Permanent,26.0,False
+STF00805,Staff Nurse,DEP0049,HOSP03,-,Rotating,Permanent,10.8,True
+STF00806,Support Staff,DEP0030,HOSP02,-,Morning,Permanent,2.5,True
+STF00807,Resident Doctor,DEP0067,HOSP04,General,Night,Contract,18.7,True
+STF00808,Medical Officer,DEP0096,HOSP05,Pediatrician,Morning,Permanent,7.0,False
+STF00809,Consultant,DEP0048,HOSP03,General,Evening,Permanent,2.7,True
+STF00810,Staff Nurse,DEP0051,HOSP03,-,Morning,Contract,3.4,True
+STF00811,Senior Nurse,DEP0072,HOSP04,-,Rotating,Permanent,2.1,True
+STF00812,Support Staff,DEP0072,HOSP04,-,Morning,Permanent,10.3,True
+STF00813,Staff Nurse,DEP0071,HOSP04,-,Morning,Visiting,13.3,True
+STF00814,Support Staff,DEP0074,HOSP04,-,Night,Permanent,13.1,True
+STF00815,Lab Technician,DEP0052,HOSP03,-,Evening,Permanent,5.2,True
+STF00816,Resident Doctor,DEP0042,HOSP02,General,Morning,Permanent,1.5,True
+STF00817,Staff Nurse,DEP0004,HOSP01,-,Morning,Contract,10.3,True
+STF00818,Consultant,DEP0090,HOSP05,Intensivist,Rotating,Intern,12.2,False
+STF00819,Resident Doctor,DEP0067,HOSP04,General,Night,Permanent,5.4,True
+STF00820,Support Staff,DEP0050,HOSP03,-,Morning,Contract,8.7,True
+STF00821,Lab Technician,DEP0071,HOSP04,-,Night,Permanent,15.3,True
+STF00822,Staff Nurse,DEP0004,HOSP01,-,Evening,Contract,11.2,True
+STF00823,Senior Nurse,DEP0031,HOSP02,-,Night,Intern,1.8,False
+STF00824,Staff Nurse,DEP0010,HOSP01,-,Evening,Contract,2.5,True
+STF00825,Lab Technician,DEP0007,HOSP01,-,Morning,Contract,2.0,True
+STF00826,Pharmacist,DEP0093,HOSP05,-,Rotating,Permanent,3.2,True
+STF00827,Resident Doctor,DEP0035,HOSP02,General,Evening,Permanent,3.2,True
+STF00828,Medical Officer,DEP0002,HOSP01,Intensivist,Rotating,Visiting,9.2,True
+STF00829,Senior Nurse,DEP0045,HOSP03,-,Morning,Permanent,6.0,True
+STF00830,Support Staff,DEP0070,HOSP04,-,Night,Permanent,13.5,True
+STF00831,Radiology Technician,DEP0027,HOSP02,-,Morning,Permanent,2.3,True
+STF00832,Consultant,DEP0026,HOSP02,General,Morning,Permanent,16.7,True
+STF00833,Staff Nurse,DEP0004,HOSP01,-,Night,Permanent,4.1,True
+STF00834,Staff Nurse,DEP0102,HOSP05,-,Evening,Visiting,5.3,True
+STF00835,Medical Officer,DEP0052,HOSP03,Pediatrician,Evening,Permanent,5.8,True
+STF00836,Staff Nurse,DEP0046,HOSP03,-,Rotating,Permanent,7.8,True
+STF00837,Consultant,DEP0014,HOSP01,General,Rotating,Intern,5.1,True
+STF00838,Radiology Technician,DEP0070,HOSP04,-,Evening,Contract,21.5,True
+STF00839,Consultant,DEP0070,HOSP04,General,Morning,Permanent,7.4,True
+STF00840,Medical Officer,DEP0085,HOSP04,General,Morning,Contract,14.1,True
+STF00841,Senior Nurse,DEP0005,HOSP01,-,Morning,Contract,9.8,True
+STF00842,Medical Officer,DEP0074,HOSP04,Pediatrician,Evening,Contract,11.0,True
+STF00843,Senior Nurse,DEP0029,HOSP02,-,Rotating,Permanent,4.0,True
+STF00844,Resident Doctor,DEP0053,HOSP03,Cardiologist,Night,Contract,16.7,True
+STF00845,Staff Nurse,DEP0091,HOSP05,-,Night,Contract,7.4,False
+STF00846,Support Staff,DEP0023,HOSP02,-,Night,Permanent,4.8,True
+STF00847,Staff Nurse,DEP0073,HOSP04,-,Morning,Permanent,3.3,True
+STF00848,Staff Nurse,DEP0067,HOSP04,-,Rotating,Permanent,1.3,True
+STF00849,Senior Nurse,DEP0073,HOSP04,-,Evening,Intern,2.2,True
+STF00850,Staff Nurse,DEP0067,HOSP04,-,Night,Permanent,14.6,True
+STF00851,Support Staff,DEP0001,HOSP01,-,Evening,Permanent,7.3,True
+STF00852,Staff Nurse,DEP0071,HOSP04,-,Morning,Permanent,4.4,False
+STF00853,Consultant,DEP0049,HOSP03,Surgeon,Evening,Visiting,3.4,True
+STF00854,Lab Technician,DEP0050,HOSP03,-,Night,Contract,10.0,True
+STF00855,Support Staff,DEP0009,HOSP01,-,Night,Contract,7.6,True
+STF00856,Radiology Technician,DEP0043,HOSP02,-,Morning,Permanent,7.2,True
+STF00857,Staff Nurse,DEP0053,HOSP03,-,Evening,Contract,15.0,True
+STF00858,Consultant,DEP0093,HOSP05,Surgeon,Morning,Permanent,3.3,False
+STF00859,Medical Officer,DEP0072,HOSP04,Orthopedic Surgeon,Night,Contract,4.6,False
+STF00860,Lab Technician,DEP0008,HOSP01,-,Evening,Permanent,6.5,True
+STF00861,Staff Nurse,DEP0049,HOSP03,-,Night,Contract,13.2,False
+STF00862,Staff Nurse,DEP0028,HOSP02,-,Rotating,Permanent,12.5,True
+STF00863,Lab Technician,DEP0008,HOSP01,-,Morning,Contract,6.0,False
+STF00864,Lab Technician,DEP0005,HOSP01,-,Morning,Contract,5.3,True
+STF00865,Resident Doctor,DEP0092,HOSP05,General,Evening,Contract,12.3,False
+STF00866,Staff Nurse,DEP0036,HOSP02,-,Evening,Permanent,4.7,True
+STF00867,Pharmacist,DEP0058,HOSP03,-,Evening,Contract,12.4,True
+STF00868,Staff Nurse,DEP0074,HOSP04,-,Morning,Visiting,5.7,True
+STF00869,Resident Doctor,DEP0070,HOSP04,General,Rotating,Permanent,8.8,True
+STF00870,Staff Nurse,DEP0094,HOSP05,-,Evening,Permanent,3.1,True
+STF00871,Senior Nurse,DEP0092,HOSP05,-,Night,Permanent,11.6,True
+STF00872,Radiology Technician,DEP0090,HOSP05,-,Rotating,Permanent,6.5,True
+STF00873,Consultant,DEP0047,HOSP03,General,Morning,Contract,7.2,True
+STF00874,Medical Officer,DEP0092,HOSP05,General,Evening,Visiting,11.0,True
+STF00875,Radiology Technician,DEP0051,HOSP03,-,Morning,Permanent,4.8,True
+STF00876,Resident Doctor,DEP0013,HOSP01,General,Morning,Visiting,7.4,True
+STF00877,Medical Officer,DEP0073,HOSP04,Obstetrician,Rotating,Intern,3.7,False
+STF00878,Lab Technician,DEP0045,HOSP03,-,Night,Visiting,5.7,False
+STF00879,Lab Technician,DEP0049,HOSP03,-,Morning,Permanent,11.1,False
+STF00880,Senior Nurse,DEP0081,HOSP04,-,Rotating,Permanent,11.6,True
+STF00881,Lab Technician,DEP0005,HOSP01,-,Evening,Contract,13.5,True
+STF00882,Staff Nurse,DEP0010,HOSP01,-,Morning,Permanent,18.5,True
+STF00883,Medical Officer,DEP0006,HOSP01,Orthopedic Surgeon,Morning,Contract,13.1,True
+STF00884,Lab Technician,DEP0095,HOSP05,-,Morning,Permanent,4.7,True
+STF00885,Resident Doctor,DEP0108,HOSP05,General,Evening,Permanent,22.3,True
+STF00886,Radiology Technician,DEP0023,HOSP02,-,Night,Visiting,10.1,True
+STF00887,Resident Doctor,DEP0051,HOSP03,Obstetrician,Night,Permanent,9.8,True
+STF00888,Medical Officer,DEP0074,HOSP04,Pediatrician,Morning,Contract,14.4,True
+STF00889,Staff Nurse,DEP0008,HOSP01,-,Night,Contract,7.7,True
+STF00890,Consultant,DEP0023,HOSP02,General,Evening,Contract,4.5,True
+STF00891,Medical Officer,DEP0088,HOSP04,General,Night,Contract,29.5,False
+STF00892,Lab Technician,DEP0089,HOSP05,-,Night,Permanent,2.6,True
+STF00893,Consultant,DEP0058,HOSP03,General,Rotating,Permanent,2.3,True
+STF00894,Medical Officer,DEP0047,HOSP03,General,Evening,Contract,15.6,True
+STF00895,Senior Nurse,DEP0073,HOSP04,-,Rotating,Contract,6.1,True
+STF00896,Resident Doctor,DEP0093,HOSP05,Surgeon,Morning,Permanent,13.1,True
+STF00897,Senior Nurse,DEP0049,HOSP03,-,Morning,Contract,5.2,True
+STF00898,Staff Nurse,DEP0061,HOSP03,-,Rotating,Visiting,4.8,True
+STF00899,Medical Officer,DEP0077,HOSP04,Nephrologist,Morning,Permanent,14.7,True
+STF00900,Pharmacist,DEP0067,HOSP04,-,Evening,Permanent,11.8,True
+STF00901,Medical Officer,DEP0009,HOSP01,Cardiologist,Morning,Permanent,6.5,True
+STF00902,Lab Technician,DEP0070,HOSP04,-,Rotating,Permanent,2.4,True
+STF00903,Medical Officer,DEP0061,HOSP03,General,Rotating,Intern,9.0,True
+STF00904,Resident Doctor,DEP0053,HOSP03,Cardiologist,Morning,Permanent,12.1,True
+STF00905,Medical Officer,DEP0108,HOSP05,General,Night,Intern,5.0,True
+STF00906,Senior Nurse,DEP0014,HOSP01,-,Evening,Contract,3.5,True
+STF00907,Staff Nurse,DEP0045,HOSP03,-,Night,Permanent,17.5,False
+STF00908,Senior Nurse,DEP0067,HOSP04,-,Morning,Contract,3.8,True
+STF00909,Staff Nurse,DEP0004,HOSP01,-,Night,Contract,6.1,True
+STF00910,Resident Doctor,DEP0046,HOSP03,Intensivist,Evening,Contract,9.2,True
+STF00911,Staff Nurse,DEP0047,HOSP03,-,Morning,Contract,10.0,True
+STF00912,Staff Nurse,DEP0031,HOSP02,-,Morning,Contract,9.0,True
+STF00913,Staff Nurse,DEP0025,HOSP02,-,Rotating,Permanent,25.4,True
+STF00914,Staff Nurse,DEP0060,HOSP03,-,Night,Permanent,6.7,True
+STF00915,Consultant,DEP0051,HOSP03,Obstetrician,Rotating,Contract,7.9,True
+STF00916,Medical Officer,DEP0001,HOSP01,General,Morning,Permanent,8.7,True
+STF00917,Staff Nurse,DEP0049,HOSP03,-,Night,Permanent,7.2,True
+STF00918,Staff Nurse,DEP0029,HOSP02,-,Morning,Contract,13.8,True
+STF00919,Medical Officer,DEP0108,HOSP05,General,Morning,Contract,8.2,True
+STF00920,Resident Doctor,DEP0012,HOSP01,Oncologist,Evening,Permanent,4.1,True
+STF00921,Pharmacist,DEP0101,HOSP05,-,Rotating,Visiting,13.5,True
+STF00922,Support Staff,DEP0096,HOSP05,-,Morning,Contract,1.1,True
+STF00923,Medical Officer,DEP0100,HOSP05,Oncologist,Rotating,Permanent,11.3,True
+STF00924,Medical Officer,DEP0059,HOSP03,General,Rotating,Permanent,2.1,True
+STF00925,Consultant,DEP0006,HOSP01,Orthopedic Surgeon,Night,Permanent,6.3,True
+STF00926,Staff Nurse,DEP0075,HOSP04,-,Evening,Contract,7.0,True
+STF00927,Consultant,DEP0092,HOSP05,General,Morning,Permanent,3.4,True
+STF00928,Consultant,DEP0040,HOSP02,General,Rotating,Visiting,20.2,True
+STF00929,Medical Officer,DEP0052,HOSP03,Pediatrician,Night,Permanent,19.3,True
+STF00930,Staff Nurse,DEP0005,HOSP01,-,Morning,Visiting,2.6,True
+STF00931,Resident Doctor,DEP0036,HOSP02,General,Rotating,Visiting,7.4,True
+STF00932,Pharmacist,DEP0009,HOSP01,-,Night,Contract,7.4,True
+STF00933,Senior Nurse,DEP0076,HOSP04,-,Night,Permanent,7.0,True
+STF00934,Medical Officer,DEP0045,HOSP03,General,Morning,Permanent,9.7,True
+STF00935,Support Staff,DEP0095,HOSP05,-,Morning,Permanent,9.2,True
+STF00936,Medical Officer,DEP0001,HOSP01,General,Morning,Contract,2.5,True
+STF00937,Medical Officer,DEP0092,HOSP05,General,Evening,Permanent,5.3,True
+STF00938,Senior Nurse,DEP0026,HOSP02,-,Night,Intern,1.6,True
+STF00939,Staff Nurse,DEP0096,HOSP05,-,Rotating,Permanent,10.6,True
+STF00940,Consultant,DEP0047,HOSP03,General,Morning,Permanent,8.9,True
+STF00941,Staff Nurse,DEP0032,HOSP02,-,Evening,Permanent,5.3,True
+STF00942,Staff Nurse,DEP0071,HOSP04,-,Evening,Permanent,8.1,True
+STF00943,Resident Doctor,DEP0031,HOSP02,Cardiologist,Evening,Contract,6.8,True
+STF00944,Pharmacist,DEP0026,HOSP02,-,Morning,Contract,4.8,True
+STF00945,Staff Nurse,DEP0031,HOSP02,-,Morning,Contract,6.2,True
+STF00946,Senior Nurse,DEP0007,HOSP01,-,Evening,Permanent,7.2,True
+STF00947,Medical Officer,DEP0048,HOSP03,General,Morning,Permanent,2.5,True
+STF00948,Staff Nurse,DEP0004,HOSP01,-,Rotating,Permanent,1.9,True
+STF00949,Staff Nurse,DEP0075,HOSP04,-,Morning,Contract,6.3,True
+STF00950,Staff Nurse,DEP0006,HOSP01,-,Morning,Intern,23.0,True
+STF00951,Consultant,DEP0098,HOSP05,Neurologist,Evening,Permanent,3.1,True
+STF00952,Support Staff,DEP0090,HOSP05,-,Rotating,Visiting,6.3,True
+STF00953,Medical Officer,DEP0074,HOSP04,Pediatrician,Morning,Permanent,7.2,True
+STF00954,Staff Nurse,DEP0103,HOSP05,-,Morning,Contract,7.8,True
+STF00955,Staff Nurse,DEP0002,HOSP01,-,Morning,Permanent,3.6,True
+STF00956,Medical Officer,DEP0100,HOSP05,Oncologist,Morning,Permanent,7.1,False
+STF00957,Staff Nurse,DEP0001,HOSP01,-,Rotating,Contract,13.3,True
+STF00958,Support Staff,DEP0045,HOSP03,-,Morning,Contract,18.5,True
+STF00959,Lab Technician,DEP0001,HOSP01,-,Evening,Intern,11.3,True
+STF00960,Senior Nurse,DEP0009,HOSP01,-,Evening,Permanent,5.7,True
+STF00961,Staff Nurse,DEP0007,HOSP01,-,Rotating,Permanent,9.0,True
+STF00962,Staff Nurse,DEP0029,HOSP02,-,Morning,Permanent,4.6,True
+STF00963,Consultant,DEP0092,HOSP05,General,Morning,Contract,6.4,True
+STF00964,Resident Doctor,DEP0045,HOSP03,General,Morning,Permanent,9.8,False
+STF00965,Resident Doctor,DEP0030,HOSP02,Pediatrician,Morning,Permanent,14.0,True
+STF00966,Consultant,DEP0096,HOSP05,Pediatrician,Morning,Permanent,4.2,True
+STF00967,Staff Nurse,DEP0051,HOSP03,-,Morning,Permanent,1.9,False
+STF00968,Staff Nurse,DEP0030,HOSP02,-,Rotating,Permanent,5.5,True
+STF00969,Support Staff,DEP0089,HOSP05,-,Evening,Permanent,6.3,True
+STF00970,Medical Officer,DEP0106,HOSP05,General,Rotating,Permanent,19.1,True
+STF00971,Resident Doctor,DEP0052,HOSP03,Pediatrician,Rotating,Contract,5.3,True
+STF00972,Medical Officer,DEP0051,HOSP03,Obstetrician,Night,Permanent,4.7,True
+STF00973,Staff Nurse,DEP0067,HOSP04,-,Morning,Permanent,4.1,True
+STF00974,Senior Nurse,DEP0011,HOSP01,-,Morning,Contract,10.4,True
+STF00975,Medical Officer,DEP0026,HOSP02,General,Morning,Permanent,5.6,True
+STF00976,Staff Nurse,DEP0072,HOSP04,-,Morning,Contract,12.5,False
+STF00977,Resident Doctor,DEP0001,HOSP01,General,Morning,Permanent,19.2,True
+STF00978,Consultant,DEP0001,HOSP01,General,Night,Contract,11.4,True
+STF00979,Lab Technician,DEP0100,HOSP05,-,Evening,Permanent,4.8,False
+STF00980,Resident Doctor,DEP0007,HOSP01,Obstetrician,Evening,Permanent,5.1,True
+STF00981,Medical Officer,DEP0070,HOSP04,General,Night,Permanent,15.4,True
+STF00982,Pharmacist,DEP0067,HOSP04,-,Rotating,Permanent,25.1,True
+STF00983,Resident Doctor,DEP0045,HOSP03,General,Evening,Permanent,4.4,True
+STF00984,Medical Officer,DEP0058,HOSP03,General,Morning,Intern,3.9,True
+STF00985,Resident Doctor,DEP0035,HOSP02,General,Morning,Contract,2.0,True
+STF00986,Staff Nurse,DEP0098,HOSP05,-,Rotating,Contract,7.1,True
+STF00987,Medical Officer,DEP0045,HOSP03,General,Evening,Contract,13.0,True
+STF00988,Medical Officer,DEP0046,HOSP03,Intensivist,Rotating,Permanent,8.0,True
+STF00989,Consultant,DEP0092,HOSP05,General,Evening,Permanent,1.8,True
+STF00990,Support Staff,DEP0069,HOSP04,-,Morning,Intern,9.0,True
+STF00991,Senior Nurse,DEP0007,HOSP01,-,Morning,Permanent,10.3,True
+STF00992,Staff Nurse,DEP0051,HOSP03,-,Morning,Intern,7.4,True
+STF00993,Staff Nurse,DEP0001,HOSP01,-,Night,Contract,8.1,True
+STF00994,Resident Doctor,DEP0096,HOSP05,Pediatrician,Rotating,Permanent,11.2,True
+STF00995,Support Staff,DEP0027,HOSP02,-,Night,Permanent,3.1,True
+STF00996,Radiology Technician,DEP0028,HOSP02,-,Evening,Contract,4.7,True
+STF00997,Resident Doctor,DEP0026,HOSP02,General,Evening,Permanent,3.7,False
+STF00998,Lab Technician,DEP0071,HOSP04,-,Rotating,Permanent,4.5,True
+STF00999,Staff Nurse,DEP0067,HOSP04,-,Rotating,Contract,9.3,True
+STF01000,Resident Doctor,DEP0071,HOSP04,Surgeon,Evening,Permanent,3.4,True
+STF01001,Consultant,DEP0064,HOSP03,General,Evening,Permanent,3.7,True
+STF01002,Senior Nurse,DEP0055,HOSP03,-,Evening,Permanent,9.7,True
+STF01003,Staff Nurse,DEP0023,HOSP02,-,Evening,Permanent,9.7,True
+STF01004,Consultant,DEP0014,HOSP01,General,Rotating,Contract,3.8,True
+STF01005,Staff Nurse,DEP0089,HOSP05,-,Morning,Contract,5.7,True
+STF01006,Resident Doctor,DEP0067,HOSP04,General,Rotating,Permanent,22.1,True
+STF01007,Senior Nurse,DEP0048,HOSP03,-,Evening,Contract,13.0,True
+STF01008,Consultant,DEP0001,HOSP01,General,Morning,Permanent,4.6,True
+STF01009,Staff Nurse,DEP0059,HOSP03,-,Morning,Intern,7.5,True
+STF01010,Staff Nurse,DEP0067,HOSP04,-,Rotating,Permanent,20.8,True
+STF01011,Resident Doctor,DEP0049,HOSP03,Surgeon,Rotating,Permanent,6.3,True
+STF01012,Resident Doctor,DEP0097,HOSP05,Cardiologist,Evening,Contract,4.8,True
+STF01013,Resident Doctor,DEP0002,HOSP01,Intensivist,Evening,Permanent,4.8,True
+STF01014,Support Staff,DEP0052,HOSP03,-,Evening,Contract,4.5,False
+STF01015,Senior Nurse,DEP0004,HOSP01,-,Night,Permanent,6.9,False
+STF01016,Resident Doctor,DEP0002,HOSP01,Intensivist,Morning,Permanent,23.7,True
+STF01017,Medical Officer,DEP0002,HOSP01,Intensivist,Morning,Permanent,7.3,True
+STF01018,Senior Nurse,DEP0083,HOSP04,-,Morning,Contract,2.9,True
+STF01019,Radiology Technician,DEP0047,HOSP03,-,Morning,Contract,25.1,True
+STF01020,Medical Officer,DEP0083,HOSP04,General,Night,Permanent,8.9,True
+STF01021,Medical Officer,DEP0050,HOSP03,Orthopedic Surgeon,Rotating,Contract,4.5,True
+STF01022,Consultant,DEP0024,HOSP02,Intensivist,Rotating,Permanent,8.8,True
+STF01023,Staff Nurse,DEP0036,HOSP02,-,Evening,Permanent,1.7,True
+STF01024,Medical Officer,DEP0005,HOSP01,Surgeon,Rotating,Contract,11.6,True
+STF01025,Staff Nurse,DEP0067,HOSP04,-,Evening,Contract,3.7,True
+STF01026,Senior Nurse,DEP0048,HOSP03,-,Evening,Contract,5.0,True
+STF01027,Resident Doctor,DEP0096,HOSP05,Pediatrician,Night,Contract,16.0,True
+STF01028,Resident Doctor,DEP0029,HOSP02,Obstetrician,Morning,Contract,3.6,True
+STF01029,Staff Nurse,DEP0026,HOSP02,-,Rotating,Permanent,3.9,True
+STF01030,Resident Doctor,DEP0097,HOSP05,Cardiologist,Night,Intern,3.1,True
+STF01031,Staff Nurse,DEP0072,HOSP04,-,Rotating,Intern,14.0,True
+STF01032,Senior Nurse,DEP0025,HOSP02,-,Rotating,Permanent,16.2,True
+STF01033,Staff Nurse,DEP0009,HOSP01,-,Rotating,Visiting,3.4,True
+STF01034,Staff Nurse,DEP0049,HOSP03,-,Night,Contract,5.3,True
+STF01035,Resident Doctor,DEP0098,HOSP05,Neurologist,Evening,Permanent,4.9,True
+STF01036,Resident Doctor,DEP0010,HOSP01,Neurologist,Night,Permanent,2.3,True
+STF01037,Resident Doctor,DEP0074,HOSP04,Pediatrician,Evening,Permanent,9.8,True
+STF01038,Senior Nurse,DEP0071,HOSP04,-,Rotating,Permanent,3.6,False
+STF01039,Senior Nurse,DEP0074,HOSP04,-,Evening,Intern,3.3,True
+STF01040,Senior Nurse,DEP0065,HOSP03,-,Rotating,Permanent,5.8,True
+STF01041,Pharmacist,DEP0071,HOSP04,-,Morning,Permanent,8.9,True
+STF01042,Support Staff,DEP0048,HOSP03,-,Rotating,Permanent,4.5,True
+STF01043,Senior Nurse,DEP0070,HOSP04,-,Rotating,Contract,11.3,True
+STF01044,Staff Nurse,DEP0079,HOSP04,-,Morning,Permanent,5.1,True
+STF01045,Support Staff,DEP0011,HOSP01,-,Rotating,Permanent,10.7,True
+STF01046,Staff Nurse,DEP0093,HOSP05,-,Morning,Intern,4.2,True
+STF01047,Senior Nurse,DEP0009,HOSP01,-,Evening,Permanent,3.8,True
+STF01048,Staff Nurse,DEP0013,HOSP01,-,Rotating,Contract,2.7,True
+STF01049,Radiology Technician,DEP0020,HOSP01,-,Evening,Permanent,2.1,True
+STF01050,Staff Nurse,DEP0067,HOSP04,-,Night,Contract,4.8,True
+STF01051,Consultant,DEP0006,HOSP01,Orthopedic Surgeon,Morning,Permanent,1.8,True
+STF01052,Pharmacist,DEP0023,HOSP02,-,Morning,Permanent,3.7,True
+STF01053,Staff Nurse,DEP0097,HOSP05,-,Evening,Permanent,8.2,True
+STF01054,Staff Nurse,DEP0067,HOSP04,-,Morning,Permanent,1.7,True
+STF01055,Medical Officer,DEP0047,HOSP03,General,Rotating,Contract,4.2,True
+STF01056,Staff Nurse,DEP0070,HOSP04,-,Rotating,Contract,8.3,False
+STF01057,Senior Nurse,DEP0069,HOSP04,-,Evening,Intern,3.4,True
+STF01058,Staff Nurse,DEP0076,HOSP04,-,Rotating,Permanent,6.5,True
+STF01059,Staff Nurse,DEP0023,HOSP02,-,Evening,Contract,5.5,False
+STF01060,Medical Officer,DEP0091,HOSP05,General,Evening,Contract,10.8,True
+STF01061,Lab Technician,DEP0094,HOSP05,-,Evening,Permanent,5.8,True
+STF01062,Medical Officer,DEP0074,HOSP04,Pediatrician,Night,Permanent,2.9,True
+STF01063,Senior Nurse,DEP0048,HOSP03,-,Evening,Intern,8.6,True
+STF01064,Consultant,DEP0004,HOSP01,General,Morning,Permanent,3.6,True
+STF01065,Consultant,DEP0067,HOSP04,General,Morning,Permanent,5.2,True
+STF01066,Resident Doctor,DEP0093,HOSP05,Surgeon,Rotating,Contract,12.6,True
+STF01067,Staff Nurse,DEP0050,HOSP03,-,Night,Permanent,5.8,True
+STF01068,Consultant,DEP0026,HOSP02,General,Rotating,Contract,16.3,False
+STF01069,Staff Nurse,DEP0070,HOSP04,-,Rotating,Visiting,15.1,True
+STF01070,Resident Doctor,DEP0095,HOSP05,Obstetrician,Rotating,Visiting,6.1,False
+STF01071,Medical Officer,DEP0012,HOSP01,Oncologist,Morning,Intern,9.5,False
+STF01072,Resident Doctor,DEP0095,HOSP05,Obstetrician,Evening,Permanent,2.5,True
+STF01073,Resident Doctor,DEP0067,HOSP04,General,Rotating,Permanent,11.3,True
+STF01074,Medical Officer,DEP0072,HOSP04,Orthopedic Surgeon,Night,Visiting,8.6,True
+STF01075,Senior Nurse,DEP0071,HOSP04,-,Evening,Permanent,6.8,True
+STF01076,Staff Nurse,DEP0051,HOSP03,-,Evening,Permanent,22.5,True
+STF01077,Consultant,DEP0006,HOSP01,Orthopedic Surgeon,Rotating,Permanent,1.6,True
+STF01078,Staff Nurse,DEP0050,HOSP03,-,Rotating,Intern,6.8,True
+STF01079,Lab Technician,DEP0028,HOSP02,-,Night,Permanent,1.5,True
+STF01080,Resident Doctor,DEP0060,HOSP03,General,Rotating,Visiting,8.6,True
+STF01081,Lab Technician,DEP0045,HOSP03,-,Morning,Permanent,12.3,True
+STF01082,Medical Officer,DEP0005,HOSP01,Surgeon,Rotating,Contract,18.9,False
+STF01083,Staff Nurse,DEP0029,HOSP02,-,Night,Permanent,1.0,False
+STF01084,Medical Officer,DEP0055,HOSP03,Nephrologist,Rotating,Contract,24.4,False
+STF01085,Pharmacist,DEP0088,HOSP04,-,Rotating,Contract,40.0,True
+STF01086,Lab Technician,DEP0079,HOSP04,-,Night,Contract,3.5,True
+STF01087,Senior Nurse,DEP0010,HOSP01,-,Evening,Permanent,7.4,True
+STF01088,Lab Technician,DEP0077,HOSP04,-,Rotating,Contract,11.0,True
+STF01089,Medical Officer,DEP0088,HOSP04,General,Night,Permanent,7.2,True
+STF01090,Staff Nurse,DEP0052,HOSP03,-,Evening,Permanent,10.2,True
+STF01091,Staff Nurse,DEP0053,HOSP03,-,Morning,Permanent,14.0,False
+STF01092,Resident Doctor,DEP0023,HOSP02,General,Morning,Permanent,8.9,True
+STF01093,Resident Doctor,DEP0014,HOSP01,General,Evening,Contract,4.9,True
+STF01094,Resident Doctor,DEP0071,HOSP04,Surgeon,Rotating,Visiting,11.0,True
+STF01095,Staff Nurse,DEP0018,HOSP01,-,Morning,Permanent,6.5,True
+STF01096,Staff Nurse,DEP0067,HOSP04,-,Morning,Permanent,14.4,False
+STF01097,Medical Officer,DEP0057,HOSP03,General,Night,Intern,11.3,True
+STF01098,Resident Doctor,DEP0030,HOSP02,Pediatrician,Evening,Permanent,4.3,False
+STF01099,Resident Doctor,DEP0029,HOSP02,Obstetrician,Morning,Permanent,10.5,True
+STF01100,Senior Nurse,DEP0050,HOSP03,-,Rotating,Visiting,9.0,True
+STF01101,Medical Officer,DEP0092,HOSP05,General,Morning,Contract,5.6,True
+STF01102,Support Staff,DEP0089,HOSP05,-,Evening,Permanent,8.7,True
+STF01103,Medical Officer,DEP0027,HOSP02,Surgeon,Morning,Contract,26.1,True
+STF01104,Medical Officer,DEP0052,HOSP03,Pediatrician,Rotating,Permanent,11.4,True
+STF01105,Consultant,DEP0067,HOSP04,General,Evening,Visiting,3.5,True
+STF01106,Resident Doctor,DEP0089,HOSP05,General,Evening,Visiting,29.4,True
+STF01107,Lab Technician,DEP0089,HOSP05,-,Morning,Permanent,7.0,True
+STF01108,Consultant,DEP0092,HOSP05,General,Rotating,Permanent,6.0,True
+STF01109,Support Staff,DEP0020,HOSP01,-,Rotating,Contract,23.3,False
+STF01110,Lab Technician,DEP0075,HOSP04,-,Evening,Contract,10.3,True
+STF01111,Staff Nurse,DEP0034,HOSP02,-,Evening,Permanent,7.1,True
+STF01112,Staff Nurse,DEP0065,HOSP03,-,Evening,Contract,17.4,True
+STF01113,Staff Nurse,DEP0052,HOSP03,-,Rotating,Permanent,2.8,True
+STF01114,Consultant,DEP0092,HOSP05,General,Evening,Permanent,7.6,True
+STF01115,Staff Nurse,DEP0031,HOSP02,-,Rotating,Contract,7.3,True
+STF01116,Support Staff,DEP0081,HOSP04,-,Rotating,Intern,10.3,False
+STF01117,Consultant,DEP0045,HOSP03,General,Morning,Visiting,19.2,True
+STF01118,Staff Nurse,DEP0095,HOSP05,-,Morning,Permanent,9.1,True
+STF01119,Resident Doctor,DEP0030,HOSP02,Pediatrician,Evening,Permanent,7.6,True
+STF01120,Consultant,DEP0048,HOSP03,General,Morning,Permanent,8.2,True
+STF01121,Staff Nurse,DEP0031,HOSP02,-,Morning,Intern,33.1,True
+STF01122,Staff Nurse,DEP0092,HOSP05,-,Night,Permanent,6.6,True
+STF01123,Medical Officer,DEP0043,HOSP02,General,Evening,Permanent,2.6,True
+STF01124,Consultant,DEP0013,HOSP01,General,Night,Permanent,21.0,False
+STF01125,Medical Officer,DEP0072,HOSP04,Orthopedic Surgeon,Evening,Permanent,17.6,True
+STF01126,Consultant,DEP0092,HOSP05,General,Morning,Contract,18.3,True
+STF01127,Staff Nurse,DEP0013,HOSP01,-,Rotating,Permanent,0.6,True
+STF01128,Medical Officer,DEP0102,HOSP05,General,Rotating,Contract,14.0,True
+STF01129,Staff Nurse,DEP0045,HOSP03,-,Morning,Contract,2.1,True
+STF01130,Support Staff,DEP0040,HOSP02,-,Evening,Contract,4.9,True
+STF01131,Staff Nurse,DEP0003,HOSP01,-,Morning,Contract,6.8,True
+STF01132,Consultant,DEP0036,HOSP02,General,Morning,Visiting,8.3,True
+STF01133,Medical Officer,DEP0005,HOSP01,Surgeon,Morning,Contract,6.6,True
+STF01134,Support Staff,DEP0036,HOSP02,-,Evening,Permanent,11.2,True
+STF01135,Medical Officer,DEP0006,HOSP01,Orthopedic Surgeon,Rotating,Contract,16.1,True
+STF01136,Lab Technician,DEP0096,HOSP05,-,Morning,Contract,6.3,True
+STF01137,Resident Doctor,DEP0007,HOSP01,Obstetrician,Evening,Permanent,9.8,True
+STF01138,Senior Nurse,DEP0045,HOSP03,-,Evening,Visiting,7.6,True
+STF01139,Staff Nurse,DEP0096,HOSP05,-,Evening,Permanent,6.1,True
+STF01140,Support Staff,DEP0048,HOSP03,-,Evening,Permanent,2.4,True
+STF01141,Senior Nurse,DEP0044,HOSP02,-,Morning,Intern,11.7,True
+STF01142,Staff Nurse,DEP0068,HOSP04,-,Rotating,Intern,0.5,True
+STF01143,Radiology Technician,DEP0070,HOSP04,-,Rotating,Permanent,13.9,True
+STF01144,Medical Officer,DEP0048,HOSP03,General,Rotating,Permanent,9.3,True
+STF01145,Senior Nurse,DEP0044,HOSP02,-,Rotating,Permanent,13.7,False
+STF01146,Pharmacist,DEP0037,HOSP02,-,Night,Contract,5.8,True
+STF01147,Staff Nurse,DEP0002,HOSP01,-,Morning,Permanent,4.5,False
+STF01148,Staff Nurse,DEP0051,HOSP03,-,Evening,Contract,6.8,True
+STF01149,Medical Officer,DEP0005,HOSP01,Surgeon,Night,Contract,3.7,True
+STF01150,Medical Officer,DEP0089,HOSP05,General,Rotating,Permanent,6.1,True
+STF01151,Medical Officer,DEP0048,HOSP03,General,Morning,Permanent,3.9,True
+STF01152,Support Staff,DEP0091,HOSP05,-,Morning,Permanent,8.0,True
+STF01153,Staff Nurse,DEP0045,HOSP03,-,Evening,Permanent,5.9,True
+STF01154,Radiology Technician,DEP0082,HOSP04,-,Evening,Permanent,11.1,True
+STF01155,Lab Technician,DEP0023,HOSP02,-,Evening,Visiting,6.8,True
+STF01156,Staff Nurse,DEP0089,HOSP05,-,Morning,Permanent,25.5,True
+STF01157,Staff Nurse,DEP0001,HOSP01,-,Rotating,Permanent,1.4,True
+STF01158,Consultant,DEP0013,HOSP01,General,Morning,Contract,5.7,True
+STF01159,Radiology Technician,DEP0060,HOSP03,-,Evening,Permanent,11.8,True
+STF01160,Medical Officer,DEP0023,HOSP02,General,Rotating,Permanent,8.6,True
+STF01161,Support Staff,DEP0074,HOSP04,-,Rotating,Permanent,5.5,True
+STF01162,Resident Doctor,DEP0006,HOSP01,Orthopedic Surgeon,Rotating,Intern,1.6,False
+STF01163,Staff Nurse,DEP0026,HOSP02,-,Morning,Permanent,3.5,True
+STF01164,Lab Technician,DEP0089,HOSP05,-,Rotating,Permanent,0.6,True
+STF01165,Consultant,DEP0096,HOSP05,Pediatrician,Night,Contract,15.8,True
+STF01166,Senior Nurse,DEP0004,HOSP01,-,Morning,Contract,18.2,True
+STF01167,Senior Nurse,DEP0027,HOSP02,-,Evening,Permanent,12.4,False
+STF01168,Medical Officer,DEP0007,HOSP01,Obstetrician,Night,Permanent,11.2,False
+STF01169,Medical Officer,DEP0073,HOSP04,Obstetrician,Rotating,Permanent,8.7,True
+STF01170,Senior Nurse,DEP0001,HOSP01,-,Rotating,Visiting,29.8,True
+STF01171,Staff Nurse,DEP0044,HOSP02,-,Morning,Permanent,14.5,False
+STF01172,Resident Doctor,DEP0091,HOSP05,General,Rotating,Intern,4.5,True
+STF01173,Staff Nurse,DEP0049,HOSP03,-,Morning,Permanent,14.0,True
+STF01174,Staff Nurse,DEP0079,HOSP04,-,Night,Contract,15.1,True
+STF01175,Senior Nurse,DEP0026,HOSP02,-,Evening,Permanent,11.2,True
+STF01176,Resident Doctor,DEP0030,HOSP02,Pediatrician,Rotating,Permanent,9.1,True
+STF01177,Resident Doctor,DEP0074,HOSP04,Pediatrician,Evening,Permanent,15.9,True
+STF01178,Resident Doctor,DEP0005,HOSP01,Surgeon,Night,Intern,19.3,True
+STF01179,Resident Doctor,DEP0072,HOSP04,Orthopedic Surgeon,Night,Intern,12.2,True
+STF01180,Medical Officer,DEP0069,HOSP04,General,Night,Contract,1.6,True
+STF01181,Staff Nurse,DEP0075,HOSP04,-,Evening,Permanent,12.2,True
+STF01182,Resident Doctor,DEP0006,HOSP01,Orthopedic Surgeon,Morning,Contract,7.8,True
+STF01183,Support Staff,DEP0029,HOSP02,-,Evening,Visiting,6.0,True
+STF01184,Medical Officer,DEP0093,HOSP05,Surgeon,Morning,Permanent,9.6,True
+STF01185,Lab Technician,DEP0009,HOSP01,-,Rotating,Permanent,11.0,False
+STF01186,Medical Officer,DEP0003,HOSP01,General,Evening,Permanent,6.0,True
+STF01187,Senior Nurse,DEP0098,HOSP05,-,Rotating,Intern,12.3,False
+STF01188,Resident Doctor,DEP0090,HOSP05,Intensivist,Evening,Contract,14.5,True
+STF01189,Medical Officer,DEP0067,HOSP04,General,Rotating,Permanent,6.3,False
+STF01190,Resident Doctor,DEP0058,HOSP03,General,Rotating,Permanent,5.8,True
+STF01191,Lab Technician,DEP0052,HOSP03,-,Rotating,Permanent,8.9,True
+STF01192,Support Staff,DEP0009,HOSP01,-,Rotating,Permanent,7.9,True
+STF01193,Staff Nurse,DEP0073,HOSP04,-,Evening,Contract,5.3,True
+STF01194,Consultant,DEP0054,HOSP03,Neurologist,Rotating,Permanent,6.6,True
+STF01195,Staff Nurse,DEP0028,HOSP02,-,Rotating,Permanent,8.3,True
+STF01196,Staff Nurse,DEP0004,HOSP01,-,Evening,Permanent,13.9,True
+STF01197,Staff Nurse,DEP0083,HOSP04,-,Morning,Permanent,7.0,True
+STF01198,Medical Officer,DEP0052,HOSP03,Pediatrician,Rotating,Permanent,4.1,True
+STF01199,Staff Nurse,DEP0036,HOSP02,-,Morning,Visiting,10.3,True
+STF01200,Staff Nurse,DEP0093,HOSP05,-,Evening,Permanent,7.5,False
