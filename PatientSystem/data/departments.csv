@@ -1,0 +1,111 @@
+department_id,department_name,department_type,hospital_id
+DEP0001,Emergency,Critical,HOSP01
+DEP0002,ICU,Critical,HOSP01
+DEP0003,HDU,Critical,HOSP01
+DEP0004,General Medicine,Inpatient,HOSP01
+DEP0005,General Surgery,Inpatient,HOSP01
+DEP0006,Orthopedics,Inpatient,HOSP01
+DEP0007,Maternity & Obstetrics,Inpatient,HOSP01
+DEP0008,Pediatrics,Inpatient,HOSP01
+DEP0009,Cardiology,Inpatient,HOSP01
+DEP0010,Neurology,Inpatient,HOSP01
+DEP0011,Nephrology,Inpatient,HOSP01
+DEP0012,Oncology,Inpatient,HOSP01
+DEP0013,Pulmonology,Inpatient,HOSP01
+DEP0014,Gastroenterology,Inpatient,HOSP01
+DEP0015,Urology,Inpatient,HOSP01
+DEP0016,ENT,Inpatient,HOSP01
+DEP0017,Ophthalmology,Inpatient,HOSP01
+DEP0018,Dermatology,Outpatient,HOSP01
+DEP0019,Psychiatry,Inpatient,HOSP01
+DEP0020,Burn Unit,Critical,HOSP01
+DEP0021,Neonatal ICU,Critical,HOSP01
+DEP0022,Dialysis Unit,Diagnostic,HOSP01
+DEP0023,Emergency,Critical,HOSP02
+DEP0024,ICU,Critical,HOSP02
+DEP0025,HDU,Critical,HOSP02
+DEP0026,General Medicine,Inpatient,HOSP02
+DEP0027,General Surgery,Inpatient,HOSP02
+DEP0028,Orthopedics,Inpatient,HOSP02
+DEP0029,Maternity & Obstetrics,Inpatient,HOSP02
+DEP0030,Pediatrics,Inpatient,HOSP02
+DEP0031,Cardiology,Inpatient,HOSP02
+DEP0032,Neurology,Inpatient,HOSP02
+DEP0033,Nephrology,Inpatient,HOSP02
+DEP0034,Oncology,Inpatient,HOSP02
+DEP0035,Pulmonology,Inpatient,HOSP02
+DEP0036,Gastroenterology,Inpatient,HOSP02
+DEP0037,Urology,Inpatient,HOSP02
+DEP0038,ENT,Inpatient,HOSP02
+DEP0039,Ophthalmology,Inpatient,HOSP02
+DEP0040,Dermatology,Outpatient,HOSP02
+DEP0041,Psychiatry,Inpatient,HOSP02
+DEP0042,Burn Unit,Critical,HOSP02
+DEP0043,Neonatal ICU,Critical,HOSP02
+DEP0044,Dialysis Unit,Diagnostic,HOSP02
+DEP0045,Emergency,Critical,HOSP03
+DEP0046,ICU,Critical,HOSP03
+DEP0047,HDU,Critical,HOSP03
+DEP0048,General Medicine,Inpatient,HOSP03
+DEP0049,General Surgery,Inpatient,HOSP03
+DEP0050,Orthopedics,Inpatient,HOSP03
+DEP0051,Maternity & Obstetrics,Inpatient,HOSP03
+DEP0052,Pediatrics,Inpatient,HOSP03
+DEP0053,Cardiology,Inpatient,HOSP03
+DEP0054,Neurology,Inpatient,HOSP03
+DEP0055,Nephrology,Inpatient,HOSP03
+DEP0056,Oncology,Inpatient,HOSP03
+DEP0057,Pulmonology,Inpatient,HOSP03
+DEP0058,Gastroenterology,Inpatient,HOSP03
+DEP0059,Urology,Inpatient,HOSP03
+DEP0060,ENT,Inpatient,HOSP03
+DEP0061,Ophthalmology,Inpatient,HOSP03
+DEP0062,Dermatology,Outpatient,HOSP03
+DEP0063,Psychiatry,Inpatient,HOSP03
+DEP0064,Burn Unit,Critical,HOSP03
+DEP0065,Neonatal ICU,Critical,HOSP03
+DEP0066,Dialysis Unit,Diagnostic,HOSP03
+DEP0067,Emergency,Critical,HOSP04
+DEP0068,ICU,Critical,HOSP04
+DEP0069,HDU,Critical,HOSP04
+DEP0070,General Medicine,Inpatient,HOSP04
+DEP0071,General Surgery,Inpatient,HOSP04
+DEP0072,Orthopedics,Inpatient,HOSP04
+DEP0073,Maternity & Obstetrics,Inpatient,HOSP04
+DEP0074,Pediatrics,Inpatient,HOSP04
+DEP0075,Cardiology,Inpatient,HOSP04
+DEP0076,Neurology,Inpatient,HOSP04
+DEP0077,Nephrology,Inpatient,HOSP04
+DEP0078,Oncology,Inpatient,HOSP04
+DEP0079,Pulmonology,Inpatient,HOSP04
+DEP0080,Gastroenterology,Inpatient,HOSP04
+DEP0081,Urology,Inpatient,HOSP04
+DEP0082,ENT,Inpatient,HOSP04
+DEP0083,Ophthalmology,Inpatient,HOSP04
+DEP0084,Dermatology,Outpatient,HOSP04
+DEP0085,Psychiatry,Inpatient,HOSP04
+DEP0086,Burn Unit,Critical,HOSP04
+DEP0087,Neonatal ICU,Critical,HOSP04
+DEP0088,Dialysis Unit,Diagnostic,HOSP04
+DEP0089,Emergency,Critical,HOSP05
+DEP0090,ICU,Critical,HOSP05
+DEP0091,HDU,Critical,HOSP05
+DEP0092,General Medicine,Inpatient,HOSP05
+DEP0093,General Surgery,Inpatient,HOSP05
+DEP0094,Orthopedics,Inpatient,HOSP05
+DEP0095,Maternity & Obstetrics,Inpatient,HOSP05
+DEP0096,Pediatrics,Inpatient,HOSP05
+DEP0097,Cardiology,Inpatient,HOSP05
+DEP0098,Neurology,Inpatient,HOSP05
+DEP0099,Nephrology,Inpatient,HOSP05
+DEP0100,Oncology,Inpatient,HOSP05
+DEP0101,Pulmonology,Inpatient,HOSP05
+DEP0102,Gastroenterology,Inpatient,HOSP05
+DEP0103,Urology,Inpatient,HOSP05
+DEP0104,ENT,Inpatient,HOSP05
+DEP0105,Ophthalmology,Inpatient,HOSP05
+DEP0106,Dermatology,Outpatient,HOSP05
+DEP0107,Psychiatry,Inpatient,HOSP05
+DEP0108,Burn Unit,Critical,HOSP05
+DEP0109,Neonatal ICU,Critical,HOSP05
+DEP0110,Dialysis Unit,Diagnostic,HOSP05

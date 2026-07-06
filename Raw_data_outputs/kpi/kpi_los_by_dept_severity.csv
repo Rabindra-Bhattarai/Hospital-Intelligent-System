@@ -1,0 +1,89 @@
+department_name,severity,avg_los,count
+Burn Unit,Critical,23.29,652
+Burn Unit,Mild,8.8,5
+Burn Unit,Moderate,14.48,42
+Burn Unit,Severe,18.11,257
+Cardiology,Critical,14.1,420
+Cardiology,Mild,5.44,1205
+Cardiology,Moderate,8.05,2331
+Cardiology,Severe,11.02,1878
+Dermatology,Critical,13.41,73
+Dermatology,Mild,5.04,222
+Dermatology,Moderate,8.25,386
+Dermatology,Severe,10.61,289
+Dialysis Unit,Critical,15.34,108
+Dialysis Unit,Mild,5.2,290
+Dialysis Unit,Moderate,8.23,558
+Dialysis Unit,Severe,11.26,472
+ENT,Critical,15.31,130
+ENT,Mild,5.09,399
+ENT,Moderate,8.17,741
+ENT,Severe,11.82,513
+Emergency,Critical,22.54,12027
+Emergency,Mild,9.38,73
+Emergency,Moderate,12.82,1002
+Emergency,Severe,17.49,5636
+Gastroenterology,Critical,13.73,204
+Gastroenterology,Mild,5.23,579
+Gastroenterology,Moderate,7.95,1129
+Gastroenterology,Severe,11.12,935
+General Medicine,Critical,14.7,1226
+General Medicine,Mild,5.24,3823
+General Medicine,Moderate,8.15,6881
+General Medicine,Severe,11.17,5583
+General Surgery,Critical,15.2,855
+General Surgery,Mild,5.31,2464
+General Surgery,Moderate,8.07,4550
+General Surgery,Severe,11.26,3778
+HDU,Critical,22.91,3218
+HDU,Mild,12.26,19
+HDU,Moderate,11.9,240
+HDU,Severe,17.55,1421
+ICU,Critical,22.49,3804
+ICU,Mild,7.42,24
+ICU,Moderate,12.74,302
+ICU,Severe,17.8,1771
+Maternity & Obstetrics,Critical,15.27,732
+Maternity & Obstetrics,Mild,5.16,2185
+Maternity & Obstetrics,Moderate,8.03,4195
+Maternity & Obstetrics,Severe,11.29,3415
+Neonatal ICU,Critical,23.1,1127
+Neonatal ICU,Mild,13.0,5
+Neonatal ICU,Moderate,11.76,96
+Neonatal ICU,Severe,16.9,502
+Nephrology,Critical,15.91,183
+Nephrology,Mild,5.28,601
+Nephrology,Moderate,8.26,1137
+Nephrology,Severe,11.3,991
+Neurology,Critical,15.54,257
+Neurology,Mild,5.11,799
+Neurology,Moderate,8.25,1380
+Neurology,Severe,11.34,1129
+Oncology,Critical,16.05,183
+Oncology,Mild,5.21,492
+Oncology,Moderate,8.19,896
+Oncology,Severe,10.8,746
+Ophthalmology,Critical,16.25,106
+Ophthalmology,Mild,5.1,323
+Ophthalmology,Moderate,8.35,581
+Ophthalmology,Severe,11.2,453
+Orthopedics,Critical,14.44,587
+Orthopedics,Mild,5.07,1784
+Orthopedics,Moderate,8.01,3299
+Orthopedics,Severe,11.25,2726
+Pediatrics,Critical,15.41,691
+Pediatrics,Mild,5.17,1997
+Pediatrics,Moderate,8.23,3792
+Pediatrics,Severe,11.09,3089
+Psychiatry,Critical,15.28,86
+Psychiatry,Mild,5.04,262
+Psychiatry,Moderate,8.4,470
+Psychiatry,Severe,11.81,346
+Pulmonology,Critical,14.52,264
+Pulmonology,Mild,5.02,773
+Pulmonology,Moderate,8.32,1379
+Pulmonology,Severe,10.9,1068
+Urology,Critical,15.9,180
+Urology,Mild,5.11,525
+Urology,Moderate,8.35,888
+Urology,Severe,10.73,765

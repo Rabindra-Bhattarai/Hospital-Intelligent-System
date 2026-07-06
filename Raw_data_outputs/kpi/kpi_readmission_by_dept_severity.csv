@@ -1,0 +1,438 @@
+department_name,hospital_name,severity,readmitted_count,total_count
+Burn Unit,Bagmati Community Hospital,Critical,5,102
+Burn Unit,Bagmati Community Hospital,Moderate,0,3
+Burn Unit,Bagmati Community Hospital,Severe,6,41
+Burn Unit,Bhaktapur District Hospital,Critical,3,81
+Burn Unit,Bhaktapur District Hospital,Mild,0,2
+Burn Unit,Bhaktapur District Hospital,Moderate,1,3
+Burn Unit,Bhaktapur District Hospital,Severe,2,26
+Burn Unit,Himal Teaching Hospital,Critical,10,227
+Burn Unit,Himal Teaching Hospital,Mild,0,1
+Burn Unit,Himal Teaching Hospital,Moderate,1,19
+Burn Unit,Himal Teaching Hospital,Severe,3,91
+Burn Unit,Trishuli Referral Hospital,Critical,2,51
+Burn Unit,Trishuli Referral Hospital,Mild,1,1
+Burn Unit,Trishuli Referral Hospital,Moderate,0,1
+Burn Unit,Trishuli Referral Hospital,Severe,2,27
+Burn Unit,Valley General Hospital,Critical,9,191
+Burn Unit,Valley General Hospital,Mild,0,1
+Burn Unit,Valley General Hospital,Moderate,0,16
+Burn Unit,Valley General Hospital,Severe,6,72
+Cardiology,Bagmati Community Hospital,Critical,4,60
+Cardiology,Bagmati Community Hospital,Mild,15,188
+Cardiology,Bagmati Community Hospital,Moderate,17,353
+Cardiology,Bagmati Community Hospital,Severe,11,282
+Cardiology,Bhaktapur District Hospital,Critical,3,54
+Cardiology,Bhaktapur District Hospital,Mild,12,148
+Cardiology,Bhaktapur District Hospital,Moderate,21,297
+Cardiology,Bhaktapur District Hospital,Severe,10,227
+Cardiology,Himal Teaching Hospital,Critical,10,166
+Cardiology,Himal Teaching Hospital,Mild,30,418
+Cardiology,Himal Teaching Hospital,Moderate,50,760
+Cardiology,Himal Teaching Hospital,Severe,34,660
+Cardiology,Trishuli Referral Hospital,Critical,3,28
+Cardiology,Trishuli Referral Hospital,Mild,4,95
+Cardiology,Trishuli Referral Hospital,Moderate,21,199
+Cardiology,Trishuli Referral Hospital,Severe,9,160
+Cardiology,Valley General Hospital,Critical,6,112
+Cardiology,Valley General Hospital,Mild,24,356
+Cardiology,Valley General Hospital,Moderate,42,722
+Cardiology,Valley General Hospital,Severe,29,549
+Dermatology,Bagmati Community Hospital,Critical,1,21
+Dermatology,Bagmati Community Hospital,Mild,4,36
+Dermatology,Bagmati Community Hospital,Moderate,4,59
+Dermatology,Bagmati Community Hospital,Severe,7,63
+Dermatology,Bhaktapur District Hospital,Critical,0,7
+Dermatology,Bhaktapur District Hospital,Mild,2,24
+Dermatology,Bhaktapur District Hospital,Moderate,3,58
+Dermatology,Bhaktapur District Hospital,Severe,2,40
+Dermatology,Himal Teaching Hospital,Critical,0,19
+Dermatology,Himal Teaching Hospital,Mild,5,74
+Dermatology,Himal Teaching Hospital,Moderate,11,121
+Dermatology,Himal Teaching Hospital,Severe,5,95
+Dermatology,Trishuli Referral Hospital,Critical,0,4
+Dermatology,Trishuli Referral Hospital,Mild,4,18
+Dermatology,Trishuli Referral Hospital,Moderate,1,28
+Dermatology,Trishuli Referral Hospital,Severe,0,20
+Dermatology,Valley General Hospital,Critical,2,22
+Dermatology,Valley General Hospital,Mild,4,70
+Dermatology,Valley General Hospital,Moderate,7,120
+Dermatology,Valley General Hospital,Severe,6,71
+Dialysis Unit,Bagmati Community Hospital,Critical,1,20
+Dialysis Unit,Bagmati Community Hospital,Mild,1,43
+Dialysis Unit,Bagmati Community Hospital,Moderate,7,97
+Dialysis Unit,Bagmati Community Hospital,Severe,4,72
+Dialysis Unit,Bhaktapur District Hospital,Critical,0,15
+Dialysis Unit,Bhaktapur District Hospital,Mild,4,30
+Dialysis Unit,Bhaktapur District Hospital,Moderate,2,47
+Dialysis Unit,Bhaktapur District Hospital,Severe,4,51
+Dialysis Unit,Himal Teaching Hospital,Critical,2,29
+Dialysis Unit,Himal Teaching Hospital,Mild,8,120
+Dialysis Unit,Himal Teaching Hospital,Moderate,18,189
+Dialysis Unit,Himal Teaching Hospital,Severe,5,159
+Dialysis Unit,Trishuli Referral Hospital,Critical,0,11
+Dialysis Unit,Trishuli Referral Hospital,Mild,0,19
+Dialysis Unit,Trishuli Referral Hospital,Moderate,6,49
+Dialysis Unit,Trishuli Referral Hospital,Severe,0,42
+Dialysis Unit,Valley General Hospital,Critical,0,33
+Dialysis Unit,Valley General Hospital,Mild,7,78
+Dialysis Unit,Valley General Hospital,Moderate,13,176
+Dialysis Unit,Valley General Hospital,Severe,8,148
+ENT,Bagmati Community Hospital,Critical,0,17
+ENT,Bagmati Community Hospital,Mild,4,65
+ENT,Bagmati Community Hospital,Moderate,9,108
+ENT,Bagmati Community Hospital,Severe,6,86
+ENT,Bhaktapur District Hospital,Critical,2,19
+ENT,Bhaktapur District Hospital,Mild,1,44
+ENT,Bhaktapur District Hospital,Moderate,5,78
+ENT,Bhaktapur District Hospital,Severe,6,64
+ENT,Himal Teaching Hospital,Critical,1,48
+ENT,Himal Teaching Hospital,Mild,15,130
+ENT,Himal Teaching Hospital,Moderate,17,263
+ENT,Himal Teaching Hospital,Severe,4,158
+ENT,Trishuli Referral Hospital,Critical,1,4
+ENT,Trishuli Referral Hospital,Mild,4,40
+ENT,Trishuli Referral Hospital,Moderate,3,60
+ENT,Trishuli Referral Hospital,Severe,3,33
+ENT,Valley General Hospital,Critical,3,42
+ENT,Valley General Hospital,Mild,6,120
+ENT,Valley General Hospital,Moderate,12,232
+ENT,Valley General Hospital,Severe,11,172
+Emergency,Bagmati Community Hospital,Critical,77,1907
+Emergency,Bagmati Community Hospital,Mild,0,11
+Emergency,Bagmati Community Hospital,Moderate,12,153
+Emergency,Bagmati Community Hospital,Severe,53,886
+Emergency,Bhaktapur District Hospital,Critical,68,1419
+Emergency,Bhaktapur District Hospital,Mild,0,10
+Emergency,Bhaktapur District Hospital,Moderate,9,115
+Emergency,Bhaktapur District Hospital,Severe,39,646
+Emergency,Himal Teaching Hospital,Critical,173,4244
+Emergency,Himal Teaching Hospital,Mild,2,30
+Emergency,Himal Teaching Hospital,Moderate,31,344
+Emergency,Himal Teaching Hospital,Severe,115,1972
+Emergency,Trishuli Referral Hospital,Critical,42,945
+Emergency,Trishuli Referral Hospital,Mild,0,4
+Emergency,Trishuli Referral Hospital,Moderate,8,83
+Emergency,Trishuli Referral Hospital,Severe,19,440
+Emergency,Valley General Hospital,Critical,144,3512
+Emergency,Valley General Hospital,Mild,3,18
+Emergency,Valley General Hospital,Moderate,23,307
+Emergency,Valley General Hospital,Severe,111,1692
+Gastroenterology,Bagmati Community Hospital,Critical,2,33
+Gastroenterology,Bagmati Community Hospital,Mild,7,82
+Gastroenterology,Bagmati Community Hospital,Moderate,13,175
+Gastroenterology,Bagmati Community Hospital,Severe,9,151
+Gastroenterology,Bhaktapur District Hospital,Critical,2,28
+Gastroenterology,Bhaktapur District Hospital,Mild,2,72
+Gastroenterology,Bhaktapur District Hospital,Moderate,9,129
+Gastroenterology,Bhaktapur District Hospital,Severe,7,110
+Gastroenterology,Himal Teaching Hospital,Critical,5,61
+Gastroenterology,Himal Teaching Hospital,Mild,13,213
+Gastroenterology,Himal Teaching Hospital,Moderate,25,372
+Gastroenterology,Himal Teaching Hospital,Severe,17,325
+Gastroenterology,Trishuli Referral Hospital,Critical,0,18
+Gastroenterology,Trishuli Referral Hospital,Mild,2,59
+Gastroenterology,Trishuli Referral Hospital,Moderate,2,100
+Gastroenterology,Trishuli Referral Hospital,Severe,4,61
+Gastroenterology,Valley General Hospital,Critical,4,64
+Gastroenterology,Valley General Hospital,Mild,12,153
+Gastroenterology,Valley General Hospital,Moderate,19,353
+Gastroenterology,Valley General Hospital,Severe,15,288
+General Medicine,Bagmati Community Hospital,Critical,6,197
+General Medicine,Bagmati Community Hospital,Mild,46,604
+General Medicine,Bagmati Community Hospital,Moderate,69,1119
+General Medicine,Bagmati Community Hospital,Severe,50,894
+General Medicine,Bhaktapur District Hospital,Critical,6,167
+General Medicine,Bhaktapur District Hospital,Mild,33,467
+General Medicine,Bhaktapur District Hospital,Moderate,58,796
+General Medicine,Bhaktapur District Hospital,Severe,39,651
+General Medicine,Himal Teaching Hospital,Critical,23,408
+General Medicine,Himal Teaching Hospital,Mild,109,1324
+General Medicine,Himal Teaching Hospital,Moderate,170,2329
+General Medicine,Himal Teaching Hospital,Severe,113,1937
+General Medicine,Trishuli Referral Hospital,Critical,2,76
+General Medicine,Trishuli Referral Hospital,Mild,20,285
+General Medicine,Trishuli Referral Hospital,Moderate,43,569
+General Medicine,Trishuli Referral Hospital,Severe,30,436
+General Medicine,Valley General Hospital,Critical,12,378
+General Medicine,Valley General Hospital,Mild,84,1143
+General Medicine,Valley General Hospital,Moderate,157,2068
+General Medicine,Valley General Hospital,Severe,82,1665
+General Surgery,Bagmati Community Hospital,Critical,3,136
+General Surgery,Bagmati Community Hospital,Mild,31,372
+General Surgery,Bagmati Community Hospital,Moderate,47,698
+General Surgery,Bagmati Community Hospital,Severe,33,627
+General Surgery,Bhaktapur District Hospital,Critical,3,97
+General Surgery,Bhaktapur District Hospital,Mild,23,285
+General Surgery,Bhaktapur District Hospital,Moderate,29,526
+General Surgery,Bhaktapur District Hospital,Severe,28,466
+General Surgery,Himal Teaching Hospital,Critical,13,290
+General Surgery,Himal Teaching Hospital,Mild,76,837
+General Surgery,Himal Teaching Hospital,Moderate,104,1540
+General Surgery,Himal Teaching Hospital,Severe,87,1274
+General Surgery,Trishuli Referral Hospital,Critical,2,71
+General Surgery,Trishuli Referral Hospital,Mild,14,185
+General Surgery,Trishuli Referral Hospital,Moderate,36,410
+General Surgery,Trishuli Referral Hospital,Severe,23,350
+General Surgery,Valley General Hospital,Critical,5,261
+General Surgery,Valley General Hospital,Mild,52,785
+General Surgery,Valley General Hospital,Moderate,89,1376
+General Surgery,Valley General Hospital,Severe,69,1061
+HDU,Bagmati Community Hospital,Critical,22,521
+HDU,Bagmati Community Hospital,Mild,0,2
+HDU,Bagmati Community Hospital,Moderate,0,25
+HDU,Bagmati Community Hospital,Severe,20,235
+HDU,Bhaktapur District Hospital,Critical,11,405
+HDU,Bhaktapur District Hospital,Mild,0,3
+HDU,Bhaktapur District Hospital,Moderate,3,28
+HDU,Bhaktapur District Hospital,Severe,5,170
+HDU,Himal Teaching Hospital,Critical,55,1109
+HDU,Himal Teaching Hospital,Mild,0,6
+HDU,Himal Teaching Hospital,Moderate,5,85
+HDU,Himal Teaching Hospital,Severe,29,466
+HDU,Trishuli Referral Hospital,Critical,10,241
+HDU,Trishuli Referral Hospital,Mild,0,3
+HDU,Trishuli Referral Hospital,Moderate,3,25
+HDU,Trishuli Referral Hospital,Severe,6,102
+HDU,Valley General Hospital,Critical,31,942
+HDU,Valley General Hospital,Mild,0,5
+HDU,Valley General Hospital,Moderate,5,77
+HDU,Valley General Hospital,Severe,27,448
+ICU,Bagmati Community Hospital,Critical,28,631
+ICU,Bagmati Community Hospital,Mild,0,1
+ICU,Bagmati Community Hospital,Moderate,4,58
+ICU,Bagmati Community Hospital,Severe,14,262
+ICU,Bhaktapur District Hospital,Critical,18,440
+ICU,Bhaktapur District Hospital,Mild,1,3
+ICU,Bhaktapur District Hospital,Moderate,4,39
+ICU,Bhaktapur District Hospital,Severe,14,225
+ICU,Himal Teaching Hospital,Critical,43,1293
+ICU,Himal Teaching Hospital,Mild,1,11
+ICU,Himal Teaching Hospital,Moderate,1,90
+ICU,Himal Teaching Hospital,Severe,31,622
+ICU,Trishuli Referral Hospital,Critical,5,296
+ICU,Trishuli Referral Hospital,Mild,0,1
+ICU,Trishuli Referral Hospital,Moderate,2,25
+ICU,Trishuli Referral Hospital,Severe,7,133
+ICU,Valley General Hospital,Critical,52,1144
+ICU,Valley General Hospital,Mild,0,8
+ICU,Valley General Hospital,Moderate,6,90
+ICU,Valley General Hospital,Severe,31,529
+Maternity & Obstetrics,Bagmati Community Hospital,Critical,5,120
+Maternity & Obstetrics,Bagmati Community Hospital,Mild,27,342
+Maternity & Obstetrics,Bagmati Community Hospital,Moderate,45,648
+Maternity & Obstetrics,Bagmati Community Hospital,Severe,35,535
+Maternity & Obstetrics,Bhaktapur District Hospital,Critical,2,87
+Maternity & Obstetrics,Bhaktapur District Hospital,Mild,18,263
+Maternity & Obstetrics,Bhaktapur District Hospital,Moderate,22,478
+Maternity & Obstetrics,Bhaktapur District Hospital,Severe,19,429
+Maternity & Obstetrics,Himal Teaching Hospital,Critical,18,241
+Maternity & Obstetrics,Himal Teaching Hospital,Mild,65,774
+Maternity & Obstetrics,Himal Teaching Hospital,Moderate,103,1451
+Maternity & Obstetrics,Himal Teaching Hospital,Severe,69,1099
+Maternity & Obstetrics,Trishuli Referral Hospital,Critical,3,60
+Maternity & Obstetrics,Trishuli Referral Hospital,Mild,16,164
+Maternity & Obstetrics,Trishuli Referral Hospital,Moderate,26,338
+Maternity & Obstetrics,Trishuli Referral Hospital,Severe,10,265
+Maternity & Obstetrics,Valley General Hospital,Critical,13,224
+Maternity & Obstetrics,Valley General Hospital,Mild,51,642
+Maternity & Obstetrics,Valley General Hospital,Moderate,110,1280
+Maternity & Obstetrics,Valley General Hospital,Severe,64,1087
+Neonatal ICU,Bagmati Community Hospital,Critical,6,171
+Neonatal ICU,Bagmati Community Hospital,Mild,0,1
+Neonatal ICU,Bagmati Community Hospital,Moderate,0,14
+Neonatal ICU,Bagmati Community Hospital,Severe,5,73
+Neonatal ICU,Bhaktapur District Hospital,Critical,3,133
+Neonatal ICU,Bhaktapur District Hospital,Mild,0,1
+Neonatal ICU,Bhaktapur District Hospital,Moderate,0,10
+Neonatal ICU,Bhaktapur District Hospital,Severe,3,69
+Neonatal ICU,Himal Teaching Hospital,Critical,13,390
+Neonatal ICU,Himal Teaching Hospital,Moderate,4,35
+Neonatal ICU,Himal Teaching Hospital,Severe,6,174
+Neonatal ICU,Trishuli Referral Hospital,Critical,8,84
+Neonatal ICU,Trishuli Referral Hospital,Moderate,0,5
+Neonatal ICU,Trishuli Referral Hospital,Severe,3,40
+Neonatal ICU,Valley General Hospital,Critical,20,349
+Neonatal ICU,Valley General Hospital,Mild,1,3
+Neonatal ICU,Valley General Hospital,Moderate,1,32
+Neonatal ICU,Valley General Hospital,Severe,10,146
+Nephrology,Bagmati Community Hospital,Critical,1,36
+Nephrology,Bagmati Community Hospital,Mild,8,122
+Nephrology,Bagmati Community Hospital,Moderate,11,188
+Nephrology,Bagmati Community Hospital,Severe,15,152
+Nephrology,Bhaktapur District Hospital,Critical,1,16
+Nephrology,Bhaktapur District Hospital,Mild,7,75
+Nephrology,Bhaktapur District Hospital,Moderate,13,142
+Nephrology,Bhaktapur District Hospital,Severe,7,139
+Nephrology,Himal Teaching Hospital,Critical,2,57
+Nephrology,Himal Teaching Hospital,Mild,14,197
+Nephrology,Himal Teaching Hospital,Moderate,36,385
+Nephrology,Himal Teaching Hospital,Severe,19,328
+Nephrology,Trishuli Referral Hospital,Critical,0,11
+Nephrology,Trishuli Referral Hospital,Mild,1,37
+Nephrology,Trishuli Referral Hospital,Moderate,3,79
+Nephrology,Trishuli Referral Hospital,Severe,6,79
+Nephrology,Valley General Hospital,Critical,3,63
+Nephrology,Valley General Hospital,Mild,12,170
+Nephrology,Valley General Hospital,Moderate,27,343
+Nephrology,Valley General Hospital,Severe,18,293
+Neurology,Bagmati Community Hospital,Critical,3,46
+Neurology,Bagmati Community Hospital,Mild,8,122
+Neurology,Bagmati Community Hospital,Moderate,15,218
+Neurology,Bagmati Community Hospital,Severe,14,192
+Neurology,Bhaktapur District Hospital,Critical,0,24
+Neurology,Bhaktapur District Hospital,Mild,5,100
+Neurology,Bhaktapur District Hospital,Moderate,14,191
+Neurology,Bhaktapur District Hospital,Severe,10,135
+Neurology,Himal Teaching Hospital,Critical,2,96
+Neurology,Himal Teaching Hospital,Mild,15,284
+Neurology,Himal Teaching Hospital,Moderate,31,453
+Neurology,Himal Teaching Hospital,Severe,14,382
+Neurology,Trishuli Referral Hospital,Critical,0,26
+Neurology,Trishuli Referral Hospital,Mild,4,61
+Neurology,Trishuli Referral Hospital,Moderate,12,126
+Neurology,Trishuli Referral Hospital,Severe,3,96
+Neurology,Valley General Hospital,Critical,3,65
+Neurology,Valley General Hospital,Mild,19,232
+Neurology,Valley General Hospital,Moderate,33,392
+Neurology,Valley General Hospital,Severe,20,324
+Oncology,Bagmati Community Hospital,Critical,0,25
+Oncology,Bagmati Community Hospital,Mild,4,74
+Oncology,Bagmati Community Hospital,Moderate,8,144
+Oncology,Bagmati Community Hospital,Severe,13,128
+Oncology,Bhaktapur District Hospital,Critical,0,21
+Oncology,Bhaktapur District Hospital,Mild,4,79
+Oncology,Bhaktapur District Hospital,Moderate,7,96
+Oncology,Bhaktapur District Hospital,Severe,4,76
+Oncology,Himal Teaching Hospital,Critical,4,74
+Oncology,Himal Teaching Hospital,Mild,14,148
+Oncology,Himal Teaching Hospital,Moderate,14,324
+Oncology,Himal Teaching Hospital,Severe,15,249
+Oncology,Trishuli Referral Hospital,Critical,1,12
+Oncology,Trishuli Referral Hospital,Mild,1,39
+Oncology,Trishuli Referral Hospital,Moderate,3,62
+Oncology,Trishuli Referral Hospital,Severe,3,58
+Oncology,Valley General Hospital,Critical,3,51
+Oncology,Valley General Hospital,Mild,13,152
+Oncology,Valley General Hospital,Moderate,15,270
+Oncology,Valley General Hospital,Severe,11,235
+Ophthalmology,Bagmati Community Hospital,Critical,1,15
+Ophthalmology,Bagmati Community Hospital,Mild,1,43
+Ophthalmology,Bagmati Community Hospital,Moderate,7,86
+Ophthalmology,Bagmati Community Hospital,Severe,2,75
+Ophthalmology,Bhaktapur District Hospital,Critical,0,12
+Ophthalmology,Bhaktapur District Hospital,Mild,1,28
+Ophthalmology,Bhaktapur District Hospital,Moderate,4,76
+Ophthalmology,Bhaktapur District Hospital,Severe,2,60
+Ophthalmology,Himal Teaching Hospital,Critical,1,40
+Ophthalmology,Himal Teaching Hospital,Mild,9,117
+Ophthalmology,Himal Teaching Hospital,Moderate,15,198
+Ophthalmology,Himal Teaching Hospital,Severe,8,148
+Ophthalmology,Trishuli Referral Hospital,Critical,0,9
+Ophthalmology,Trishuli Referral Hospital,Mild,2,27
+Ophthalmology,Trishuli Referral Hospital,Moderate,0,41
+Ophthalmology,Trishuli Referral Hospital,Severe,2,41
+Ophthalmology,Valley General Hospital,Critical,2,30
+Ophthalmology,Valley General Hospital,Mild,9,108
+Ophthalmology,Valley General Hospital,Moderate,13,180
+Ophthalmology,Valley General Hospital,Severe,8,129
+Orthopedics,Bagmati Community Hospital,Critical,5,101
+Orthopedics,Bagmati Community Hospital,Mild,18,277
+Orthopedics,Bagmati Community Hospital,Moderate,41,519
+Orthopedics,Bagmati Community Hospital,Severe,29,448
+Orthopedics,Bhaktapur District Hospital,Critical,4,59
+Orthopedics,Bhaktapur District Hospital,Mild,16,207
+Orthopedics,Bhaktapur District Hospital,Moderate,34,401
+Orthopedics,Bhaktapur District Hospital,Severe,12,301
+Orthopedics,Himal Teaching Hospital,Critical,13,211
+Orthopedics,Himal Teaching Hospital,Mild,59,628
+Orthopedics,Himal Teaching Hospital,Moderate,60,1139
+Orthopedics,Himal Teaching Hospital,Severe,62,959
+Orthopedics,Trishuli Referral Hospital,Critical,1,54
+Orthopedics,Trishuli Referral Hospital,Mild,12,135
+Orthopedics,Trishuli Referral Hospital,Moderate,23,309
+Orthopedics,Trishuli Referral Hospital,Severe,13,203
+Orthopedics,Valley General Hospital,Critical,7,162
+Orthopedics,Valley General Hospital,Mild,39,537
+Orthopedics,Valley General Hospital,Moderate,57,931
+Orthopedics,Valley General Hospital,Severe,46,815
+Pediatrics,Bagmati Community Hospital,Critical,4,99
+Pediatrics,Bagmati Community Hospital,Mild,20,334
+Pediatrics,Bagmati Community Hospital,Moderate,50,600
+Pediatrics,Bagmati Community Hospital,Severe,30,505
+Pediatrics,Bhaktapur District Hospital,Critical,5,90
+Pediatrics,Bhaktapur District Hospital,Mild,20,237
+Pediatrics,Bhaktapur District Hospital,Moderate,29,463
+Pediatrics,Bhaktapur District Hospital,Severe,22,395
+Pediatrics,Himal Teaching Hospital,Critical,9,237
+Pediatrics,Himal Teaching Hospital,Mild,45,704
+Pediatrics,Himal Teaching Hospital,Moderate,89,1284
+Pediatrics,Himal Teaching Hospital,Severe,59,1051
+Pediatrics,Trishuli Referral Hospital,Critical,3,52
+Pediatrics,Trishuli Referral Hospital,Mild,15,149
+Pediatrics,Trishuli Referral Hospital,Moderate,21,299
+Pediatrics,Trishuli Referral Hospital,Severe,13,229
+Pediatrics,Valley General Hospital,Critical,7,213
+Pediatrics,Valley General Hospital,Mild,32,573
+Pediatrics,Valley General Hospital,Moderate,79,1146
+Pediatrics,Valley General Hospital,Severe,47,909
+Psychiatry,Bagmati Community Hospital,Critical,1,16
+Psychiatry,Bagmati Community Hospital,Mild,3,45
+Psychiatry,Bagmati Community Hospital,Moderate,3,77
+Psychiatry,Bagmati Community Hospital,Severe,2,59
+Psychiatry,Bhaktapur District Hospital,Critical,2,14
+Psychiatry,Bhaktapur District Hospital,Mild,1,33
+Psychiatry,Bhaktapur District Hospital,Moderate,3,54
+Psychiatry,Bhaktapur District Hospital,Severe,1,36
+Psychiatry,Himal Teaching Hospital,Critical,0,20
+Psychiatry,Himal Teaching Hospital,Mild,10,90
+Psychiatry,Himal Teaching Hospital,Moderate,7,161
+Psychiatry,Himal Teaching Hospital,Severe,2,118
+Psychiatry,Trishuli Referral Hospital,Critical,0,7
+Psychiatry,Trishuli Referral Hospital,Mild,1,20
+Psychiatry,Trishuli Referral Hospital,Moderate,2,39
+Psychiatry,Trishuli Referral Hospital,Severe,3,30
+Psychiatry,Valley General Hospital,Critical,2,29
+Psychiatry,Valley General Hospital,Mild,6,74
+Psychiatry,Valley General Hospital,Moderate,16,139
+Psychiatry,Valley General Hospital,Severe,10,103
+Pulmonology,Bagmati Community Hospital,Critical,0,45
+Pulmonology,Bagmati Community Hospital,Mild,11,129
+Pulmonology,Bagmati Community Hospital,Moderate,10,226
+Pulmonology,Bagmati Community Hospital,Severe,13,177
+Pulmonology,Bhaktapur District Hospital,Critical,3,31
+Pulmonology,Bhaktapur District Hospital,Mild,1,89
+Pulmonology,Bhaktapur District Hospital,Moderate,10,136
+Pulmonology,Bhaktapur District Hospital,Severe,11,162
+Pulmonology,Himal Teaching Hospital,Critical,3,103
+Pulmonology,Himal Teaching Hospital,Mild,18,262
+Pulmonology,Himal Teaching Hospital,Moderate,34,476
+Pulmonology,Himal Teaching Hospital,Severe,26,359
+Pulmonology,Trishuli Referral Hospital,Critical,1,23
+Pulmonology,Trishuli Referral Hospital,Mild,3,61
+Pulmonology,Trishuli Referral Hospital,Moderate,5,119
+Pulmonology,Trishuli Referral Hospital,Severe,3,72
+Pulmonology,Valley General Hospital,Critical,2,62
+Pulmonology,Valley General Hospital,Mild,22,232
+Pulmonology,Valley General Hospital,Moderate,24,422
+Pulmonology,Valley General Hospital,Severe,12,298
+Urology,Bagmati Community Hospital,Critical,0,27
+Urology,Bagmati Community Hospital,Mild,5,82
+Urology,Bagmati Community Hospital,Moderate,8,138
+Urology,Bagmati Community Hospital,Severe,12,136
+Urology,Bhaktapur District Hospital,Critical,0,21
+Urology,Bhaktapur District Hospital,Mild,6,61
+Urology,Bhaktapur District Hospital,Moderate,3,90
+Urology,Bhaktapur District Hospital,Severe,7,84
+Urology,Himal Teaching Hospital,Critical,0,59
+Urology,Himal Teaching Hospital,Mild,7,179
+Urology,Himal Teaching Hospital,Moderate,18,314
+Urology,Himal Teaching Hospital,Severe,10,248
+Urology,Trishuli Referral Hospital,Critical,1,13
+Urology,Trishuli Referral Hospital,Mild,5,49
+Urology,Trishuli Referral Hospital,Moderate,6,81
+Urology,Trishuli Referral Hospital,Severe,7,59
+Urology,Valley General Hospital,Critical,3,60
+Urology,Valley General Hospital,Mild,3,154
+Urology,Valley General Hospital,Moderate,21,265
+Urology,Valley General Hospital,Severe,14,238

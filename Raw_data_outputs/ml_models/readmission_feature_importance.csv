@@ -1,0 +1,16 @@
+feature,importance
+total_bill_npr,0.1729
+age,0.1487
+outcome_num,0.1188
+admission_hour,0.1179
+length_of_stay_days,0.1115
+admission_month,0.0902
+admission_type_num,0.0402
+admission_year,0.0393
+severity_num,0.0339
+address_type_num,0.0328
+gender_num,0.0248
+hospital_type_num,0.0186
+level_num,0.0181
+chronic_num,0.0176
+dept_type_num,0.015

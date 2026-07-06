@@ -1,0 +1,89 @@
+department_name,department_type,season,avg_occupancy,avg_predicted_occupancy,record_count
+Burn Unit,Critical,Autumn,0.8123,0.8208,283
+Burn Unit,Critical,Monsoon,0.9135,0.909,574
+Burn Unit,Critical,Spring,0.8179,0.8216,432
+Burn Unit,Critical,Winter,0.8686,0.8637,400
+Cardiology,Inpatient,Autumn,0.669,0.6699,292
+Cardiology,Inpatient,Monsoon,0.7508,0.7528,552
+Cardiology,Inpatient,Spring,0.6667,0.6741,425
+Cardiology,Inpatient,Winter,0.7085,0.7088,494
+Dermatology,Outpatient,Autumn,0.4271,0.4339,261
+Dermatology,Outpatient,Monsoon,0.4624,0.4659,558
+Dermatology,Outpatient,Spring,0.4285,0.4323,417
+Dermatology,Outpatient,Winter,0.4532,0.4474,417
+Dialysis Unit,Diagnostic,Autumn,0.5601,0.5621,300
+Dialysis Unit,Diagnostic,Monsoon,0.6216,0.6227,539
+Dialysis Unit,Diagnostic,Spring,0.5574,0.5539,441
+Dialysis Unit,Diagnostic,Winter,0.5878,0.5802,407
+ENT,Inpatient,Autumn,0.6786,0.6698,288
+ENT,Inpatient,Monsoon,0.7525,0.7524,527
+ENT,Inpatient,Spring,0.6777,0.6728,390
+ENT,Inpatient,Winter,0.7063,0.7085,439
+Emergency,Critical,Autumn,0.8324,0.8225,286
+Emergency,Critical,Monsoon,0.9202,0.9096,609
+Emergency,Critical,Spring,0.8218,0.8207,437
+Emergency,Critical,Winter,0.8684,0.8672,416
+Gastroenterology,Inpatient,Autumn,0.6746,0.6721,273
+Gastroenterology,Inpatient,Monsoon,0.756,0.7538,554
+Gastroenterology,Inpatient,Spring,0.6665,0.6695,440
+Gastroenterology,Inpatient,Winter,0.715,0.7116,406
+General Medicine,Inpatient,Autumn,0.6708,0.6728,280
+General Medicine,Inpatient,Monsoon,0.7546,0.751,594
+General Medicine,Inpatient,Spring,0.6614,0.6736,394
+General Medicine,Inpatient,Winter,0.6988,0.7139,422
+General Surgery,Inpatient,Autumn,0.6768,0.668,307
+General Surgery,Inpatient,Monsoon,0.7533,0.7498,576
+General Surgery,Inpatient,Spring,0.6661,0.6694,462
+General Surgery,Inpatient,Winter,0.7077,0.7128,414
+HDU,Critical,Autumn,0.8189,0.8201,288
+HDU,Critical,Monsoon,0.9145,0.9086,576
+HDU,Critical,Spring,0.8219,0.8195,423
+HDU,Critical,Winter,0.861,0.8625,428
+ICU,Critical,Autumn,0.8126,0.8198,307
+ICU,Critical,Monsoon,0.9126,0.9088,567
+ICU,Critical,Spring,0.8189,0.8208,410
+ICU,Critical,Winter,0.8578,0.8618,415
+Maternity & Obstetrics,Inpatient,Autumn,0.6642,0.6686,321
+Maternity & Obstetrics,Inpatient,Monsoon,0.7502,0.7517,578
+Maternity & Obstetrics,Inpatient,Spring,0.6722,0.6705,427
+Maternity & Obstetrics,Inpatient,Winter,0.7029,0.7114,461
+Neonatal ICU,Critical,Autumn,0.8132,0.8165,292
+Neonatal ICU,Critical,Monsoon,0.9143,0.9104,556
+Neonatal ICU,Critical,Spring,0.8188,0.8191,426
+Neonatal ICU,Critical,Winter,0.862,0.862,426
+Nephrology,Inpatient,Autumn,0.6627,0.6708,275
+Nephrology,Inpatient,Monsoon,0.7492,0.7554,551
+Nephrology,Inpatient,Spring,0.669,0.6681,448
+Nephrology,Inpatient,Winter,0.7207,0.7117,432
+Neurology,Inpatient,Autumn,0.6761,0.6708,272
+Neurology,Inpatient,Monsoon,0.7504,0.7517,574
+Neurology,Inpatient,Spring,0.6712,0.6716,450
+Neurology,Inpatient,Winter,0.7115,0.7107,413
+Oncology,Inpatient,Autumn,0.6703,0.6701,272
+Oncology,Inpatient,Monsoon,0.7463,0.7528,607
+Oncology,Inpatient,Spring,0.6769,0.6723,437
+Oncology,Inpatient,Winter,0.7116,0.7124,463
+Ophthalmology,Inpatient,Autumn,0.6676,0.6699,279
+Ophthalmology,Inpatient,Monsoon,0.7494,0.7522,567
+Ophthalmology,Inpatient,Spring,0.6638,0.6704,446
+Ophthalmology,Inpatient,Winter,0.7045,0.709,437
+Orthopedics,Inpatient,Autumn,0.6776,0.6716,281
+Orthopedics,Inpatient,Monsoon,0.7504,0.7528,542
+Orthopedics,Inpatient,Spring,0.667,0.6724,402
+Orthopedics,Inpatient,Winter,0.7055,0.7071,446
+Pediatrics,Inpatient,Autumn,0.6676,0.6692,275
+Pediatrics,Inpatient,Monsoon,0.7482,0.753,565
+Pediatrics,Inpatient,Spring,0.6667,0.6706,437
+Pediatrics,Inpatient,Winter,0.7069,0.7103,442
+Psychiatry,Inpatient,Autumn,0.6715,0.6719,273
+Psychiatry,Inpatient,Monsoon,0.7587,0.751,564
+Psychiatry,Inpatient,Spring,0.6664,0.6715,394
+Psychiatry,Inpatient,Winter,0.6979,0.7054,445
+Pulmonology,Inpatient,Autumn,0.6752,0.6719,277
+Pulmonology,Inpatient,Monsoon,0.7484,0.7527,587
+Pulmonology,Inpatient,Spring,0.6744,0.6713,431
+Pulmonology,Inpatient,Winter,0.7108,0.7107,417
+Urology,Inpatient,Autumn,0.67,0.6741,282
+Urology,Inpatient,Monsoon,0.7478,0.7531,590
+Urology,Inpatient,Spring,0.6675,0.6679,390
+Urology,Inpatient,Winter,0.7091,0.7122,408

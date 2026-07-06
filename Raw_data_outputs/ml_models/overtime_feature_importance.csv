@@ -1,0 +1,12 @@
+feature,importance
+years_experience,0.3768
+shift_day_of_week,0.1461
+role_num,0.1296
+shift_year,0.0648
+shift_month,0.0647
+employment_num,0.0619
+shift_type_num,0.0616
+dept_type_num,0.0407
+hospital_type_num,0.0258
+season_num,0.0155
+shift_quarter,0.0123
