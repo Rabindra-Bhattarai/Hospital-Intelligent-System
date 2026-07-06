@@ -79,6 +79,9 @@ def init_db() -> None:
     db.chat_messages.create_index([("patient_username", ASCENDING)])
     db.chat_messages.create_index([("sent_at", ASCENDING)])
 
+    from src.hospital_connector import init_appointments_index
+    init_appointments_index()
+
     # Seed default admin if absent
     if db.users.find_one({"username": config.DEFAULT_ADMIN_USERNAME}) is None:
         salt, phash = _hash_password(config.DEFAULT_ADMIN_PASSWORD)
