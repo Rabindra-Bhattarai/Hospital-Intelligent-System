@@ -1,3 +1,19 @@
 python -m streamlit run app.py
 Username: bkt_his_admin
 Password: H!sB@gm@t1#9371
+
+
+python automation/refresh_pipeline.py (for automation)
+
+
+
+MODEL PREDICTION accuracy
+
+bed occupancy =  55.5% 
+Discharge Outcome = 74.5%
+Length of stay = 22.8%
+Readmission 91.5% accuracy but 8.1precision
+overtime = 53.6%
+
+
+
