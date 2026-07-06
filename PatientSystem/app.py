@@ -29,6 +29,9 @@ from src.data_loader  import (load_admissions, load_patients, load_occupancy,
                                hospitals_with_department,
                                merged_admissions_patients, kpi_summary)
 from src.predict      import predict_los, predict_cost, models_ready
+from src.hospital_connector import (submit_booking, list_patient_bookings,
+                                    list_all_bookings, update_booking_status,
+                                    count_pending_bookings)
 from src.decision_engine import occupancy_alert, overtime_alert, los_flag
 
 st.set_page_config(
@@ -259,33 +262,45 @@ def inject_global_css(t: dict):
         font-family: 'Inter', sans-serif !important;
     }}
     [aria-selected="true"][data-baseweb="tab"] {{
-        background: {p} !important; color: #fff !important;
-        box-shadow: 0 2px 10px rgba({shd},.3) !important;
+        background: linear-gradient(135deg,#059669,#10B981) !important;
+        color: #fff !important;
+        box-shadow: 0 2px 10px rgba(5,150,105,.3) !important;
     }}
     [data-baseweb="tab-panel"] {{ padding-top: 1.6rem !important; }}
 
-    /* ── PRIMARY BUTTON ──────────────────────────────────── */
-    .stButton > button[kind="primary"] {{
-        background: {p} !important; color: #fff !important;
+    /* ── PRIMARY BUTTON — emerald green globally ────────── */
+    .stButton > button[kind="primary"],
+    [data-testid="stBaseButton-primary"],
+    [data-testid="baseButton-primary"] {{
+        background: linear-gradient(135deg,#059669,#10B981) !important;
+        color: #fff !important;
         border: none !important; border-radius: 10px !important;
         padding: 12px 24px !important; font-weight: 700 !important;
         font-size: .9rem !important; letter-spacing: .01em !important;
-        box-shadow: 0 3px 14px rgba({shd},.3) !important;
+        box-shadow: 0 3px 14px rgba(5,150,105,.28) !important;
         transition: all .18s !important;
         font-family: 'Inter', sans-serif !important;
     }}
-    .stButton > button[kind="primary"]:hover {{
-        background: {pd2} !important; transform: translateY(-1px) !important;
-        box-shadow: 0 6px 20px rgba({shd},.35) !important;
+    .stButton > button[kind="primary"]:hover,
+    [data-testid="stBaseButton-primary"]:hover,
+    [data-testid="baseButton-primary"]:hover {{
+        background: linear-gradient(135deg,#047857,#059669) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 20px rgba(5,150,105,.35) !important;
     }}
-    .stButton > button[kind="secondary"] {{
-        background: transparent !important; color: {p} !important;
-        border: 1.5px solid {p} !important; border-radius: 10px !important;
+    /* ── SECONDARY BUTTON — red outline globally ─────── */
+    .stButton > button[kind="secondary"],
+    [data-testid="stBaseButton-secondary"],
+    [data-testid="baseButton-secondary"] {{
+        background: transparent !important; color: #DC2626 !important;
+        border: 1.5px solid #FCA5A5 !important; border-radius: 10px !important;
         padding: 10px 20px !important; font-weight: 600 !important;
         font-size: .875rem !important; transition: all .15s !important;
     }}
-    .stButton > button[kind="secondary"]:hover {{
-        background: {pl} !important;
+    .stButton > button[kind="secondary"]:hover,
+    [data-testid="stBaseButton-secondary"]:hover,
+    [data-testid="baseButton-secondary"]:hover {{
+        background: #FEF2F2 !important; border-color: #DC2626 !important;
     }}
 
     /* ── FORM INPUTS ─────────────────────────────────────── */
@@ -1088,6 +1103,171 @@ def _age_from_dob(dob_str: str):
         return None
 
 
+@st.dialog("📅  Book Your Visit", width="large")
+def _booking_dialog(est: dict, profile: dict, t: dict):
+    import datetime as _dt
+    uname = st.session_state.username
+
+    hosp_name  = est.get("selected_hosp_name", "—")
+    dept       = est.get("department", "—")
+
+    # Block duplicate active booking for the same department
+    _existing = [
+        b for b in list_patient_bookings(uname)
+        if b.get("department") == dept and b["status"] in ("pending", "confirmed")
+    ]
+    if _existing:
+        _ex = _existing[0]
+        st.markdown(
+            f'<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:14px;'
+            f'padding:20px 24px;text-align:center;">'
+            f'<div style="font-size:2rem;margin-bottom:8px;">🚫</div>'
+            f'<div style="font-weight:800;font-size:1rem;color:#991B1B;margin-bottom:6px;">'
+            f'Already have an active booking for {dept}</div>'
+            f'<div style="font-size:.82rem;color:#B91C1C;margin-bottom:12px;">'
+            f'Ref <strong>{_ex["booking_ref"]}</strong> at <strong>{_ex["hospital_name"]}</strong> '
+            f'is currently <strong>{_ex["status"]}</strong>.<br>'
+            f'Cancel or wait for it to complete before booking the same department again.</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        return
+    severity   = est.get("severity", "—")
+    adm_type   = est.get("admission_type", "—")
+    los_low    = int(est.get("los_low", 0))
+    los_high   = int(est.get("los_high", 0))
+    cost_low   = int(est.get("cost_low", 0))
+    cost_high  = int(est.get("cost_high", 0))
+
+    # ── Hero summary card ────────────────────────────────────────────────────
+    st.markdown(
+        f'<div style="background:linear-gradient(130deg,#1E1B4B,#4F46E5);'
+        f'border-radius:16px;padding:20px 24px;margin-bottom:20px;">'
+        f'<div style="font-size:.68rem;color:rgba(255,255,255,.55);letter-spacing:.1em;'
+        f'text-transform:uppercase;margin-bottom:6px;">You are booking at</div>'
+        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.25rem;'
+        f'font-weight:800;color:#fff;margin-bottom:2px;">{hosp_name}</div>'
+        f'<div style="font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:16px;">'
+        f'{dept} &nbsp;·&nbsp; {severity} severity &nbsp;·&nbsp; {adm_type}</div>'
+        f'<div style="display:flex;gap:12px;flex-wrap:wrap;">'
+        f'<div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px 18px;'
+        f'text-align:center;min-width:120px;">'
+        f'<div style="font-size:.65rem;color:rgba(255,255,255,.55);text-transform:uppercase;'
+        f'letter-spacing:.07em;margin-bottom:4px;">Est. Stay</div>'
+        f'<div style="font-size:1.2rem;font-weight:800;color:#fff;">{los_low}–{los_high}</div>'
+        f'<div style="font-size:.65rem;color:rgba(255,255,255,.55);">nights</div>'
+        f'</div>'
+        f'<div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px 18px;'
+        f'text-align:center;min-width:140px;">'
+        f'<div style="font-size:.65rem;color:rgba(255,255,255,.55);text-transform:uppercase;'
+        f'letter-spacing:.07em;margin-bottom:4px;">Est. Cost</div>'
+        f'<div style="font-size:1.2rem;font-weight:800;color:#fff;">'
+        f'Rs. {cost_low:,}–{cost_high:,}</div>'
+        f'<div style="font-size:.65rem;color:rgba(255,255,255,.55);">rough estimate</div>'
+        f'</div>'
+        f'</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    # ── Section: When ────────────────────────────────────────────────────────
+    st.markdown(
+        '<div style="font-weight:700;font-size:.82rem;color:#374151;'
+        'text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📆 When</div>',
+        unsafe_allow_html=True,
+    )
+    d_col, t_col = st.columns(2)
+    with d_col:
+        min_date = _dt.date.today() + _dt.timedelta(days=1)
+        req_date = st.date_input("Preferred Date", value=min_date,
+                                 min_value=min_date, key="bk_date",
+                                 label_visibility="collapsed")
+    with t_col:
+        pref_time = st.selectbox("Preferred Time Slot", ["Morning (8am–12pm)",
+                                 "Afternoon (12pm–5pm)", "Any time"],
+                                 key="bk_time", label_visibility="collapsed")
+
+    st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+
+    # ── Section: Contact ─────────────────────────────────────────────────────
+    st.markdown(
+        '<div style="font-weight:700;font-size:.82rem;color:#374151;'
+        'text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📞 Contact</div>',
+        unsafe_allow_html=True,
+    )
+    p_col, n_col = st.columns([1, 1.4])
+    with p_col:
+        phone = st.text_input("Phone Number", value=profile.get("phone", ""),
+                              key="bk_phone", placeholder="98XXXXXXXX")
+    with n_col:
+        name_display = profile.get("full_name", "") or uname
+        st.text_input("Full Name", value=name_display, key="bk_name_disp",
+                      disabled=True)
+
+    st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+
+    # ── Section: Notes ───────────────────────────────────────────────────────
+    st.markdown(
+        '<div style="font-weight:700;font-size:.82rem;color:#374151;'
+        'text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">📝 Notes for Hospital</div>',
+        unsafe_allow_html=True,
+    )
+    notes = st.text_area("Notes", key="bk_notes", height=80, label_visibility="collapsed",
+                         placeholder="e.g. need wheelchair access, travelling from another district, previous surgery…")
+
+    # ── Disclaimer ───────────────────────────────────────────────────────────
+    st.markdown(
+        '<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;'
+        'padding:10px 14px;margin-top:8px;display:flex;align-items:flex-start;gap:8px;">'
+        '<span style="font-size:1rem;flex-shrink:0;">ℹ️</span>'
+        '<div style="font-size:.76rem;color:#64748B;line-height:1.55;">'
+        'This is a <strong>visit request</strong>, not a guaranteed slot. '
+        'The hospital admin will review and confirm. '
+        'You will be notified via the notification bell.</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+
+    # ── Actions ──────────────────────────────────────────────────────────────
+    b_col, c_col = st.columns([3, 1])
+    with b_col:
+        if st.button("✅  Confirm Booking Request", type="primary",
+                     use_container_width=True, key="bk_submit"):
+            if not phone.strip():
+                st.error("Please enter a contact phone number.")
+            else:
+                ok, ref = submit_booking({
+                    "patient_username": uname,
+                    "patient_id":       get_patient_id(uname),
+                    "full_name":        profile.get("full_name", ""),
+                    "phone":            phone.strip(),
+                    "hospital_id":      est.get("hospital_id", ""),
+                    "hospital_name":    hosp_name,
+                    "department":       dept,
+                    "severity":         severity,
+                    "admission_type":   adm_type,
+                    "requested_date":   str(req_date),
+                    "preferred_time":   pref_time,
+                    "notes":            notes.strip(),
+                    "los_low":          est.get("los_low"),
+                    "los_high":         est.get("los_high"),
+                    "cost_low":         est.get("cost_low"),
+                    "cost_high":        est.get("cost_high"),
+                })
+                if ok:
+                    st.session_state["_last_booking_ref"] = ref
+                    st.session_state["_booking_done"] = True
+                    st.rerun()
+                else:
+                    st.error(f"Booking failed: {ref}")
+    with c_col:
+        if st.button("Cancel", use_container_width=True, key="bk_cancel"):
+            st.rerun()
+
+
+
 @st.dialog("Can we save your estimate?", width="small")
 def _consent_popup(data: dict, t: dict):
     st.markdown(
@@ -1423,7 +1603,27 @@ def build_patient_notifications(profile: dict, occ_h: pd.DataFrame,
     notes = []
     now_month = pd.Timestamp.now().month
 
-    # 0. Unread admin chat messages — always shown first
+    # 0a. Booking status changes
+    if username:
+        from src.hospital_connector import list_patient_bookings as _lpb
+        for bk in _lpb(username):
+            if bk["status"] == "confirmed":
+                notes.append({
+                    "severity": "success",
+                    "icon":     "📅",
+                    "title":    f"Booking {bk['booking_ref']} confirmed!",
+                    "body":     f"{bk['hospital_name']} · {bk['department']} · {bk['requested_date']}. Check My Bookings tab.",
+                })
+            elif bk["status"] == "cancelled":
+                note_txt = f" Reason: {bk['admin_note']}" if bk.get("admin_note") else ""
+                notes.append({
+                    "severity": "warning",
+                    "icon":     "❌",
+                    "title":    f"Booking {bk['booking_ref']} was cancelled",
+                    "body":     f"{bk['hospital_name']} · {bk['requested_date']}.{note_txt}",
+                })
+
+    # 0b. Unread admin chat messages
     if username:
         unread_msgs = count_unread_for_patient(username)
         if unread_msgs:
@@ -1602,7 +1802,10 @@ def patient_dashboard():
         st.toast("💬 New message from admin!", icon="🔔")
         st.session_state._pat_unread_seen = _unread_chat
 
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    _pending_bk = sum(1 for b in list_patient_bookings(uname) if b["status"] == "confirmed")
+    _bk_label   = f"📅  My Bookings {'🟢' if _pending_bk else ''}"
+
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
         "💰  My Estimate",
         "📊  What to Expect",
         "📅  Best Time to Visit",
@@ -1610,6 +1813,7 @@ def patient_dashboard():
         "🏥  Compare Hospitals",
         "👤  My Profile",
         _chat_label,
+        _bk_label,
     ])
 
     # ════ TAB 1: PLANNER ════════════════════════════════════════════════════
@@ -2043,6 +2247,29 @@ def patient_dashboard():
                         f'Not saved — no problem. Your estimate is still shown above.</div>',
                         unsafe_allow_html=True,
                     )
+
+                # ── Booking button ────────────────────────────────────────────
+                st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+                if st.session_state.get("_booking_done"):
+                    ref = st.session_state.get("_last_booking_ref", "")
+                    st.markdown(
+                        f'<div style="background:#F0FDF4;border:1px solid #10B981;'
+                        f'border-left:4px solid #10B981;border-radius:12px;'
+                        f'padding:14px 18px;margin-top:4px;">'
+                        f'<div style="font-weight:700;color:#065F46;font-size:.9rem;margin-bottom:4px;">'
+                        f'✅ Booking Request Submitted!</div>'
+                        f'<div style="font-size:.8rem;color:#065F46;">Reference: '
+                        f'<strong>{ref}</strong> · The hospital admin will confirm your slot. '
+                        f'Check <strong>My Bookings</strong> tab for updates.</div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    if st.button("📅  Book This Visit", use_container_width=True,
+                                 key="open_booking_dialog"):
+                        st.session_state["_booking_done"] = False
+                        _booking_dialog(st.session_state["_est"], profile, t)
 
             else:
                 st.markdown(f"""
@@ -2834,6 +3061,167 @@ def patient_dashboard():
             st.rerun()
 
 
+    # ════ TAB 8: MY BOOKINGS ════════════════════════════════════════════════
+    with tab8:
+        # Reschedule booking dialog trigger (set by clicking 🔄 on a card)
+        if st.session_state.get("_open_reschedule"):
+            _est_rs = st.session_state.pop("_reschedule_est", {})
+            st.session_state["_open_reschedule"] = False
+            if _est_rs:
+                _booking_dialog(_est_rs, profile, t)
+
+        bookings = list_patient_bookings(uname)
+
+        STATUS_STYLE = {
+            "pending":   ("#FFFBEB", "#D97706", "⏳ Pending"),
+            "confirmed": ("#D1FAE5", "#059669", "✅ Confirmed"),
+            "cancelled": ("#FEE2E2", "#DC2626", "❌ Cancelled"),
+            "completed": ("#EFF6FF", "#2563EB", "🏁 Completed"),
+            "no_show":   ("#F3F4F6", "#6B7280", "🚫 No Show"),
+        }
+
+        ACTIVE_STATUSES  = {"pending", "confirmed"}
+        HISTORY_STATUSES = {"cancelled", "completed", "no_show"}
+
+        active  = [b for b in bookings if b["status"] in ACTIVE_STATUSES]
+        history = [b for b in bookings if b["status"] in HISTORY_STATUSES]
+
+        def _booking_est_from(b: dict) -> dict:
+            return {
+                "selected_hosp_name": b.get("hospital_name", ""),
+                "hospital_id":        b.get("hospital_id", ""),
+                "department":         b.get("department", ""),
+                "severity":           b.get("severity", ""),
+                "admission_type":     b.get("admission_type", ""),
+                "los_low":            b.get("los_low", 0),
+                "los_high":           b.get("los_high", 0),
+                "cost_low":           b.get("cost_low", 0),
+                "cost_high":          b.get("cost_high", 0),
+            }
+
+        def _render_booking_card(b, allow_cancel=False, allow_reschedule=False, card_idx=0):
+            bg, col, lbl = STATUS_STYLE.get(b["status"], STATUS_STYLE["pending"])
+            adm_note   = b.get("admin_note", "")
+            created    = b["created_at"].strftime("%d %b %Y") if b.get("created_at") else ""
+            ref        = b["booking_ref"]
+            cancel_key = f"_cancel_confirm_{ref}"
+
+            with st.container(border=True):
+                st.markdown(
+                    f'<div style="display:flex;justify-content:space-between;'
+                    f'align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;">'
+                    f'<div>'
+                    f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:800;'
+                    f'font-size:.95rem;color:#111827;margin-bottom:3px;">'
+                    f'{b.get("hospital_name","—")} · {b.get("department","—")}</div>'
+                    f'<div style="font-size:.78rem;color:#6B7280;">'
+                    f'📅 {b.get("requested_date","—")} &nbsp;·&nbsp; '
+                    f'🕐 {b.get("preferred_time","—")} &nbsp;·&nbsp; '
+                    f'Ref: <strong>{ref}</strong></div>'
+                    f'</div>'
+                    f'<span style="background:{bg};color:{col};border-radius:9999px;'
+                    f'padding:4px 14px;font-size:.75rem;font-weight:700;white-space:nowrap;">'
+                    f'{lbl}</span>'
+                    f'</div>'
+                    f'<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:6px;">'
+                    f'<span style="font-size:.78rem;color:#4B5563;">'
+                    f'🛏️ <strong>{int(b["los_low"])}–{int(b["los_high"])} days</strong></span>'
+                    f'<span style="font-size:.78rem;color:#4B5563;">'
+                    f'💰 <strong>Rs. {int(b["cost_low"]):,}–{int(b["cost_high"]):,}</strong></span>'
+                    f'<span style="font-size:.78rem;color:#9CA3AF;">Booked: {created}</span>'
+                    f'</div>'
+                    + (f'<div style="background:#FEF2F2;border-radius:8px;'
+                       f'padding:7px 10px;font-size:.76rem;color:#991B1B;margin-bottom:4px;">'
+                       f'ℹ️ {adm_note}</div>' if adm_note else ""),
+                    unsafe_allow_html=True,
+                )
+
+                # Action buttons row — right-aligned inside the card
+                if allow_cancel or allow_reschedule:
+                    if st.session_state.get(cancel_key):
+                        # Inline cancel confirmation
+                        st.warning(f"Cancel **{ref}**? This cannot be undone.")
+                        yes_c, no_c, _ = st.columns([1, 1, 6])
+                        with yes_c:
+                            if st.button("Yes, Cancel",
+                                         key=f"_cyes_{ref}_{card_idx}",
+                                         type="primary",
+                                         use_container_width=True):
+                                update_booking_status(ref, "cancelled",
+                                                      admin_note="Cancelled by patient")
+                                st.session_state[cancel_key] = False
+                                st.rerun()
+                        with no_c:
+                            if st.button("Keep it",
+                                         key=f"_cno_{ref}_{card_idx}",
+                                         use_container_width=True):
+                                st.session_state[cancel_key] = False
+                                st.rerun()
+                    else:
+                        # Icon buttons: 🔄 reschedule  ✕ cancel
+                        spacer, rs_col, x_col = st.columns([10, 1, 1])
+                        if allow_reschedule:
+                            with rs_col:
+                                if st.button("🔄",
+                                             key=f"_rs_{ref}_{card_idx}",
+                                             help="Reschedule this booking",
+                                             use_container_width=True):
+                                    st.session_state["_reschedule_est"]  = _booking_est_from(b)
+                                    st.session_state["_open_reschedule"] = True
+                                    st.rerun()
+                        if allow_cancel:
+                            with x_col:
+                                if st.button("✕",
+                                             key=f"_cico_{ref}_{card_idx}",
+                                             help="Cancel this booking",
+                                             use_container_width=True):
+                                    st.session_state[cancel_key] = True
+                                    st.rerun()
+
+        if not bookings:
+            st.markdown(
+                f'<div style="text-align:center;padding:60px 0;">'
+                f'<div style="font-size:3rem;margin-bottom:12px;">📅</div>'
+                f'<div style="font-weight:700;color:{t["t1"]};font-size:1rem;margin-bottom:6px;">'
+                f'No bookings yet</div>'
+                f'<div style="font-size:.84rem;color:{t["t2"]};">'
+                f'Get your estimate in the 💰 My Estimate tab, then click "Book This Visit".</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            bk_cur_tab, bk_hist_tab = st.tabs([
+                f"📌  Current  ({len(active)})",
+                f"🗂️  History  ({len(history)})",
+            ])
+
+            with bk_cur_tab:
+                if not active:
+                    st.markdown(
+                        '<div style="text-align:center;padding:40px 0;color:#9CA3AF;">'
+                        '<div style="font-size:2rem;margin-bottom:8px;">🎉</div>'
+                        'No active bookings right now.</div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    for i, b in enumerate(active):
+                        _render_booking_card(b, allow_cancel=True,
+                                             allow_reschedule=True, card_idx=i)
+
+            with bk_hist_tab:
+                if not history:
+                    st.markdown(
+                        '<div style="text-align:center;padding:40px 0;color:#9CA3AF;">'
+                        '<div style="font-size:2rem;margin-bottom:8px;">📂</div>'
+                        'No past bookings yet.</div>',
+                        unsafe_allow_html=True,
+                    )
+                else:
+                    for i, b in enumerate(history):
+                        _render_booking_card(b, allow_cancel=False,
+                                             allow_reschedule=False, card_idx=i)
+
+
 # ════════════════════════════════════════════════════════════════════════════
 # ADMIN DASHBOARD
 # ════════════════════════════════════════════════════════════════════════════
@@ -2924,7 +3312,16 @@ def admin_dashboard():
     inbox        = get_chat_inbox()
     unread_total = sum(th.get("unread", 0) for th in inbox)
 
+    pending_bookings = list_all_bookings(status_filter="pending")
     admin_notifs = [
+        {
+            "severity": "urgent",
+            "icon":     "📅",
+            "title":    f"New booking from {b['full_name']}",
+            "body":     f"{b['hospital_name']} · {b['department']} · {b['requested_date']} — Ref: {b['booking_ref']}",
+        }
+        for b in pending_bookings
+    ] + [
         {
             "severity": "warning" if th.get("unread", 0) > 0 else "info",
             "icon":     "💬",
@@ -2963,7 +3360,11 @@ def admin_dashboard():
 
     # ── Tabs ─────────────────────────────────────────────────────────────────
     _msg_label = f"💬  Messages {'🔴' if unread_total else ''}"
-    admin_tab1, admin_tab2 = st.tabs(["👥  Patient Accounts", _msg_label])
+    _pending_count = len(pending_bookings)
+    _bk_label  = f"📅  Bookings {'🔴 ' + str(_pending_count) if _pending_count else ''}"
+    admin_tab4, admin_tab1, admin_tab3, admin_tab2 = st.tabs([
+        "📊  Analytics", "👥  Patient Accounts", _bk_label, _msg_label
+    ])
 
     # ════ TAB 1: PATIENT ACCOUNTS ═══════════════════════════════════════════
     with admin_tab1:
@@ -3005,43 +3406,56 @@ def admin_dashboard():
             left_col, right_col = st.columns([1, 2.2], gap="large")
 
             with left_col:
+                # Inject marker + CSS that styles all sibling buttons as conversation cards
                 st.markdown(
+                    '<div class="conv-list-marker"></div>'
                     '<div style="font-size:.75rem;font-weight:700;color:#6B7280;'
                     'text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">'
-                    'Conversations</div>',
+                    'Conversations</div>'
+                    '<style>'
+                    # All buttons after the marker → white card style (override global red)
+                    '[data-testid="stMarkdownContainer"]:has(.conv-list-marker)'
+                    ' ~ div [data-testid="stButton"]>button{'
+                    '  background:#fff!important;color:#111827!important;'
+                    '  border:1px solid #E5E7EB!important;border-radius:12px!important;'
+                    '  text-align:left!important;padding:10px 13px!important;'
+                    '  font-size:.86rem!important;font-weight:700!important;'
+                    '  height:auto!important;white-space:pre-line!important;'
+                    '  line-height:1.55!important;box-shadow:none!important;'
+                    '  letter-spacing:0!important;width:100%!important;'
+                    '  transition:all .15s!important;'
+                    '}'
+                    '[data-testid="stMarkdownContainer"]:has(.conv-list-marker)'
+                    ' ~ div [data-testid="stButton"]>button:hover{'
+                    '  border-color:#10B981!important;'
+                    '  box-shadow:0 2px 10px rgba(16,185,129,.15)!important;'
+                    '  transform:translateY(-1px)!important;'
+                    '}'
+                    # Selected conversation = primary button → green tint card
+                    '[data-testid="stMarkdownContainer"]:has(.conv-list-marker)'
+                    ' ~ div [data-testid="stButton"]>button[kind="primary"]{'
+                    '  background:#F0FDF4!important;border:2px solid #10B981!important;'
+                    '  box-shadow:none!important;transform:none!important;'
+                    '}'
+                    '</style>',
                     unsafe_allow_html=True,
                 )
+
                 for th in inbox:
                     _cu        = th["patient_username"]
                     _cname     = th["full_name"]
                     _cunread   = th.get("unread", 0)
-                    _cpreview  = (th.get("latest_body") or "")[:40]
+                    _cpreview  = (th.get("latest_body") or "")[:38]
                     _cts       = th.get("latest_at")
                     _cts_str   = _cts.strftime("%d %b") if _cts and hasattr(_cts, "strftime") else ""
                     _is_sel    = st.session_state.admin_chat_sel == _cu
 
-                    sel_bg  = "#EEF2FF" if _is_sel else "#fff"
-                    sel_bdr = "#6366F1" if _is_sel else "#E5E7EB"
-                    sel_bw  = "2px"     if _is_sel else "1px"
-                    ubadge  = (f'<span style="background:#EF4444;color:#fff;border-radius:9999px;'
-                               f'padding:1px 6px;font-size:.62rem;font-weight:700;margin-left:4px;">'
-                               f'{_cunread}</span>') if _cunread else ""
+                    _unread_str = f"  🔴 {_cunread}" if _cunread else ""
+                    _label      = f"{_cname}{_unread_str}"
+                    _btn_type   = "primary" if _is_sel else "secondary"
 
-                    st.markdown(
-                        f'<div style="background:{sel_bg};border:{sel_bw} solid {sel_bdr};'
-                        f'border-radius:12px;padding:11px 13px;margin-bottom:5px;">'
-                        f'<div style="display:flex;justify-content:space-between;align-items:center;">'
-                        f'<div style="font-weight:700;font-size:.86rem;color:#111827;">'
-                        f'{_cname}{ubadge}</div>'
-                        f'<div style="font-size:.7rem;color:#9CA3AF;">{_cts_str}</div>'
-                        f'</div>'
-                        f'<div style="font-size:.75rem;color:#6B7280;margin-top:3px;'
-                        f'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
-                        f'{_cpreview}</div>'
-                        f'</div>',
-                        unsafe_allow_html=True,
-                    )
-                    if st.button("Open →", key=f"open_chat_{_cu}", use_container_width=True):
+                    if st.button(_label, key=f"open_chat_{_cu}",
+                                 type=_btn_type, use_container_width=True):
                         st.session_state.admin_chat_sel = _cu
                         st.rerun()
 
@@ -3094,6 +3508,388 @@ def admin_dashboard():
                     if reply:
                         send_chat_message(sel, "admin", reply)
                         st.rerun()
+
+    # ════ TAB 3: BOOKINGS ═══════════════════════════════════════════════════
+    with admin_tab3:
+        STATUS_STYLE = {
+            "pending":   ("#FFFBEB", "#D97706", "⏳ Pending"),
+            "confirmed": ("#D1FAE5", "#059669", "✅ Confirmed"),
+            "cancelled": ("#FEE2E2", "#DC2626", "❌ Cancelled"),
+            "completed": ("#EFF6FF", "#2563EB", "🏁 Completed"),
+            "no_show":   ("#F3F4F6", "#6B7280", "🚫 No Show"),
+        }
+
+        if "admin_bk_action" not in st.session_state:
+            st.session_state.admin_bk_action = {}
+
+        all_bk  = list_all_bookings()
+        history = [b for b in all_bk if b["status"] in ("cancelled", "completed", "no_show")]
+
+        def _admin_bk_card(b, card_key_prefix=""):
+            bg, col, lbl = STATUS_STYLE.get(b["status"], STATUS_STYLE["pending"])
+            ref     = b["booking_ref"]
+            created = b["created_at"].strftime("%d %b %Y") if b.get("created_at") else ""
+
+            with st.container(border=True):
+                st.markdown(
+                    f'<div style="display:flex;justify-content:space-between;'
+                    f'flex-wrap:wrap;gap:8px;margin-bottom:8px;">'
+                    f'<div>'
+                    f'<div style="font-weight:700;font-size:.92rem;color:#111827;margin-bottom:3px;">'
+                    f'{b.get("full_name","—")} &nbsp;'
+                    f'<span style="background:#EDE9FE;color:#5B21B6;border-radius:9999px;'
+                    f'padding:1px 8px;font-size:.68rem;">{b.get("patient_id","")}</span></div>'
+                    f'<div style="font-size:.77rem;color:#6B7280;">'
+                    f'{b.get("hospital_name","—")} · {b.get("department","—")} · '
+                    f'{b.get("requested_date","—")} &nbsp;{b.get("preferred_time","")}</div>'
+                    f'<div style="font-size:.72rem;color:#9CA3AF;margin-top:2px;">'
+                    f'Ref: <strong>{ref}</strong> · Submitted: {created} · '
+                    f'📞 {b.get("phone","—")}</div>'
+                    f'</div>'
+                    f'<span style="background:{bg};color:{col};border-radius:9999px;'
+                    f'padding:4px 14px;font-size:.74rem;font-weight:700;">{lbl}</span>'
+                    f'</div>'
+                    f'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:6px;">'
+                    f'<span style="font-size:.76rem;color:#4B5563;">'
+                    f'🛏️ <strong>{int(b["los_low"])}–{int(b["los_high"])} days</strong></span>'
+                    f'<span style="font-size:.76rem;color:#4B5563;">'
+                    f'💰 <strong>Rs. {int(b["cost_low"]):,}–{int(b["cost_high"]):,}</strong></span>'
+                    f'<span style="font-size:.76rem;color:#4B5563;">'
+                    f'{b.get("severity","—")} severity · {b.get("admission_type","—")}</span>'
+                    f'</div>'
+                    + (f'<div style="font-size:.76rem;color:#6B7280;background:#F9FAFB;'
+                       f'border-radius:8px;padding:6px 10px;margin-bottom:4px;">'
+                       f'📝 {b["notes"]}</div>' if b.get("notes") else "")
+                    + (f'<div style="font-size:.76rem;color:#991B1B;background:#FEF2F2;'
+                       f'border-radius:8px;padding:6px 10px;margin-bottom:4px;">'
+                       f'ℹ️ {b["admin_note"]}</div>' if b.get("admin_note") else ""),
+                    unsafe_allow_html=True,
+                )
+
+                if b["status"] == "pending":
+                    a1, a2, _ = st.columns([1, 1, 4])
+                    with a1:
+                        if st.button("✅ Confirm", key=f"{card_key_prefix}confirm_{ref}",
+                                     use_container_width=True, type="primary"):
+                            update_booking_status(ref, "confirmed")
+                            st.success(f"{ref} confirmed.")
+                            st.rerun()
+                    with a2:
+                        if st.button("❌ Cancel", key=f"{card_key_prefix}cancel_{ref}",
+                                     use_container_width=True):
+                            st.session_state.admin_bk_action[ref] = "cancel"
+                            st.rerun()
+
+                if st.session_state.admin_bk_action.get(ref) == "cancel":
+                    reason = st.text_input(f"Reason for cancelling {ref}",
+                                           key=f"{card_key_prefix}reason_{ref}",
+                                           placeholder="e.g. slot unavailable")
+                    r1, r2, _ = st.columns([1, 1, 4])
+                    with r1:
+                        if st.button("Confirm Cancel",
+                                     key=f"{card_key_prefix}do_cancel_{ref}",
+                                     type="primary", use_container_width=True):
+                            update_booking_status(ref, "cancelled", reason)
+                            st.session_state.admin_bk_action.pop(ref, None)
+                            st.success(f"{ref} cancelled.")
+                            st.rerun()
+                    with r2:
+                        if st.button("Go Back",
+                                     key=f"{card_key_prefix}back_{ref}",
+                                     use_container_width=True):
+                            st.session_state.admin_bk_action.pop(ref, None)
+                            st.rerun()
+
+        pending_bk   = [b for b in all_bk if b["status"] == "pending"]
+        confirmed_bk = [b for b in all_bk if b["status"] == "confirmed"]
+
+        adm_pend_tab, adm_conf_tab, adm_hist_tab = st.tabs([
+            f"⏳  Pending  ({len(pending_bk)})",
+            f"✅  Approved  ({len(confirmed_bk)})",
+            f"🗂️  History  ({len(history)})",
+        ])
+
+        with adm_pend_tab:
+            if not pending_bk:
+                st.info("No pending requests.")
+            else:
+                for b in pending_bk:
+                    _admin_bk_card(b, card_key_prefix="pend_")
+
+        with adm_conf_tab:
+            if not confirmed_bk:
+                st.info("No confirmed bookings yet.")
+            else:
+                for b in confirmed_bk:
+                    _admin_bk_card(b, card_key_prefix="conf_")
+
+        with adm_hist_tab:
+            if not history:
+                st.info("No past bookings yet.")
+            else:
+                for b in history:
+                    _admin_bk_card(b, card_key_prefix="hist_")
+
+    # ════ TAB 4: ANALYTICS ══════════════════════════════════════════════════
+    with admin_tab4:
+        _all_bk_a   = list_all_bookings()
+        _patients_a = patients
+
+        GREEN  = "#10B981"; AMBER = "#F59E0B"; RED   = "#EF4444"
+        BLUE   = "#3B82F6"; GRAY  = "#9CA3AF"; INDIGO = "#6366F1"
+        PURPLE = "#7C3AED"; TEAL  = "#0D9488"
+        BG     = "rgba(0,0,0,0)"
+
+        def _base(fig, title="", legend=False):
+            fig.update_layout(
+                title=dict(text=title, font=dict(size=13, color="#374151",
+                           family="Plus Jakarta Sans"), x=0),
+                paper_bgcolor=BG, plot_bgcolor=BG,
+                margin=dict(l=8, r=8, t=44, b=8),
+                font=dict(family="Inter", size=11, color="#6B7280"),
+                showlegend=legend,
+                legend=dict(orientation="h", y=-0.2, x=0, font=dict(size=10)),
+            )
+            fig.update_xaxes(showgrid=False, zeroline=False,
+                             linecolor="#E5E7EB", tickfont=dict(size=10))
+            fig.update_yaxes(showgrid=True, gridcolor="#F3F4F6",
+                             zeroline=False, tickfont=dict(size=10))
+            return fig
+
+        # ── Row 1 ─────────────────────────────────────────────────────────────
+        r1c1, r1c2 = st.columns(2)
+
+        # 1. FUNNEL — booking pipeline (pending → confirmed → completed)
+        with r1c1:
+            sc = {b["status"]: 0 for b in _all_bk_a}
+            for b in _all_bk_a:
+                sc[b["status"]] += 1
+            funnel_order  = ["pending", "confirmed", "completed",
+                             "cancelled", "no_show"]
+            funnel_labels = [s.capitalize() for s in funnel_order
+                             if s in sc]
+            funnel_vals   = [sc[s] for s in funnel_order if s in sc]
+            funnel_colors = [{"pending": AMBER, "confirmed": GREEN,
+                              "completed": BLUE, "cancelled": RED,
+                              "no_show": GRAY}[s]
+                             for s in funnel_order if s in sc]
+
+            fig_funnel = go.Figure(go.Funnel(
+                y=funnel_labels, x=funnel_vals,
+                textinfo="value+percent initial",
+                marker=dict(color=funnel_colors,
+                            line=dict(color="#fff", width=1)),
+                connector=dict(line=dict(color="#E5E7EB", width=1)),
+                hovertemplate="%{y}: %{x}<extra></extra>",
+            ))
+            _base(fig_funnel, "Booking Pipeline (Funnel)")
+            st.plotly_chart(fig_funnel, use_container_width=True)
+
+        # 2. TREEMAP — bookings by department
+        with r1c2:
+            dept_map = {}
+            for b in _all_bk_a:
+                d = b.get("department", "Unknown")
+                dept_map[d] = dept_map.get(d, 0) + 1
+
+            if dept_map:
+                fig_tree = go.Figure(go.Treemap(
+                    labels=list(dept_map.keys()),
+                    parents=[""] * len(dept_map),
+                    values=list(dept_map.values()),
+                    textinfo="label+value",
+                    marker=dict(
+                        colorscale=[[0, "#D1FAE5"], [0.5, "#34D399"],
+                                    [1, "#059669"]],
+                        showscale=False,
+                        line=dict(color="#fff", width=2),
+                    ),
+                    hovertemplate="%{label}: %{value} bookings<extra></extra>",
+                ))
+                _base(fig_tree, "Department Demand (Treemap)")
+                fig_tree.update_layout(margin=dict(l=4, r=4, t=44, b=4))
+                st.plotly_chart(fig_tree, use_container_width=True)
+            else:
+                st.info("No department data yet.")
+
+        # ── Row 2 ─────────────────────────────────────────────────────────────
+        r2c1, r2c2 = st.columns(2)
+
+        # 3. STEP AREA — daily bookings over time (staircase, suits discrete counts)
+        with r2c1:
+            date_map = {}
+            for b in _all_bk_a:
+                if b.get("created_at"):
+                    day = b["created_at"].strftime("%Y-%m-%d")
+                    date_map[day] = date_map.get(day, 0) + 1
+
+            if date_map:
+                sorted_d = sorted(date_map.items())
+                step_x = [d[0] for d in sorted_d]
+                step_y = [d[1] for d in sorted_d]
+
+                fig_step = go.Figure(go.Scatter(
+                    x=step_x, y=step_y,
+                    mode="lines+markers",
+                    line=dict(shape="hv", color=GREEN, width=2.5),
+                    marker=dict(color=GREEN, size=7, symbol="circle",
+                                line=dict(color="#fff", width=1.5)),
+                    fill="tozeroy",
+                    fillcolor="rgba(16,185,129,0.08)",
+                    hovertemplate="%{x}: %{y} bookings<extra></extra>",
+                ))
+                _base(fig_step, "Daily Booking Requests (Step Chart)")
+                fig_step.update_layout(showlegend=False)
+                st.plotly_chart(fig_step, use_container_width=True)
+            else:
+                st.info("No timeline data yet.")
+
+        # 4. SCATTER BUBBLE — hospital: x=total, y=pending, size=total (meaningful axes)
+        with r2c2:
+            hosp_data = {}
+            for b in _all_bk_a:
+                h = b.get("hospital_name", "Unknown")
+                if h not in hosp_data:
+                    hosp_data[h] = {"total": 0, "pending": 0, "confirmed": 0}
+                hosp_data[h]["total"] += 1
+                if b["status"] == "pending":
+                    hosp_data[h]["pending"] += 1
+                elif b["status"] == "confirmed":
+                    hosp_data[h]["confirmed"] += 1
+
+            if hosp_data:
+                h_names     = list(hosp_data.keys())
+                h_totals    = [hosp_data[h]["total"]     for h in h_names]
+                h_pending   = [hosp_data[h]["pending"]   for h in h_names]
+                h_confirmed = [hosp_data[h]["confirmed"] for h in h_names]
+
+                fig_bub = go.Figure(go.Scatter(
+                    x=h_totals,
+                    y=h_pending,
+                    mode="markers+text",
+                    marker=dict(
+                        size=[max(t * 14, 22) for t in h_totals],
+                        color=h_confirmed,
+                        colorscale=[[0, "#D1FAE5"], [1, "#059669"]],
+                        showscale=True,
+                        colorbar=dict(title="Confirmed", thickness=10,
+                                      len=0.7, tickfont=dict(size=9)),
+                        line=dict(color="#fff", width=2),
+                        opacity=0.85,
+                    ),
+                    text=h_names,
+                    textposition="top center",
+                    hovertemplate=(
+                        "<b>%{text}</b><br>"
+                        "Total bookings: %{x}<br>"
+                        "Pending: %{y}<br>"
+                        "Confirmed: %{marker.color}<extra></extra>"
+                    ),
+                ))
+                _base(fig_bub, "Hospital Load — Total vs Pending (Bubble)")
+                fig_bub.update_xaxes(title_text="Total Bookings",
+                                     title_font=dict(size=10))
+                fig_bub.update_yaxes(title_text="Pending Bookings",
+                                     title_font=dict(size=10))
+                st.plotly_chart(fig_bub, use_container_width=True)
+            else:
+                st.info("No hospital data yet.")
+
+        # ── Row 3 ─────────────────────────────────────────────────────────────
+        r3c1, r3c2 = st.columns(2)
+
+        # 5. SUNBURST — severity (inner) × booking status (outer)
+        with r3c1:
+            from collections import defaultdict as _dd
+            sev_status_map = _dd(lambda: _dd(int))
+            for b in _all_bk_a:
+                sev = b.get("severity", "Unknown")
+                sts = b["status"].capitalize()
+                sev_status_map[sev][sts] += 1
+
+            if sev_status_map:
+                sev_order = ["Mild", "Moderate", "Severe", "Critical", "Unknown"]
+                sev_color_map = {
+                    "Mild": GREEN, "Moderate": AMBER,
+                    "Severe": RED, "Critical": PURPLE, "Unknown": GRAY,
+                }
+                sun_ids, sun_labels, sun_parents, sun_vals, sun_colors = \
+                    [], [], [], [], []
+
+                for sev in sev_order:
+                    if sev not in sev_status_map:
+                        continue
+                    total = sum(sev_status_map[sev].values())
+                    sun_ids.append(sev)
+                    sun_labels.append(sev)
+                    sun_parents.append("")
+                    sun_vals.append(total)
+                    sun_colors.append(sev_color_map.get(sev, GRAY))
+                    for sts, cnt in sev_status_map[sev].items():
+                        sun_ids.append(f"{sev}_{sts}")
+                        sun_labels.append(sts)
+                        sun_parents.append(sev)
+                        sun_vals.append(cnt)
+                        sun_colors.append(sev_color_map.get(sev, GRAY))
+
+                fig_sun = go.Figure(go.Sunburst(
+                    ids=sun_ids,
+                    labels=sun_labels,
+                    parents=sun_parents,
+                    values=sun_vals,
+                    marker=dict(colors=sun_colors,
+                                line=dict(color="#fff", width=1.5)),
+                    textinfo="label+value",
+                    hovertemplate=(
+                        "%{label}<br>Count: %{value}<br>"
+                        "Share: %{percentRoot:.1%}<extra></extra>"
+                    ),
+                    insidetextorientation="radial",
+                    maxdepth=2,
+                ))
+                _base(fig_sun, "Severity × Outcome (Sunburst)")
+                fig_sun.update_layout(margin=dict(l=4, r=4, t=44, b=4))
+                st.plotly_chart(fig_sun, use_container_width=True)
+            else:
+                st.info("No severity data yet.")
+
+        # 6. HEATMAP — dept × status cross matrix
+        with r3c2:
+            depts_u = sorted({b.get("department", "?") for b in _all_bk_a})
+            statuses_u = ["pending", "confirmed", "completed",
+                          "cancelled", "no_show"]
+
+            if depts_u and _all_bk_a:
+                matrix = [[0] * len(statuses_u) for _ in depts_u]
+                for b in _all_bk_a:
+                    di = depts_u.index(b.get("department", "?")) \
+                         if b.get("department", "?") in depts_u else 0
+                    si = statuses_u.index(b["status"]) \
+                         if b["status"] in statuses_u else 0
+                    matrix[di][si] += 1
+
+                fig_hm = go.Figure(go.Heatmap(
+                    z=matrix,
+                    x=[s.capitalize() for s in statuses_u],
+                    y=depts_u,
+                    colorscale=[[0, "#F0FDF4"], [0.5, "#34D399"],
+                                [1, "#065F46"]],
+                    text=[[str(v) for v in row] for row in matrix],
+                    texttemplate="%{text}",
+                    textfont=dict(size=11),
+                    hovertemplate=(
+                        "Dept: %{y}<br>Status: %{x}<br>"
+                        "Count: %{z}<extra></extra>"
+                    ),
+                    showscale=True,
+                    colorbar=dict(thickness=10, len=0.7,
+                                  tickfont=dict(size=9)),
+                ))
+                _base(fig_hm, "Dept × Status Heatmap")
+                fig_hm.update_yaxes(showgrid=False)
+                st.plotly_chart(fig_hm, use_container_width=True)
+            else:
+                st.info("No cross-data available yet.")
 
 
 # ════════════════════════════════════════════════════════════════════════════
