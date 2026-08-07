@@ -41,11 +41,35 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# Session/role checks below hit the database before any page content exists —
+# without this, the browser shows a blank tab for that entire round trip.
+_boot_gate = st.empty()
+with _boot_gate.container():
+    st.markdown("""
+    <style>
+      #MainMenu, header, footer { visibility: hidden; }
+    </style>
+    <div style="min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:16px;">
+      <div style="width:34px;height:34px;border-radius:50%;
+        border:3px solid #DCEAE6;border-top-color:#0F766E;
+        animation:bootSpin .8s linear infinite;"></div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+        color:#102A2A;font-size:.92rem;letter-spacing:-.01em;">Loading Bagmati Care…</div>
+    </div>
+    <style>
+      @keyframes bootSpin { to { transform:rotate(360deg); } }
+      @media (prefers-reduced-motion:reduce) {
+        [style*="bootSpin"] { animation:none !important; opacity:.6; }
+      }
+    </style>
+    """, unsafe_allow_html=True)
+
 init_db()
 
 for k, v in [("logged_in", False), ("username", ""), ("role", ""),
              ("page", "dashboard"), ("profile_msg", None),
-             ("login_view", "signin"), ("reg_success", ""),
+             ("login_view", "signin"), ("reg_success", ""), ("reg_step", 1),
              ("_sid", ""), ("_session_expires", 0.0)]:
     if k not in st.session_state:
         st.session_state[k] = v
@@ -118,6 +142,8 @@ if not st.session_state.logged_in:
             st.session_state["_sso_error"] = "Google sign-in failed. Please try again."
             st.query_params.clear()
         st.rerun()
+
+_boot_gate.empty()
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -551,28 +577,32 @@ def password_rules_card(password: str = "") -> None:
     rules    = [(r, r not in failed) for r in _ALL_RULES]
     met      = sum(1 for _, ok in rules if ok)
     score    = met / len(rules)
-    bar_color = "#DC2626" if score < 0.4 else "#D97706" if score < 0.8 else "#059669"
+    bar_color = "#DC2626" if score < 0.4 else "#D97706" if score < 0.8 else "#0E6B62"
     bar_label = "Weak" if score < 0.4 else "Fair" if score < 0.8 else "Strong"
     items_html = "".join(
-        f'<div style="display:flex;align-items:center;gap:7px;padding:2px 0;">'
-        f'<span style="font-size:.8rem;color:{"#059669" if ok else "#DC2626"};">'
-        f'{"&#10003;" if ok else "&#10005;"}</span>'
-        f'<span style="font-size:.75rem;color:{"#065F46" if ok else "#6B7280"};">{label}</span>'
+        f'<div style="display:flex;align-items:center;gap:8px;padding:3px 0;">'
+        f'<span aria-hidden="true" style="font-size:16px;color:'
+        f'{"#0E6B62" if ok else "#B0BAB7"};">{"✓" if ok else "○"}</span>'
+        f'<span style="font-size:.78rem;color:{"#12262A" if ok else "#65746F"};">{label}</span>'
         f'</div>'
         for label, ok in rules
     )
     bar_pct = int(score * 100)
     st.markdown(f"""
-    <div style="background:#F8FAFC;border:1px solid #D8E8E2;border-radius:10px;
-      padding:12px 14px;margin:6px 0 10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-size:.72rem;font-weight:700;color:#4A6358;
-          text-transform:uppercase;letter-spacing:.06em;">Password strength</span>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+    .material-symbols-outlined {{ font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 20; vertical-align:middle; }}
+    </style>
+    <div style="background:#F6F8F7;border:1px solid #E3E7E5;border-radius:12px;
+      padding:14px 16px;margin:8px 0 12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
+        <span style="font-size:.7rem;font-weight:700;color:#65746F;
+          text-transform:uppercase;letter-spacing:.07em;">Password strength</span>
         <span style="font-size:.72rem;font-weight:700;color:{bar_color};">{bar_label}</span>
       </div>
-      <div style="height:5px;background:#E2E8F0;border-radius:9999px;margin-bottom:10px;overflow:hidden;">
+      <div style="height:6px;background:#E3E7E5;border-radius:9999px;margin-bottom:11px;overflow:hidden;">
         <div style="height:100%;width:{bar_pct}%;background:{bar_color};
-          border-radius:9999px;transition:width .3s;"></div>
+          border-radius:9999px;transition:width .3s ease;"></div>
       </div>
       {items_html}
     </div>
@@ -818,253 +848,737 @@ def page_login():
     t = PATIENT_THEME
     inject_global_css(t)
 
+    view = st.session_state.login_view  # "signin" | "register"
+
     st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+    .material-symbols-outlined { font-family:'Material Symbols Outlined'; font-variation-settings:'FILL' 0,'wght' 450,'GRAD' 0,'opsz' 22; vertical-align:middle; }
+
     [data-testid="stSidebar"] { display:none !important; }
-    .block-container { padding: 2rem 1.5rem !important; }
+    [data-testid="stAppViewContainer"] { background:#FBF9F4 !important; }
+    #MainMenu, footer { visibility:hidden !important; }
+    header[data-testid="stHeader"] { display:none !important; }
+    .block-container { padding:0 !important; max-width:none !important; }
+    .block-container > div[data-testid="stVerticalBlock"] { gap:0 !important; }
+
+    .mobile-brand-bar { display:none; align-items:center; gap:10px; padding:22px 22px 0; }
+    div[data-testid="stElementContainer"]:has(.mobile-brand-bar) { display:none; }
+    .mobile-brand-bar .brand-mark {
+      width:34px; height:34px; border-radius:10px; color:#fff; flex-shrink:0;
+      background:linear-gradient(135deg,#0E6B62,#17A398);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .mobile-brand-bar .brand-word {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1rem; color:#12262A;
+    }
+
+    /* ── SHELL ─────────────────────────────────────────────────────────── */
+    .st-key-auth_shell {
+      --teal-900:#0B4A44; --teal-700:#0E6B62; --teal-600:#12897B; --teal-500:#17A398;
+      --teal-100:#E3F4F1; --teal-50:#F1FAF8;
+      --indigo-500:#5B67CE; --indigo-100:#EEF0FC; --coral-500:#E1705A;
+      --ink-900:#12262A; --ink-700:#3E4C48; --ink-500:#65746F; --ink-300:#A9B6B2;
+      --canvas:#FBF9F4; --surface:#FFFFFF; --border:#E3E7E5; --border-strong:#CBD5D2;
+      --danger:#DC2626; --success:#0E9F6E; --warning:#D97706;
+      --radius-sm:10px; --radius-md:14px; --radius-lg:20px; --radius-xl:24px;
+      --shadow-md:0 10px 30px rgba(16,42,38,.08);
+      --shadow-lg:0 30px 70px rgba(16,42,38,.16);
+      width:100%; min-height:100dvh; background:var(--canvas);
+    }
+    .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] {
+      min-height:100dvh; align-items:stretch; gap:0 !important;
+    }
+    .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+      min-width:0; display:flex;
+    }
+    .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] > div {
+      width:100%; display:flex; flex-direction:column;
+    }
+
+    /* ── HERO PANEL ────────────────────────────────────────────────────── */
+    .st-key-hero_panel {
+      flex:1; position:relative; overflow:hidden; min-height:100dvh;
+      background:
+        radial-gradient(circle at 82% 12%, rgba(255,255,255,.07), transparent 40%),
+        radial-gradient(circle at 8% 92%, rgba(0,0,0,.14), transparent 45%),
+        linear-gradient(160deg,var(--teal-900) 0%,var(--teal-700) 55%,var(--teal-500) 100%);
+      padding:clamp(2.75rem,4vw,4.5rem);
+    }
+    .hero-inner { height:100%; max-width:590px; margin:0 auto; display:flex; flex-direction:column; justify-content:space-between; position:relative; z-index:1; }
+    .hero-brand-row { display:flex; align-items:center; gap:12px; }
+    .hero-brand-mark {
+      width:48px; height:48px; border-radius:14px; color:#fff; flex-shrink:0;
+      background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .hero-brand-word { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.28rem; color:#fff; }
+
+    .hero-eyebrow {
+      display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:9999px;
+      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18);
+      color:#D7F5EE; font-size:.65rem; font-weight:700; letter-spacing:.08em; margin-bottom:20px;
+    }
+    .hero-eyebrow .dot {
+      width:6px; height:6px; border-radius:50%; background:#6EE7C6;
+      box-shadow:0 0 0 4px rgba(110,231,198,.18);
+    }
+    .hero-headline {
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+      font-size:clamp(2.5rem,3.15vw,3.45rem); line-height:1.08; letter-spacing:-.04em;
+      color:#F4FBF9; margin-bottom:18px; max-width:570px;
+    }
+    .hero-copy { font-size:1.02rem; color:rgba(244,251,249,.78); line-height:1.65; max-width:520px; margin-bottom:30px; }
+
+    .hero-visual-card {
+      background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
+      border-radius:var(--radius-lg); padding:20px 24px; max-width:500px;
+      box-shadow:0 18px 45px rgba(5,55,50,.13);
+    }
+    .hvc-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .hvc-head .material-symbols-outlined { color:#8FE3CE; font-size:20px; }
+    .hvc-head > span[aria-hidden] { color:#6EE7C6; font-size:.82rem; }
+    .hvc-head-label { font-size:.78rem; font-weight:700; color:#EAFBF6; flex:1; }
+    .hvc-live-dot { width:7px; height:7px; border-radius:50%; background:#6EE7C6; box-shadow:0 0 0 3px rgba(110,231,198,.2); }
+    .hvc-row { display:flex; align-items:center; gap:12px; min-height:44px; padding:8px 0; }
+    .hvc-row + .hvc-row { border-top:1px solid rgba(255,255,255,.1); }
+    .hvc-row .material-symbols-outlined { color:#BFEFE1; font-size:18px; flex-shrink:0; }
+    .hvc-row > span[aria-hidden] { width:12px; color:#6EE7C6; font-size:.75rem; text-align:center; flex-shrink:0; }
+    .hvc-row-label { font-size:.8rem; color:rgba(244,251,249,.72); flex:1; }
+    .hvc-row-val { font-family:'Plus Jakarta Sans',sans-serif; min-width:46px; text-align:right; font-size:.88rem; font-weight:800; color:#fff; }
+    .hvc-bar-track { width:64px; height:5px; border-radius:9999px; background:rgba(255,255,255,.16); overflow:hidden; flex-shrink:0; }
+    .hvc-bar-fill { height:100%; border-radius:9999px; background:#6EE7C6; }
+    @media (prefers-reduced-motion:no-preference) {
+      .hero-visual-card { animation:hvcFloat 6s ease-in-out infinite; }
+    }
+    @keyframes hvcFloat { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-7px);} }
+
+    .hero-footnote { font-size:.7rem; color:rgba(244,251,249,.55); letter-spacing:.02em; margin-top:22px; }
+
+    /* ── AUTH REGION / CARD ────────────────────────────────────────────── */
+    .st-key-auth_region { flex:1; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:clamp(28px,4vw,64px); }
+    .st-key-auth_region > div[data-testid="stVerticalBlock"] { width:100%; align-items:center; justify-content:center; }
+    .st-key-auth_card {
+      box-sizing:border-box; width:min(100%, 500px); background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-xl); box-shadow:0 24px 60px rgba(16,42,38,.12); padding:36px 40px;
+    }
+    .st-key-auth_card > div[data-testid="stVerticalBlock"] { gap:.55rem !important; }
+    .st-key-auth_card [data-testid="stForm"] [data-testid="stVerticalBlock"] { gap:.65rem !important; }
+    .st-key-auth_card:has(.register-step) { width:min(100%, 520px); }
+
+    .auth-eyebrow {
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      font-size:.68rem; font-weight:800; letter-spacing:.09em; color:var(--teal-700);
+      margin-bottom:4px; text-transform:uppercase;
+    }
+    .auth-title {
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:1.85rem; font-weight:800;
+      color:var(--ink-900); text-align:center; letter-spacing:-.02em; line-height:1.2;
+    }
+    .auth-subtitle { font-size:.88rem; color:var(--ink-500); text-align:center; margin-top:4px; margin-bottom:14px; }
+
+    /* segmented control */
+    .st-key-seg_track { background:var(--teal-50); border:1px solid var(--border); border-radius:14px; padding:4px; margin-bottom:10px; }
+    .st-key-seg_track [data-testid="stHorizontalBlock"] { gap:4px !important; }
+    .st-key-seg_track [data-testid="stColumn"] { min-width:0 !important; }
+    .st-key-seg_track .stButton>button {
+      border-radius:10px !important; min-height:44px !important; font-size:.84rem !important;
+      font-weight:700 !important; transition:all .15s ease !important;
+    }
+    .st-key-seg_track .stButton>button[kind="primary"] {
+      background:var(--teal-700) !important; color:#fff !important; border:0 !important;
+      box-shadow:0 4px 14px rgba(14,107,98,.25) !important;
+    }
+    .st-key-seg_track .stButton>button[kind="secondary"] {
+      background:transparent !important; border:0 !important; color:var(--ink-500) !important; box-shadow:none !important;
+    }
+    .st-key-seg_track .stButton>button[kind="secondary"]:hover {
+      background:rgba(14,107,98,.08) !important; color:var(--teal-700) !important;
+    }
+
+    /* labels + inputs */
+    .st-key-auth_card [data-testid="stWidgetLabel"] p {
+      color:var(--ink-700) !important; font-weight:600 !important; font-size:.79rem !important;
+    }
+    .st-key-auth_card .stTextInput input {
+      min-height:48px !important; border-radius:var(--radius-sm) !important;
+      border:1.5px solid var(--border-strong) !important; background:var(--canvas) !important;
+      font-size:.92rem !important; color:var(--ink-900) !important;
+      transition:border-color .15s ease, box-shadow .15s ease, background-color .15s ease !important;
+    }
+    .st-key-auth_card .stTextInput input:hover:not(:focus) { border-color:var(--ink-300) !important; }
+    .st-key-auth_card .stTextInput input:focus {
+      border-color:var(--teal-600) !important; background:#fff !important;
+      box-shadow:0 0 0 4px rgba(14,107,98,.12) !important; outline:none !important;
+    }
+    .st-key-auth_card .stTextInput input:disabled { opacity:.55 !important; }
+    .st-key-auth_card [data-testid="stTextInputRootElement"] svg,
+    .st-key-auth_card [data-testid="stTextInputRootElement"] .material-symbols-outlined { color:var(--ink-300) !important; }
+    .st-key-auth_card [data-testid="stTextInputRootElement"]:focus-within svg,
+    .st-key-auth_card [data-testid="stTextInputRootElement"]:focus-within .material-symbols-outlined { color:var(--teal-600) !important; }
+
+    .st-key-auth_card [data-testid="stCheckbox"] label p { font-size:.8rem !important; color:var(--ink-700) !important; }
+
+    /* buttons */
+    .st-key-auth_card .stButton>button[kind="primary"],
+    .st-key-auth_card [data-testid="stFormSubmitButton"] button {
+      background:linear-gradient(135deg,var(--teal-700),var(--teal-600)) !important;
+      border:0 !important; color:#fff !important; min-height:48px !important;
+      border-radius:var(--radius-sm) !important; font-weight:700 !important; font-size:.92rem !important;
+      box-shadow:0 10px 26px rgba(14,107,98,.26) !important;
+      transition:transform .15s ease, box-shadow .15s ease !important; width:100% !important;
+    }
+    .st-key-auth_card .stButton>button[kind="primary"]:hover,
+    .st-key-auth_card [data-testid="stFormSubmitButton"] button:hover {
+      transform:translateY(-1px) !important; box-shadow:0 14px 34px rgba(14,107,98,.32) !important;
+    }
+    .st-key-auth_card .stButton>button:disabled,
+    .st-key-auth_card [data-testid="stFormSubmitButton"] button:disabled {
+      opacity:.55 !important; transform:none !important; box-shadow:none !important; cursor:not-allowed !important;
+    }
+    .st-key-auth_card [data-testid="stForm"] { border:0 !important; padding:0 !important; }
+
+    .google-btn {
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      border:1.5px solid var(--border-strong); border-radius:var(--radius-sm);
+      padding:12px 16px; min-height:48px; background:#fff; font-size:.88rem; font-weight:600;
+      color:var(--ink-700); text-decoration:none; transition:box-shadow .15s ease, border-color .15s ease;
+    }
+    .google-btn:hover { border-color:var(--ink-300); box-shadow:var(--shadow-md); }
+
+    .auth-divider { display:flex; align-items:center; gap:10px; margin:10px 0; }
+    .auth-divider .line { flex:1; height:1px; background:var(--border); }
+    .auth-divider span { font-size:.72rem; color:var(--ink-300); }
+
+    .auth-link { color:var(--teal-700); font-size:.78rem; font-weight:600; text-decoration:none; }
+    .auth-link:hover { text-decoration:underline; }
+    .st-key-login_options [data-testid="stHorizontalBlock"] { align-items:center; }
+    .st-key-login_options [data-testid="stColumn"] { min-width:0 !important; }
+    .st-key-reg_actions [data-testid="stHorizontalBlock"] { align-items:stretch; }
+    .st-key-reg_actions [data-testid="stColumn"] { min-width:0 !important; }
+
+    .security-note { display:flex; align-items:center; justify-content:center; gap:6px; font-size:.72rem; color:var(--ink-500); margin-top:8px; }
+    .security-note .material-symbols-outlined { font-size:15px; color:var(--ink-300); }
+
+    .success-banner {
+      background:#ECFDF5; border:1px solid rgba(14,159,110,.28); border-radius:var(--radius-sm);
+      padding:11px 14px; display:flex; align-items:center; gap:10px; font-size:.82rem; color:#065F46; margin-bottom:16px;
+    }
+
+    .auth-section-label {
+      font-size:.66rem; font-weight:700; color:var(--ink-500); text-transform:uppercase;
+      letter-spacing:.09em; margin:18px 0 8px;
+    }
+
+    .auth-view-marker { display:none; }
+    @media (prefers-reduced-motion:no-preference) {
+      .st-key-auth_card:has(.view-signin) {
+        animation:authViewFromLeft 420ms cubic-bezier(.2,.85,.25,1) both;
+      }
+      .st-key-auth_card:has(.view-register) {
+        animation:authViewFromRight 420ms cubic-bezier(.2,.85,.25,1) both;
+      }
+      .st-key-auth_card:has(.step-one) {
+        animation:authViewFromRight 420ms cubic-bezier(.2,.85,.25,1) both;
+      }
+      .st-key-auth_card:has(.step-two) {
+        animation:authViewFromRight 420ms cubic-bezier(.2,.85,.25,1) both;
+      }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .st-key-auth_card *, .st-key-seg_track * { animation:none !important; transition:none !important; }
+    }
+    @keyframes authViewFromLeft {
+      from { opacity:0; transform:translateX(-16px) scale(.992); }
+      to { opacity:1; transform:translateX(0) scale(1); }
+    }
+    @keyframes authViewFromRight {
+      from { opacity:0; transform:translateX(16px) scale(.992); }
+      to { opacity:1; transform:translateX(0) scale(1); }
+    }
+
+    .auth-footer {
+      text-align:center; font-size:.72rem; color:var(--ink-300); margin-top:22px;
+      padding-top:16px; border-top:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+
+    button:focus-visible, input:focus-visible, a:focus-visible {
+      outline:3px solid rgba(23,163,152,.45) !important; outline-offset:2px !important;
+    }
+
+    @media (min-width:768px) and (max-width:1099px) {
+      .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child { flex-basis:38% !important; }
+      .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child { flex-basis:62% !important; }
+      .st-key-hero_panel { padding:32px 26px; }
+      .hero-headline { font-size:2rem; }
+      .hero-copy { font-size:.9rem; }
+      .hero-visual-card { padding:16px; }
+      .st-key-auth_region { padding:24px; }
+    }
+    @media (min-width:1100px) and (max-height:820px) {
+      .st-key-hero_panel { padding:32px 48px; }
+      .hero-headline { font-size:2.45rem; margin-bottom:10px; }
+      .hero-copy { font-size:.92rem; line-height:1.5; margin-bottom:18px; }
+      .hero-visual-card { padding:15px 20px; }
+      .hvc-head { margin-bottom:8px; }
+      .hvc-row { padding:6px 0; }
+      .hero-footnote { margin-top:12px; }
+      .st-key-auth_region { padding:20px 40px; }
+      .st-key-auth_card { padding:24px 34px; }
+      .auth-subtitle { margin-bottom:12px; }
+      .st-key-seg_track { margin-bottom:10px; }
+      .auth-divider { margin:8px 0; }
+      .auth-footer { margin-top:10px; padding-top:10px; }
+    }
+    @media (max-width:767px) {
+      div[data-testid="stElementContainer"]:has(.mobile-brand-bar) { display:block; }
+      .mobile-brand-bar { display:flex !important; }
+      .st-key-auth_shell, .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] { min-height:auto; }
+      .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] { display:flex; flex-direction:column-reverse; }
+      .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+        width:100% !important; flex:1 1 100% !important;
+      }
+      .st-key-hero_panel { display:none !important; }
+      .st-key-auth_region { min-height:auto; padding:20px 16px 40px; }
+      .st-key-auth_card, .st-key-auth_card:has(.register-step) {
+        width:100%; border-radius:var(--radius-lg); padding:26px 28px;
+      }
+      .auth-title { font-size:1.55rem; }
+      .auth-subtitle { margin-bottom:14px; }
+      .st-key-seg_track { margin-bottom:12px; }
+      .st-key-seg_track [data-testid="stHorizontalBlock"],
+      .st-key-login_options [data-testid="stHorizontalBlock"],
+      .st-key-reg_actions [data-testid="stHorizontalBlock"] {
+        display:flex !important; flex-direction:row !important; flex-wrap:nowrap !important;
+      }
+      .st-key-seg_track [data-testid="stColumn"] { width:50% !important; flex:1 1 50% !important; }
+      .st-key-login_options [data-testid="stColumn"] { width:50% !important; flex:1 1 50% !important; }
+      .st-key-reg_actions [data-testid="stColumn"]:first-child { width:34% !important; flex:1 1 34% !important; }
+      .st-key-reg_actions [data-testid="stColumn"]:last-child { width:66% !important; flex:1 1 66% !important; }
+      .auth-divider { margin:10px 0; }
+      .auth-footer { margin-top:12px; padding-top:12px; }
+      .security-note { margin-top:8px; }
+    }
+
+    /* Premium Clinical Editorial foundation */
+    [data-testid="stAppViewContainer"], .st-key-auth_shell { background:#F7F8F5 !important; }
+    .auth-page-header { height:72px; display:flex; align-items:center; border-bottom:1px solid #E3E8E5; background:rgba(247,248,245,.94); }
+    .auth-header-inner { width:min(1280px, calc(100% - 64px)); margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+    .auth-brand { display:flex; align-items:center; gap:11px; color:#102A2A; font-family:'Plus Jakarta Sans',sans-serif; font-size:1.05rem; font-weight:800; letter-spacing:-.02em; }
+    .auth-brand-mark { width:38px; height:38px; display:block; }
+    .auth-header-actions { display:flex; align-items:center; gap:28px; font-size:.78rem; }
+    .auth-header-actions a { color:#53615E; text-decoration:none; font-weight:600; }
+    .auth-header-actions a:hover { color:#0F766E; }
+    .workspace-status { display:flex; align-items:center; gap:8px; color:#63706D; }
+    .workspace-status > span { width:7px; height:7px; border-radius:50%; background:#0F766E; box-shadow:0 0 0 3px #E6F0EC; }
+
+    .st-key-auth_shell { min-height:calc(100dvh - 72px); }
+    .st-key-auth_shell > [data-testid="stLayoutWrapper"] { width:min(1280px, calc(100% - 64px)); margin:0 auto; }
+    .st-key-auth_shell > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] { min-height:calc(100dvh - 72px); }
+    .st-key-hero_panel, .st-key-auth_region { min-height:calc(100dvh - 72px); }
+    .st-key-hero_panel { background:transparent; padding:clamp(34px,4vw,60px) clamp(12px,3vw,42px) clamp(30px,3vw,48px) 0; }
+    .hero-inner { max-width:680px; margin:0; justify-content:center; gap:clamp(18px,3vh,30px); }
+    .hero-copy-block { max-width:620px; }
+    .hero-kicker { margin-bottom:13px; color:#0F766E; font-size:.7rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .hero-headline { max-width:620px; margin:0 0 18px; color:#102A2A; font-size:clamp(2.65rem,3.7vw,4rem); line-height:1.03; letter-spacing:-.05em; }
+    .hero-copy { max-width:540px; margin:0; color:#63706D; font-size:1rem; line-height:1.65; }
+    .care-visual { width:min(100%,660px); }
+    .care-visual svg { display:block; width:100%; height:auto; }
+    .hero-trust { display:flex; align-items:center; gap:9px; color:#53615E; font-size:.76rem; font-weight:600; }
+    .hero-trust > span { width:22px; height:1px; background:#0F766E; }
+
+    .st-key-auth_region { padding:24px 0 24px clamp(28px,4vw,58px); }
+    .st-key-auth_card, .st-key-auth_card:has(.register-step) { width:min(100%,470px); border:1px solid #E1E7E4; border-radius:16px; box-shadow:0 18px 50px rgba(24,52,48,.07); padding:36px 40px; }
+    .st-key-auth_card > div[data-testid="stVerticalBlock"] { gap:.48rem !important; }
+    .auth-eyebrow { justify-content:flex-start; margin:0 0 3px; color:#0F766E; font-size:.66rem; letter-spacing:.11em; }
+    .auth-title { text-align:left; color:#102A2A; font-size:1.75rem; letter-spacing:-.035em; }
+    .auth-subtitle { text-align:left; margin:2px 0 15px; color:#63706D; font-size:.84rem; }
+    .st-key-seg_track { padding:0; margin:0 0 12px; border:0; border-bottom:1px solid #DDE4E1; border-radius:0; background:transparent; }
+    .st-key-seg_track .stButton>button { min-height:40px !important; padding:0 8px !important; border-radius:0 !important; background:transparent !important; box-shadow:none !important; }
+    .st-key-auth_card .st-key-seg_track .stButton>button[kind="primary"] { color:#0F766E !important; background:#F1F7F4 !important; border:0 !important; box-shadow:none !important; animation:activeTabWash 460ms cubic-bezier(.2,.8,.2,1) both; }
+    .st-key-auth_card .st-key-seg_track .stButton>button[kind="secondary"] { color:#71807C !important; background:transparent !important; border:0 !important; box-shadow:none !important; }
+    .st-key-seg_track .stButton>button p { color:inherit !important; }
+    .st-key-seg_track { position:relative; overflow:visible; }
+    .st-key-seg_track::after {
+      content:""; position:absolute; z-index:2; left:0; bottom:-1px; width:50%; height:2px;
+      border-radius:999px; background:#0F766E; pointer-events:none;
+      box-shadow:0 2px 9px rgba(15,118,110,.32);
+    }
+    @media (prefers-reduced-motion:no-preference) {
+      .st-key-seg_track:has([data-testid="stColumn"]:first-child button[kind="primary"])::after {
+        animation:tabIndicatorLeft 480ms cubic-bezier(.2,.9,.25,1) both;
+      }
+      .st-key-seg_track:has([data-testid="stColumn"]:last-child button[kind="primary"])::after {
+        animation:tabIndicatorRight 480ms cubic-bezier(.2,.9,.25,1) both;
+      }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .st-key-seg_track:has([data-testid="stColumn"]:first-child button[kind="primary"])::after { transform:translateX(0); }
+      .st-key-seg_track:has([data-testid="stColumn"]:last-child button[kind="primary"])::after { transform:translateX(100%); }
+    }
+    @keyframes tabIndicatorLeft {
+      0% { opacity:.35; transform:translateX(100%) scaleX(.55); }
+      62% { opacity:1; transform:translateX(-4%) scaleX(1.08); }
+      100% { opacity:1; transform:translateX(0) scaleX(1); }
+    }
+    @keyframes tabIndicatorRight {
+      0% { opacity:.35; transform:translateX(0) scaleX(.55); }
+      62% { opacity:1; transform:translateX(104%) scaleX(1.08); }
+      100% { opacity:1; transform:translateX(100%) scaleX(1); }
+    }
+    @keyframes activeTabWash {
+      from { background:transparent; }
+      to { background:#F1F7F4; }
+    }
+    .st-key-seg_track .stButton>button[kind="secondary"]:hover { color:#102A2A !important; background:transparent !important; }
+    .google-btn { min-height:48px; padding:0 16px; border:1px solid #D7E0DC; border-radius:10px; color:#253C39; font-size:.84rem; }
+    .google-btn:hover { border-color:#97ADA6; box-shadow:0 5px 15px rgba(24,52,48,.06); }
+    .st-key-auth_card [data-testid="stTextInputRootElement"] { min-height:50px; overflow:hidden; border:1px solid #CAD5D1; border-radius:10px; background:#fff; transition:border-color .18s ease, box-shadow .18s ease; }
+    .st-key-auth_card [data-testid="stTextInputRootElement"]:focus-within { border-color:#0F766E; box-shadow:0 0 0 3px rgba(15,118,110,.12); }
+    .st-key-auth_card .stTextInput input { min-height:48px !important; border:0 !important; border-radius:0 !important; background:transparent !important; box-shadow:none !important; }
+    .st-key-auth_card .stButton>button[kind="primary"], .st-key-auth_card [data-testid="stFormSubmitButton"] button { min-height:50px !important; border-radius:10px !important; background:#0F766E !important; box-shadow:none !important; color:#fff !important; }
+    .st-key-auth_card .stButton>button[kind="primary"] p, .st-key-auth_card [data-testid="stFormSubmitButton"] button p { color:inherit !important; }
+    .st-key-auth_card .stButton>button[kind="primary"]:hover, .st-key-auth_card [data-testid="stFormSubmitButton"] button:hover { background:#0B655E !important; box-shadow:0 6px 16px rgba(15,118,110,.14) !important; }
+    .auth-divider { margin:9px 0; }
+    .security-note { justify-content:flex-start; margin-top:8px; color:#71807C; }
+    .auth-section-label { margin:12px 0 7px; }
+
+    @media (min-width:1100px) and (max-height:820px) {
+      .st-key-hero_panel { padding-top:26px; padding-bottom:26px; }
+      .hero-inner { gap:14px; }
+      .hero-headline { font-size:3rem; margin-bottom:10px; }
+      .hero-copy { line-height:1.5; }
+      .care-visual { width:min(92%,540px); }
+      .st-key-auth_card, .st-key-auth_card:has(.register-step) { padding:27px 34px; }
+    }
+    @media (min-width:768px) and (max-width:1099px) {
+      .st-key-auth_shell > [data-testid="stLayoutWrapper"] { width:calc(100% - 40px); }
+      .st-key-hero_panel { padding-right:24px; }
+      .hero-headline { font-size:2.5rem; }
+      .care-visual { opacity:.78; }
+      .st-key-auth_region { padding-left:24px; }
+    }
+    @media (max-width:767px) {
+      .auth-page-header { height:64px; }
+      .auth-header-inner { width:calc(100% - 32px); }
+      .auth-header-actions a { display:none; }
+      .workspace-status { font-size:0; }
+      .workspace-status::after { content:'Secure'; font-size:.72rem; }
+      .st-key-auth_shell { min-height:calc(100dvh - 64px); }
+      .st-key-auth_shell > [data-testid="stLayoutWrapper"] { width:100%; }
+      .st-key-auth_region { min-height:auto; padding:22px 16px 30px; }
+      .st-key-auth_card, .st-key-auth_card:has(.register-step) { padding:28px 24px; border-radius:14px; }
+      .auth-title { font-size:1.55rem; }
+    }
     </style>
     """, unsafe_allow_html=True)
 
-    col_hero, _sp, col_form = st.columns([1.15, 0.06, 1.0])
-
-    # ── HERO ──
-    with col_hero:
-        st.markdown(f"""
-        <div class="login-hero">
-          <div>
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:36px;">
-              <div style="width:44px;height:44px;border-radius:14px;
-                background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
-                display:flex;align-items:center;justify-content:center;font-size:22px;">&#10133;</div>
-              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
-                font-size:1.05rem;color:#fff;">Bagmati Care</span>
-            </div>
-            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2.1rem;
-              font-weight:800;color:#fff;line-height:1.2;letter-spacing:-.03em;margin-bottom:14px;">
-              Smarter<br/>Healthcare<br/>Planning
-            </div>
-            <div style="font-size:.92rem;color:rgba(255,255,255,.68);line-height:1.65;margin-bottom:28px;">
-              AI-powered tools helping patients across the Bagmati Region understand
-              hospital costs, stay durations, and the best time to seek care.
-            </div>
-            <div style="display:flex;gap:12px;margin-bottom:28px;">
-              <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
-                border-radius:12px;padding:14px 16px;">
-                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;
-                  font-weight:800;color:#fff;">120k+</div>
-                <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:2px;
-                  text-transform:uppercase;letter-spacing:.06em;">Admissions</div>
-              </div>
-              <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
-                border-radius:12px;padding:14px 16px;">
-                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;
-                  font-weight:800;color:#fff;">5</div>
-                <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:2px;
-                  text-transform:uppercase;letter-spacing:.06em;">Hospitals</div>
-              </div>
-              <div style="flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
-                border-radius:12px;padding:14px 16px;">
-                <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;
-                  font-weight:800;color:#fff;">4 yrs</div>
-                <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:2px;
-                  text-transform:uppercase;letter-spacing:.06em;">2021&#8211;2024</div>
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-size:.87rem;">
-                <div style="width:7px;height:7px;border-radius:50%;background:#0D9E6A;flex-shrink:0;"></div>
-                Personalised cost and stay estimates
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-size:.87rem;">
-                <div style="width:7px;height:7px;border-radius:50%;background:#0D9E6A;flex-shrink:0;"></div>
-                Real-time hospital capacity insights
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-size:.87rem;">
-                <div style="width:7px;height:7px;border-radius:50%;background:#0D9E6A;flex-shrink:0;"></div>
-                Best season to visit, by department
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.78);font-size:.87rem;">
-                <div style="width:7px;height:7px;border-radius:50%;background:#0D9E6A;flex-shrink:0;"></div>
-                Privacy-first &#8212; no medical records stored without consent
-              </div>
-            </div>
-          </div>
-          <div style="margin-top:32px;">
-            <div style="display:inline-flex;align-items:center;gap:6px;
-              background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
-              border-radius:9999px;padding:6px 14px;font-size:.7rem;color:rgba(255,255,255,.55);
-              letter-spacing:.04em;">
-              &#127891; Coventry University &#183; Synthetic Research Data
-            </div>
-          </div>
+    st.markdown("""
+    <div class="auth-page-header" role="banner">
+      <div class="auth-header-inner">
+        <div class="auth-brand" aria-label="Bagmati Care">
+          <svg class="auth-brand-mark" viewBox="0 0 40 40" role="img" aria-label="Bagmati Care mark">
+            <path d="M20 3.5C13 3.5 7.2 7.8 7.2 14.6c0 9.2 12.8 21.9 12.8 21.9s12.8-12.7 12.8-21.9C32.8 7.8 27 3.5 20 3.5Z" fill="#E6F0EC" stroke="#0F766E" stroke-width="1.5"/>
+            <path d="M20 10v9m-4.5-4.5h9" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="20" cy="25.5" r="2.2" fill="#4D7CFE"/>
+          </svg>
+          <span>Bagmati Care</span>
         </div>
-        """, unsafe_allow_html=True)
+        <div class="auth-header-actions">
+          <a href="mailto:support@bagmaticare.local">Help &amp; support</a>
+          <span class="workspace-status"><span aria-hidden="true"></span>Secure workspace</span>
+        </div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # ── FORM PANEL ──
-    with col_form:
-        st.markdown("<br>", unsafe_allow_html=True)
-        view = st.session_state.login_view  # "signin" | "register"
+    with st.container(key="auth_shell", border=False):
+        hero_col, form_col = st.columns([56, 44], gap=None, vertical_alignment="center")
 
-        # ── Tab switcher ─────────────────────────────────────────────────────
-        tc1, tc2 = st.columns(2)
-        with tc1:
-            if st.button("Sign In", use_container_width=True,
-                         type="primary" if view == "signin" else "secondary",
-                         key="tab_btn_signin"):
-                st.session_state.login_view = "signin"
-                st.rerun()
-        with tc2:
-            if st.button("Create Account", use_container_width=True,
-                         type="primary" if view == "register" else "secondary",
-                         key="tab_btn_reg"):
-                st.session_state.login_view = "register"
-                st.rerun()
-        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        # ── HERO ──
+        with hero_col.container(key="hero_panel", border=False):
+            st.markdown("""
+            <div class="hero-inner">
+              <div class="hero-copy-block">
+                <div class="hero-kicker">Clinical operations workspace</div>
+                <div class="hero-headline">Hospital operations,<br>brought into focus.</div>
+                <div class="hero-copy">See patient flow, capacity and workforce needs in one secure planning workspace.</div>
+              </div>
+              <div class="care-visual" aria-label="Abstract care pathway illustration">
+                <svg viewBox="0 0 660 330" role="img">
+                  <defs>
+                    <linearGradient id="careSage" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#EFF5F1"/><stop offset="1" stop-color="#DDEBE6"/></linearGradient>
+                    <filter id="careShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#173F3B" flood-opacity=".08"/></filter>
+                  </defs>
+                  <path d="M48 247C111 196 145 215 198 168S285 87 350 130s76 114 139 82 72-99 126-111" fill="none" stroke="#B9D2C9" stroke-width="42" stroke-linecap="round" opacity=".55"/>
+                  <path d="M48 247C111 196 145 215 198 168S285 87 350 130s76 114 139 82 72-99 126-111" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 9"/>
+                  <g filter="url(#careShadow)">
+                    <rect x="70" y="185" width="132" height="86" rx="16" fill="white" stroke="#D8E5E0"/>
+                    <path d="M95 238v-27h22v27m-11-36v45m-22-22h44" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round"/>
+                    <rect x="258" y="74" width="152" height="112" rx="18" fill="url(#careSage)" stroke="#CADFD7"/>
+                    <path d="M292 155v-42h84v42M315 113V91h38v22M304 130h10m38 0h10m-58 14h10m38 0h10" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round"/>
+                    <rect x="474" y="171" width="116" height="78" rx="16" fill="white" stroke="#D8E5E0"/>
+                    <circle cx="516" cy="204" r="12" fill="#E6F0EC"/><path d="M516 197v14m-7-7h14" stroke="#0F766E" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M539 200h28m-28 10h18m-18 10h24" stroke="#9AB7AE" stroke-width="2" stroke-linecap="round"/>
+                  </g>
+                  <circle cx="48" cy="247" r="7" fill="#4D7CFE"/><circle cx="198" cy="168" r="7" fill="#0F766E"/><circle cx="350" cy="130" r="7" fill="#4D7CFE"/><circle cx="489" cy="212" r="7" fill="#0F766E"/><circle cx="615" cy="101" r="7" fill="#4D7CFE"/>
+                </svg>
+              </div>
+              <div class="hero-trust"><span aria-hidden="true"></span>Designed for secure hospital planning.</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        # ── Sign In view ─────────────────────────────────────────────────────
-        if view == "signin":
-            # Success banner from registration
-            if st.session_state.reg_success:
-                name = st.session_state.reg_success
+        # ── FORM PANEL ──
+        with form_col.container(key="auth_region", border=False):
+            with st.container(key="auth_card", border=False):
+
+                _auth_title = "Welcome back" if view == "signin" else "Create your account"
+                _auth_sub = ("Sign in to your secure hospital planning workspace."
+                             if view == "signin" else
+                             "Create secure access. You stay in control of what health information is saved.")
                 st.markdown(f"""
-                <div style="background:#D1FAE5;border:1px solid rgba(5,150,105,.25);border-radius:10px;
-                  padding:12px 16px;display:flex;align-items:center;gap:10px;
-                  font-size:.84rem;color:#065F46;margin-bottom:16px;">
-                  <span style="font-size:1.2rem;">&#127881;</span>
-                  <div><strong>Account created!</strong> Welcome, {name}. Sign in below.</div>
-                </div>
+                <div class="auth-view-marker view-{view}" aria-hidden="true"></div>
+                <div class="auth-eyebrow">Secure patient access</div>
+                <div class="auth-title">{_auth_title}</div>
+                <div class="auth-subtitle">{_auth_sub}</div>
                 """, unsafe_allow_html=True)
-                st.session_state.reg_success = ""
 
-            st.markdown(f"""
-            <div style="margin-bottom:18px;">
-              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;
-                font-weight:700;color:{t['t1']};letter-spacing:-.02em;">Welcome back</div>
-              <div style="font-size:.875rem;color:{t['t2']};margin-top:4px;">
-                Sign in to access your portal.
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
+                # ── Segmented control ───────────────────────────────────────
+                with st.container(key="seg_track", border=False):
+                    tc1, tc2 = st.columns(2)
+                    with tc1:
+                        if st.button("Sign In", use_container_width=True,
+                                     type="primary" if view == "signin" else "secondary",
+                                     key="tab_btn_signin"):
+                            st.session_state.login_view = "signin"
+                            st.session_state.reg_step = 1
+                            st.rerun()
+                    with tc2:
+                        if st.button("Create Account", use_container_width=True,
+                                     type="primary" if view == "register" else "secondary",
+                                     key="tab_btn_reg"):
+                            st.session_state.login_view = "register"
+                            st.session_state.reg_step = 1
+                            st.rerun()
 
-            # ── SSO error from OAuth callback ────────────────────────────
-            if st.session_state.get("_sso_error"):
-                st.error(st.session_state.pop("_sso_error"))
+                # ── Sign In view ─────────────────────────────────────────────
+                if view == "signin":
+                    if st.session_state.reg_success:
+                        name = st.session_state.reg_success
+                        st.markdown(f"""
+                        <div class="success-banner">
+                          <span aria-hidden="true" style="font-size:18px;">★</span>
+                          <div><strong>Account created!</strong> Welcome, {name}. Sign in below.</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.session_state.reg_success = ""
 
-            # ── Google SSO button ─────────────────────────────────────────
-            if config.GOOGLE_CLIENT_ID:
-                _g_state = secrets.token_urlsafe(12)
-                st.session_state["_oauth_state"] = _g_state
-                _g_url = get_google_auth_url(_g_state)
-                st.markdown(
-                    f'<a href="{_g_url}" target="_self" style="display:block;text-decoration:none;">'
-                    f'<div style="display:flex;align-items:center;justify-content:center;gap:10px;'
-                    f'border:1.5px solid #E2E8F0;border-radius:10px;padding:10px 16px;'
-                    f'background:#fff;cursor:pointer;font-size:.88rem;font-weight:600;color:#374151;'
-                    f'transition:box-shadow .15s;">'
-                    f'<svg width="18" height="18" viewBox="0 0 48 48">'
-                    f'<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>'
-                    f'<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>'
-                    f'<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>'
-                    f'<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>'
-                    f'</svg>'
-                    f'Sign in with Google'
-                    f'</div></a>',
-                    unsafe_allow_html=True,
-                )
-                st.markdown(
-                    f'<div style="display:flex;align-items:center;gap:10px;margin:14px 0;">'
-                    f'<div style="flex:1;height:1px;background:#E2E8F0;"></div>'
-                    f'<div style="font-size:.75rem;color:#94A3B8;">or sign in with username</div>'
-                    f'<div style="flex:1;height:1px;background:#E2E8F0;"></div>'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
+                    if st.session_state.get("_sso_error"):
+                        st.error(st.session_state.pop("_sso_error"))
 
-            with st.form("login_form", clear_on_submit=False):
-                username  = st.text_input("Username", placeholder="Your username")
-                password  = st.text_input("Password", type="password", placeholder="Your password")
-                submitted = st.form_submit_button("Sign In  →", use_container_width=True, type="primary")
+                    if config.GOOGLE_CLIENT_ID:
+                        _g_state = secrets.token_urlsafe(12)
+                        st.session_state["_oauth_state"] = _g_state
+                        _g_url = get_google_auth_url(_g_state)
+                        st.markdown(
+                            f'<a href="{_g_url}" target="_self" class="google-btn">'
+                            f'<svg width="18" height="18" viewBox="0 0 48 48">'
+                            f'<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>'
+                            f'<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>'
+                            f'<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>'
+                            f'<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>'
+                            f'</svg>'
+                            f'Continue with Google'
+                            f'</a>',
+                            unsafe_allow_html=True,
+                        )
+                        st.markdown(
+                            '<div class="auth-divider"><div class="line"></div>'
+                            '<span>or continue with credentials</span><div class="line"></div></div>',
+                            unsafe_allow_html=True,
+                        )
 
-            if submitted:
-                if not username or not password:
-                    st.error("Please enter both username and password.")
+                    with st.form("login_form", clear_on_submit=False):
+                        username = st.text_input("Username", placeholder="Enter your username",
+                                                 icon=":material/person:", autocomplete="username",
+                                                 key="login_username")
+                        password = st.text_input("Password", type="password",
+                                                 placeholder="Enter your password",
+                                                 icon=":material/lock:", autocomplete="current-password",
+                                                 key="login_password")
+                        with st.container(key="login_options", border=False):
+                            opt_remember, opt_forgot = st.columns([1, 1])
+                            with opt_remember:
+                                st.checkbox("Remember me", key="remember_login")
+                            with opt_forgot:
+                                st.markdown('<div style="text-align:right;padding-top:9px;">'
+                                            '<a href="?forgot=1" class="auth-link">Forgot password?</a></div>',
+                                            unsafe_allow_html=True)
+                        submitted = st.form_submit_button("Sign in securely", use_container_width=True,
+                                                          type="primary", icon=":material/login:")
+
+                    if st.query_params.get("forgot") == "1":
+                        st.caption("Password recovery is managed by your workspace administrator.")
+
+                    if submitted:
+                        if not username or not password:
+                            st.error("Please enter both username and password.")
+                        else:
+                            with st.spinner("Signing you in…"):
+                                role = verify_user(username, password)
+                            if role:
+                                st.session_state.logged_in  = True
+                                st.session_state.username   = username
+                                st.session_state.role       = role
+                                st.session_state.login_view = "signin"
+                                _save_session(username, role)
+                                st.rerun()
+                            else:
+                                st.error("Incorrect username or password. Please try again.")
+
+                    st.markdown("""
+                    <div class="security-note">
+                      Health information is saved only when you explicitly consent.
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                # ── Register view ────────────────────────────────────────────
                 else:
-                    role = verify_user(username, password)
-                    if role:
-                        st.session_state.logged_in  = True
-                        st.session_state.username   = username
-                        st.session_state.role       = role
-                        st.session_state.login_view = "signin"
-                        _save_session(username, role)
-                        st.rerun()
+                    step = st.session_state.reg_step
+                    st.markdown(
+                        f'<div class="register-step step-{"one" if step == 1 else "two"}"><div class="auth-section-label">Step {step} of 2 &nbsp;·&nbsp; '
+                        f'{"Personal and account information" if step == 1 else "Password, security and consent"}</div></div>',
+                        unsafe_allow_html=True)
+                    if step == 1:
+                        full_name = st.text_input("Full Name", placeholder="e.g. Anita Thapa",
+                                                  icon=":material/badge:", autocomplete="name",
+                                                  key="reg_full_name")
+                        new_user = st.text_input("Username", placeholder="Choose a username (min. 3 characters)",
+                                                 icon=":material/person:", autocomplete="username",
+                                                 key="reg_username")
+
+                        rf1, rf2 = st.columns(2)
+                        with rf1:
+                            import datetime as _dt
+                            st.date_input("Date of Birth", value=None,
+                                          min_value=_dt.date(1900, 1, 1), max_value=_dt.date.today(),
+                                          format="YYYY-MM-DD", key="reg_dob")
+                        with rf2:
+                            st.selectbox("Gender", ["Prefer not to say", "Male", "Female", "Non-binary"],
+                                         key="reg_gender")
+
+                        rf3, rf4 = st.columns(2)
+                        with rf3:
+                            st.text_input("Phone", placeholder="+977 98XXXXXXXX",
+                                          icon=":material/call:", autocomplete="tel", key="reg_phone")
+                        with rf4:
+                            st.text_input("Email", placeholder="you@example.com",
+                                          icon=":material/mail:", autocomplete="email", key="reg_email")
+
+                        st.selectbox("District / City",
+                                     ["— Select —", "Kathmandu", "Lalitpur", "Bhaktapur", "Kavrepalanchok",
+                                      "Sindhupalchok", "Nuwakot", "Rasuwa", "Dhading", "Makwanpur",
+                                      "Chitwan", "Sindhuli", "Ramechhap", "Dolakha", "Other"],
+                                     key="reg_district")
+                        st.caption("Date of birth, gender, phone, email and district are optional — add or update them any time from your profile.")
+
+                        if st.button("Continue to security", type="primary", use_container_width=True,
+                                     icon=":material/arrow_forward:", key="reg_continue"):
+                            if not full_name.strip():
+                                st.error("Full name is required.")
+                            elif len(new_user.strip()) < 3:
+                                st.error("Username must be at least 3 characters.")
+                            else:
+                                # Copied to non-widget keys: values read from a widget's own
+                                # key can silently revert to blank once that widget stops
+                                # being rendered and a later st.form_submit_button fires.
+                                st.session_state.reg_committed_full_name = full_name
+                                st.session_state.reg_committed_username = new_user
+                                _dob_val = st.session_state.reg_dob
+                                st.session_state.reg_committed_dob = _dob_val.isoformat() if _dob_val else ""
+                                st.session_state.reg_committed_gender = st.session_state.reg_gender
+                                st.session_state.reg_committed_phone = st.session_state.reg_phone
+                                st.session_state.reg_committed_email = st.session_state.reg_email
+                                st.session_state.reg_committed_district = st.session_state.reg_district
+                                st.session_state.reg_step = 2
+                                st.rerun()
+                        reg_btn = False
+                        new_pass = confirm_pass = ""
+                        consent = False
                     else:
-                        st.error("Incorrect username or password. Please try again.")
+                        full_name = st.session_state.get("reg_committed_full_name", "")
+                        new_user = st.session_state.get("reg_committed_username", "")
+                        reg_dob = st.session_state.get("reg_committed_dob", "")
+                        reg_gender = st.session_state.get("reg_committed_gender", "Prefer not to say")
+                        reg_phone = st.session_state.get("reg_committed_phone", "")
+                        reg_email = st.session_state.get("reg_committed_email", "")
+                        reg_district = st.session_state.get("reg_committed_district", "— Select —")
+                        rp1, rp2 = st.columns(2)
+                        with rp1:
+                            new_pass = st.text_input("Password", type="password",
+                                                     placeholder="e.g. Nepal@2024!",
+                                                     icon=":material/lock:", autocomplete="new-password",
+                                                     key="reg_password")
+                        with rp2:
+                            confirm_pass = st.text_input("Confirm Password", type="password",
+                                                         placeholder="Repeat password",
+                                                         icon=":material/lock:", autocomplete="new-password",
+                                                         key="reg_confirm")
+                        if new_pass:
+                            password_rules_card(new_pass)
+                        with st.form("register_form", clear_on_submit=False):
+                            consent = st.checkbox(
+                                "I understand that after an estimate I can choose whether to save the "
+                                "health information I entered. If I choose No, it will not be saved.",
+                                key="reg_consent")
+                            with st.container(key="reg_actions", border=False):
+                                back_col, submit_col = st.columns([1, 2])
+                                with back_col:
+                                    back_btn = st.form_submit_button("Back", use_container_width=True)
+                                with submit_col:
+                                    reg_btn = st.form_submit_button(
+                                        "Create account", use_container_width=True,
+                                        type="primary", icon=":material/person_add:")
+                        if back_btn:
+                            st.session_state.reg_step = 1
+                            st.rerun()
 
-        # ── Register view ────────────────────────────────────────────────────
-        else:
-            st.markdown(f"""
-            <div style="margin-bottom:16px;">
-              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;
-                font-weight:700;color:{t['t1']};letter-spacing:-.02em;">Create your account</div>
-              <div style="font-size:.82rem;color:{t['t2']};margin-top:4px;">
-                30 seconds &#183; patient portal only &#183; fill in more details later in your profile
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
+                    if reg_btn:
+                        errors = []
+                        if not full_name.strip():        errors.append("Full name is required.")
+                        if len(new_user.strip()) < 3:    errors.append("Username must be at least 3 characters.")
+                        if new_pass != confirm_pass:     errors.append("Passwords do not match.")
+                        if not consent:                  errors.append("Please confirm that you understand how saving consent works.")
+                        pw_ok, pw_errs = validate_password(new_pass)
+                        if not pw_ok:
+                            errors.extend(pw_errs)
+                        if errors:
+                            for e in errors:
+                                st.error(e)
+                        else:
+                            with st.spinner("Creating your account…"):
+                                ok, msg = register_user(
+                                    new_user.strip(), new_pass, full_name=full_name.strip(),
+                                    dob=reg_dob.strip(), gender=reg_gender,
+                                    phone=reg_phone.strip(), email=reg_email.strip(),
+                                    district=reg_district if reg_district != "— Select —" else "",
+                                )
+                            if ok:
+                                st.session_state.reg_success = full_name.strip().split()[0]
+                                st.session_state.login_view  = "signin"
+                                st.session_state.reg_step = 1
+                                st.rerun()
+                            else:
+                                st.error(msg)
 
-            # Fields outside form so strength meter is live
-            full_name    = st.text_input("Full Name", placeholder="Full Name (e.g. Anita Thapa)",
-                                         key="reg_full_name")
-            new_user     = st.text_input("Username",  placeholder="Username (min. 3 chars)",
-                                         key="reg_username")
-            rp1, rp2     = st.columns(2)
-            with rp1:
-                new_pass     = st.text_input("Password", type="password",
-                                             placeholder="e.g. Nepal@2024!",
-                                             key="reg_password")
-            with rp2:
-                confirm_pass = st.text_input("Confirm Password", type="password",
-                                             placeholder="Repeat password",
-                                             key="reg_confirm")
+                    st.markdown("""
+                    <div class="security-note">
+                      <span aria-hidden="true">✓</span>
+                      You decide whether entered health information is saved after each estimate.
+                    </div>
+                    """, unsafe_allow_html=True)
 
-            password_rules_card(new_pass)
-
-            with st.form("register_form", clear_on_submit=True):
-                consent = st.checkbox(
-                    "I understand this system provides estimates for planning purposes only. "
-                    "My personal medical records are never stored."
-                )
-                reg_btn = st.form_submit_button(
-                    "Create Account  →", use_container_width=True, type="primary")
-
-            if reg_btn:
-                errors = []
-                if not full_name.strip():        errors.append("Full name is required.")
-                if len(new_user.strip()) < 3:    errors.append("Username must be at least 3 characters.")
-                if new_pass != confirm_pass:     errors.append("Passwords do not match.")
-                if not consent:                  errors.append("Please accept the consent checkbox.")
-                pw_ok, pw_errs = validate_password(new_pass)
-                if not pw_ok:
-                    errors.extend(pw_errs)
-                if errors:
-                    for e in errors:
-                        st.error(e)
-                else:
-                    ok, msg = register_user(new_user.strip(), new_pass,
-                                            full_name=full_name.strip())
-                    if ok:
-                        # Switch to sign-in and show success banner
-                        st.session_state.reg_success = full_name.strip().split()[0]
-                        st.session_state.login_view  = "signin"
-                        st.rerun()
-                    else:
-                        st.error(msg)
-
-        st.markdown("""
-        <div style="text-align:center;font-size:.73rem;color:#7A9589;margin-top:24px;">
-          Bagmati Care &#183; Hospital Intelligence System &#183; Research Only
-        </div>
-        """, unsafe_allow_html=True)
 
 
 # ════════════════════════════════════════════════════════════════════════════
