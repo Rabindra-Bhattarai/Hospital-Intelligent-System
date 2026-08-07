@@ -279,13 +279,16 @@ def inject_global_css(t: dict):
         background: {pl} !important; border-radius: 12px !important;
         padding: 4px !important; gap: 2px !important;
         border: 1px solid {bdr} !important;
+        overflow-x: auto !important; scrollbar-width: none;
     }}
+    [data-baseweb="tab-list"]::-webkit-scrollbar {{ display: none; }}
     [data-baseweb="tab"] {{
-        border-radius: 9px !important; padding: 9px 18px !important;
+        border-radius: 9px !important; padding: 9px 15px !important;
         font-weight: 600 !important; font-size: .85rem !important;
         color: {t2} !important; background: transparent !important;
         border: none !important; transition: all .18s !important;
         font-family: 'Inter', sans-serif !important;
+        flex: 0 0 auto !important; white-space: nowrap !important;
     }}
     [aria-selected="true"][data-baseweb="tab"] {{
         background: linear-gradient(135deg,#059669,#10B981) !important;
@@ -378,6 +381,33 @@ def inject_global_css(t: dict):
         transition: box-shadow .18s, transform .18s; height: 100%;
     }}
     .kpi-card:hover {{ box-shadow: 0 6px 24px rgba({shd},.12); transform: translateY(-2px); }}
+
+    .patient-overview {{ margin: 20px 0 22px; }}
+    .patient-overview-head {{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:12px; }}
+    .patient-overview-kicker {{ color:{p}; font-size:.67rem; font-weight:800; letter-spacing:.11em; text-transform:uppercase; margin-bottom:4px; }}
+    .patient-overview-title {{ color:{t1}; font-family:'Plus Jakarta Sans',sans-serif; font-size:1.05rem; font-weight:800; letter-spacing:-.02em; }}
+    .patient-overview-note {{ color:{t3}; font-size:.72rem; }}
+    .patient-overview-grid {{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }}
+    .patient-stat {{ min-width:0; background:#fff; border:1px solid {bdr}; border-radius:14px; padding:16px; box-shadow:0 1px 3px rgba(30,27,75,.035); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }}
+    .patient-stat:hover {{ transform:translateY(-2px); border-color:{t['accent']}; box-shadow:0 9px 24px rgba({shd},.09); }}
+    .patient-stat-top {{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }}
+    .patient-stat-icon {{ width:34px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:{pl}; font-size:17px; }}
+    .patient-stat-value {{ color:{t1}; font-family:'Plus Jakarta Sans',sans-serif; font-size:1.28rem; line-height:1.1; font-weight:800; letter-spacing:-.025em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }}
+    .patient-stat-label {{ color:{t2}; font-size:.76rem; font-weight:650; margin-top:4px; }}
+    .patient-stat-sub {{ color:{t3}; font-size:.68rem; margin-top:7px; line-height:1.4; }}
+    .dashboard-nav-label {{ display:flex; align-items:center; gap:8px; margin:0 0 9px; color:{t2}; font-size:.76rem; font-weight:700; }}
+    .dashboard-nav-label::after {{ content:''; height:1px; flex:1; background:{bdr}; }}
+    @media (max-width: 900px) {{
+        .patient-overview-grid {{ grid-template-columns:repeat(2,minmax(0,1fr)); }}
+        .block-container {{ padding:1.2rem 1rem 2rem !important; }}
+    }}
+    @media (max-width: 520px) {{
+        .patient-overview-head {{ align-items:flex-start; flex-direction:column; gap:3px; }}
+        .patient-overview-grid {{ gap:9px; }}
+        .patient-stat {{ padding:13px; }}
+        .patient-stat-value {{ font-size:1.05rem; }}
+        [data-baseweb="tab"] {{ padding:8px 12px !important; font-size:.8rem !important; }}
+    }}
 
     .welcome-banner {{
         background: linear-gradient(130deg, {sa} 0%, {p} 100%);
@@ -1807,15 +1837,19 @@ def _consent_popup(data: dict, t: dict):
         f'</div></div>',
         unsafe_allow_html=True,
     )
+    st.caption("We'll remember your choice for the rest of this session — you won't be asked again.")
     c1, c2 = st.columns(2, gap="small")
     if c1.button("Yes, save it", type="primary", use_container_width=True):
-        ok = save_estimate_request(data)
-        st.session_state["_est_saved"] = ok
-        st.session_state["_est_consent_done"] = True
+        st.session_state["_consent_choice"] = True
+        st.session_state["_est_saved"] = save_estimate_request(data)
+        st.session_state["_est_awaiting_consent"] = False
+        st.session_state["_est_loading"] = True
         st.rerun()
     if c2.button("No thanks", use_container_width=True):
+        st.session_state["_consent_choice"] = False
         st.session_state["_est_saved"] = False
-        st.session_state["_est_consent_done"] = True
+        st.session_state["_est_awaiting_consent"] = False
+        st.session_state["_est_loading"] = True
         st.rerun()
 
 
@@ -2264,7 +2298,10 @@ def _chat_bubble_html(body: str, is_mine: bool, sent_at=None) -> str:
 def patient_dashboard():
     t = PATIENT_THEME
     inject_global_css(t)
-    render_sidebar(t)
+    # Patients navigate entirely through the "Choose what you want to do" tab bar
+    # below — the sidebar's nav duplicated that, so it's hidden here.
+    st.markdown('<style>[data-testid="stSidebar"] { display:none !important; }</style>',
+                unsafe_allow_html=True)
 
     adm      = load_admissions()
     occ      = load_occupancy()
@@ -2306,6 +2343,46 @@ def patient_dashboard():
         joined     = joined_banner,
     ), unsafe_allow_html=True)
 
+    # A calm, useful landing summary before patients choose a workflow.
+    st.markdown(
+        f'''<section class="patient-overview" aria-labelledby="patient-overview-title">
+          <div class="patient-overview-head">
+            <div>
+              <div class="patient-overview-kicker">At a glance</div>
+              <div class="patient-overview-title" id="patient-overview-title">Plan with confidence</div>
+            </div>
+            <div class="patient-overview-note">Based on anonymised Bagmati hospital records</div>
+          </div>
+          <div class="patient-overview-grid">
+            <div class="patient-stat">
+              <div class="patient-stat-top"><span class="patient-stat-icon" aria-hidden="true">&#127973;</span></div>
+              <div class="patient-stat-value">{n_hospitals}</div>
+              <div class="patient-stat-label">Hospitals to compare</div>
+              <div class="patient-stat-sub">Review capacity, departments and costs.</div>
+            </div>
+            <div class="patient-stat">
+              <div class="patient-stat-top"><span class="patient-stat-icon" aria-hidden="true">&#128719;</span></div>
+              <div class="patient-stat-value">{avg_los:.1f} days</div>
+              <div class="patient-stat-label">Typical hospital stay</div>
+              <div class="patient-stat-sub">Regional average across recorded visits.</div>
+            </div>
+            <div class="patient-stat">
+              <div class="patient-stat-top"><span class="patient-stat-icon" aria-hidden="true">&#8360;</span></div>
+              <div class="patient-stat-value">Rs. {avg_cost:,.0f}</div>
+              <div class="patient-stat-label">Typical admission cost</div>
+              <div class="patient-stat-sub">Use My Estimate for a personal range.</div>
+            </div>
+            <div class="patient-stat">
+              <div class="patient-stat-top"><span class="patient-stat-icon" aria-hidden="true">&#9728;</span></div>
+              <div class="patient-stat-value">{low_season}</div>
+              <div class="patient-stat-label">Quieter season</div>
+              <div class="patient-stat-sub">Average occupancy is {low_occ:.0%} in this period.</div>
+            </div>
+          </div>
+        </section>''',
+        unsafe_allow_html=True,
+    )
+
     _unread_chat = count_unread_for_patient(uname)
     _chat_label  = f"💬  Chat {'🔴' if _unread_chat else ''}"
 
@@ -2319,15 +2396,16 @@ def patient_dashboard():
     _pending_bk = sum(1 for b in list_patient_bookings(uname) if b["status"] == "confirmed")
     _bk_label   = f"📅  My Bookings {'🟢' if _pending_bk else ''}"
 
+    st.markdown('<div class="dashboard-nav-label">Choose what you want to do</div>', unsafe_allow_html=True)
     tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
-        "💰  My Estimate",
-        "📊  What to Expect",
-        "📅  Best Time to Visit",
-        "👴  Age & Cost Guide",
-        "🏥  Compare Hospitals",
-        "👤  My Profile",
-        _chat_label,
+        "💰  Estimate",
+        "📊  Care insights",
+        "📅  Visit timing",
+        "👴  Cost by age",
+        "🏥  Hospitals",
         _bk_label,
+        _chat_label,
+        "👤  Profile",
     ])
 
     # ════ TAB 1: PLANNER ════════════════════════════════════════════════════
@@ -2490,7 +2568,8 @@ def patient_dashboard():
             go_btn = st.button("Get My Estimate  →", type="primary", use_container_width=True)
 
         with col_result:
-            # Compute + cache in session_state so results survive the dialog rerun
+            # Compute + cache in session_state so results survive dialog/loading reruns.
+            # Consent is asked at most once per session — later estimates reuse that choice.
             if go_btn:
                 los_low, los_high   = predict_los(age, severity, admission_type, has_chronic, department)
                 cost_low, cost_high = predict_cost(age, severity, admission_type, has_chronic, department)
@@ -2499,7 +2578,7 @@ def patient_dashboard():
                     if "hospital_id" in occ_h.columns and selected_hosp_id in occ_h["hospital_id"].values
                     else 0.75
                 )
-                st.session_state["_est"] = dict(
+                st.session_state["_est_pending"] = dict(
                     username=uname, age=age, gender=gender, severity=severity,
                     admission_type=admission_type, department=department,
                     hospital_id=selected_hosp_id, has_chronic=has_chronic,
@@ -2511,8 +2590,25 @@ def patient_dashboard():
                     num_chronic=int(num_chronic),
                     hosp_occupancy_at_time=_occ_now,
                 )
-                st.session_state["_est_consent_done"] = False
-                st.session_state["_est_saved"] = None
+                if st.session_state.get("_consent_choice") is None:
+                    st.session_state["_est_awaiting_consent"] = True
+                else:
+                    st.session_state["_est_awaiting_consent"] = False
+                    st.session_state["_est_loading"] = True
+                    st.session_state["_est_saved"] = (
+                        save_estimate_request(st.session_state["_est_pending"])
+                        if st.session_state["_consent_choice"] else False
+                    )
+
+            if st.session_state.get("_est_awaiting_consent"):
+                _consent_popup(st.session_state["_est_pending"], t)
+
+            if st.session_state.get("_est_loading"):
+                with st.spinner("Calculating your personalised estimate…"):
+                    _time.sleep(1.4)
+                st.session_state["_est"] = st.session_state["_est_pending"]
+                st.session_state["_est_loading"] = False
+                st.rerun()
 
             if "_est" in st.session_state:
                 _e = st.session_state["_est"]
@@ -2742,10 +2838,9 @@ def patient_dashboard():
 
                 st.markdown(trust_note(t), unsafe_allow_html=True)
 
-                # ── Consent & save confirmation ───────────────────────────────
-                if not st.session_state.get("_est_consent_done"):
-                    _consent_popup(st.session_state["_est"], t)
-                elif st.session_state.get("_est_saved") is True:
+                # ── Consent & save confirmation (consent itself is resolved before
+                # the estimate is ever shown — see the go_btn / _est_loading gate above) ──
+                if st.session_state.get("_est_saved") is True:
                     st.markdown(
                         f'<div style="background:#F0FDF4;border:1px solid rgba(16,185,129,.2);'
                         f'border-left:4px solid #10B981;border-radius:10px;'
@@ -3267,8 +3362,8 @@ def patient_dashboard():
                                  use_container_width=True):
                         _hospital_popup(hid, occ_h, adm, hosp_df, dept_map, t)
 
-    # ════ TAB 6: MY PROFILE ═════════════════════════════════════════════════
-    with tab6:
+    # ════ TAB 8: MY PROFILE ═════════════════════════════════════════════════
+    with tab8:
         # uname / profile already loaded at top of patient_dashboard()
         joined    = get_user_created_at(uname)
         full_name = p_full
@@ -3575,8 +3670,8 @@ def patient_dashboard():
             st.rerun()
 
 
-    # ════ TAB 8: MY BOOKINGS ════════════════════════════════════════════════
-    with tab8:
+    # ════ TAB 6: MY BOOKINGS ════════════════════════════════════════════════
+    with tab6:
         # Reschedule booking dialog trigger (set by clicking 🔄 on a card)
         if st.session_state.get("_open_reschedule"):
             _est_rs = st.session_state.pop("_reschedule_est", {})
@@ -4407,297 +4502,13 @@ def admin_dashboard():
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# PROFILE PAGE
-# ════════════════════════════════════════════════════════════════════════════
-
-def profile_page():
-    t = PATIENT_THEME
-    inject_global_css(t)
-    render_sidebar(t)
-    render_session_bar()
-
-    uname   = st.session_state.username
-    profile = get_profile(uname)
-    joined  = get_user_created_at(uname)
-
-    full_name = profile.get("full_name") or uname
-
-    # ── Flash message from previous save ──
-    if st.session_state.profile_msg:
-        kind, msg = st.session_state.profile_msg
-        if kind == "ok":
-            st.success(msg)
-        else:
-            st.error(msg)
-        st.session_state.profile_msg = None
-
-    # ── Profile header (navy, thumbnail base64) ────────────────────────────────
-    district_badge = profile.get("district") or "Bagmati Region"
-    blood_badge    = profile.get("blood_type") or "Unknown"
-    occ_badge      = profile.get("occupation") or ""
-    occ_span2      = (f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
-                      f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.8);">'
-                      f'&#128188; {occ_badge}</span>') if occ_badge else ""
-    av_html2    = _avatar_html(uname, 90, t, full_name)
-    patient_id2 = get_patient_id(uname)
-    pid_chip2   = (
-        f'<span style="background:rgba(99,102,241,.25);border:1px solid rgba(99,102,241,.4);'
-        f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.9);'
-        f'font-weight:700;letter-spacing:.03em;">&#127973; {patient_id2}</span>'
-    ) if patient_id2 else ""
-
-    if uname.startswith("google_"):
-        sso_email2 = uname[len("google_"):]
-        sub_line2 = (
-            f'<span style="background:rgba(255,255,255,.15);border-radius:9999px;'
-            f'padding:1px 8px;font-size:.68rem;margin-right:6px;">G Google</span>'
-            f'{sso_email2} &#183; Member since {joined}'
-        )
-    else:
-        sub_line2 = f'@{uname} &#183; Member since {joined}'
-
-    st.markdown(
-        f'<div style="background:linear-gradient(130deg,#0F2447 0%,#1B3A6B 100%);'
-        f'border-radius:20px;padding:26px 30px;margin-bottom:22px;'
-        f'display:flex;align-items:center;gap:22px;overflow:hidden;position:relative;">'
-        f'<div style="position:absolute;right:-40px;top:-50px;width:200px;height:200px;'
-        f'border-radius:50%;background:rgba(255,255,255,.04);"></div>'
-        f'{av_html2}'
-        f'<div style="flex:1;">'
-        f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:1.5rem;font-weight:800;'
-        f'color:#fff;letter-spacing:-.025em;margin-bottom:3px;">{full_name}</div>'
-        f'<div style="font-size:.84rem;color:rgba(255,255,255,.5);margin-bottom:12px;">{sub_line2}</div>'
-        f'<div style="display:flex;flex-wrap:wrap;gap:8px;">'
-        f'{pid_chip2}'
-        f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
-        f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.8);">'
-        f'&#128205; {district_badge}</span>'
-        f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
-        f'border-radius:9999px;padding:3px 12px;font-size:.72rem;color:rgba(255,255,255,.8);">'
-        f'&#129656; {blood_badge}</span>'
-        f'{occ_span2}'
-        f'</div>'
-        f'</div>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-    # ── Photo upload (outside form for instant preview) ─────────────────────
-    with st.expander("📷  Change profile photo", expanded=False):
-        uploaded_photo = st.file_uploader(
-            "Upload a photo (JPG or PNG, max 2 MB)",
-            type=["jpg","jpeg","png"], key="avatar_uploader",
-        )
-        if uploaded_photo:
-            if uploaded_photo.size > 2_000_000:
-                st.error("File too large. Please upload a photo under 2 MB.")
-            else:
-                img_bytes = uploaded_photo.read()
-                ext       = uploaded_photo.name.rsplit(".", 1)[-1].lower()
-                ok, result = save_avatar(uname, img_bytes, ext)
-                if ok:
-                    st.session_state.profile_msg = ("ok", "Profile photo updated!")
-                    st.rerun()
-                else:
-                    st.error(f"Upload failed: {result}")
-
-    # ── Three editing tabs ───────────────────────────────────────────────────
-    tab_p, tab_h, tab_s = st.tabs([
-        "👤  Personal Info",
-        "🩺  Health Profile",
-        "🔒  Security",
-    ])
-
-    # ── TAB: Personal Info ──────────────────────────────────────────────────
-    with tab_p:
-        st.markdown(f"""
-        <div style="background:{t['p_light']};border:1px solid {t['border']};border-radius:12px;
-          padding:12px 16px;font-size:.82rem;color:{t['t2']};margin-bottom:18px;
-          display:flex;align-items:flex-start;gap:10px;">
-          <span>&#128274;</span>
-          <span>Your personal details are stored <strong>only in your account database</strong>.
-          They are never shared or used for any purpose beyond display in this app.</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-        with st.form("form_personal"):
-            st.markdown(f"<div class='schip'><span class='schip-label'>Basic Details</span>"
-                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
-            pf1, pf2 = st.columns(2)
-            with pf1:
-                v_full   = st.text_input("Full Name", value=profile.get("full_name",""))
-            with pf2:
-                v_gender = st.selectbox("Gender", ["Prefer not to say","Male","Female","Non-binary"],
-                    index=["Prefer not to say","Male","Female","Non-binary"].index(
-                        profile.get("gender","Prefer not to say")
-                        if profile.get("gender") in ["Prefer not to say","Male","Female","Non-binary"]
-                        else "Prefer not to say"))
-            pf3, pf4 = st.columns(2)
-            with pf3:
-                v_dob = st.text_input("Date of Birth (YYYY-MM-DD)", value=profile.get("dob",""),
-                                      placeholder="e.g. 1995-08-22")
-            with pf4:
-                district_opts = ["— Select —","Kathmandu","Lalitpur","Bhaktapur","Kavrepalanchok",
-                    "Sindhupalchok","Nuwakot","Rasuwa","Dhading","Makwanpur",
-                    "Chitwan","Sindhuli","Ramechhap","Dolakha","Other"]
-                saved_dist = profile.get("district","— Select —") or "— Select —"
-                idx_d = district_opts.index(saved_dist) if saved_dist in district_opts else 0
-                v_district = st.selectbox("District / City", district_opts, index=idx_d)
-
-            st.markdown(f"<div class='schip'><span class='schip-label'>Contact</span>"
-                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
-            pf5, pf6 = st.columns(2)
-            with pf5:
-                v_phone = st.text_input("Phone", value=profile.get("phone",""),
-                                        placeholder="+977 98XXXXXXXX")
-            with pf6:
-                v_email = st.text_input("Email", value=profile.get("email",""),
-                                        placeholder="you@example.com")
-
-            st.markdown(f"<div class='schip'><span class='schip-label'>Preferences</span>"
-                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
-            hosp_opts = ["Any hospital","Hospital 1 — Kathmandu","Hospital 2 — Lalitpur",
-                         "Hospital 3 — Bhaktapur","Hospital 4 — Kavrepalanchok",
-                         "Hospital 5 — Sindhupalchok"]
-            saved_h = profile.get("pref_hospital","Any hospital") or "Any hospital"
-            idx_h   = hosp_opts.index(saved_h) if saved_h in hosp_opts else 0
-            v_hosp  = st.selectbox("Preferred Hospital", hosp_opts, index=idx_h)
-
-            save_p = st.form_submit_button("Save Personal Info", use_container_width=True, type="primary")
-
-        if save_p:
-            ok, msg = save_profile(uname, {
-                "full_name": v_full, "gender": v_gender, "dob": v_dob,
-                "district": v_district if v_district != "— Select —" else "",
-                "phone": v_phone, "email": v_email, "pref_hospital": v_hosp,
-            })
-            if ok:
-                st.success(msg)
-            else:
-                st.error(msg)
-
-    # ── TAB: Health Profile ─────────────────────────────────────────────────
-    with tab_h:
-        st.markdown(f"""
-        <div style="background:#FFFBEB;border:1px solid rgba(217,119,6,.18);border-radius:12px;
-          padding:12px 16px;font-size:.82rem;color:#92400E;margin-bottom:18px;
-          display:flex;align-items:flex-start;gap:10px;">
-          <span>&#9888;&#65039;</span>
-          <span>This section stores your health background to help the AI planner give better estimates.
-          <strong>Nothing here is ever shared or used for clinical decisions.</strong></span>
-        </div>
-        """, unsafe_allow_html=True)
-
-        with st.form("form_health"):
-            st.markdown(f"<div class='schip'><span class='schip-label'>Medical Background</span>"
-                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
-            hf1, hf2 = st.columns(2)
-            with hf1:
-                bt_opts  = ["Unknown","A+","A-","B+","B-","O+","O-","AB+","AB-"]
-                saved_bt = profile.get("blood_type","Unknown") or "Unknown"
-                idx_bt   = bt_opts.index(saved_bt) if saved_bt in bt_opts else 0
-                v_blood  = st.selectbox("Blood Type", bt_opts, index=idx_bt)
-            with hf2:
-                occ_opts  = ["— Select —","Student","Healthcare Worker","Government Employee",
-                             "Private Sector","Farmer / Agriculture","Business Owner",
-                             "Retired","Unemployed","Other"]
-                saved_occ = profile.get("occupation","— Select —") or "— Select —"
-                idx_occ   = occ_opts.index(saved_occ) if saved_occ in occ_opts else 0
-                v_occ     = st.selectbox("Occupation", occ_opts, index=idx_occ)
-
-            v_allergies = st.text_area("Known Allergies",
-                value=profile.get("allergies",""),
-                placeholder="e.g. Penicillin, latex, peanuts — or leave blank",
-                height=80)
-            v_chronic = st.text_area("Chronic Conditions",
-                value=profile.get("chronic_conditions",""),
-                placeholder="e.g. Diabetes Type 2, Hypertension — or leave blank",
-                height=80)
-
-            st.markdown(f"<div class='schip'><span class='schip-label'>Emergency Contact</span>"
-                        f"<div class='schip-line'></div></div>", unsafe_allow_html=True)
-            ec1, ec2 = st.columns(2)
-            with ec1:
-                v_ec_name = st.text_input("Contact Name",
-                    value=profile.get("ec_name",""), placeholder="Ramesh Thapa")
-            with ec2:
-                rel_opts  = ["—","Spouse / Partner","Parent","Sibling","Child","Guardian","Friend","Other"]
-                saved_rel = profile.get("ec_relationship","—") or "—"
-                idx_rel   = rel_opts.index(saved_rel) if saved_rel in rel_opts else 0
-                v_ec_rel  = st.selectbox("Relationship", rel_opts, index=idx_rel)
-            v_ec_phone = st.text_input("Contact Phone",
-                value=profile.get("ec_phone",""), placeholder="+977 98XXXXXXXX")
-
-            save_h = st.form_submit_button("Save Health Profile", use_container_width=True, type="primary")
-
-        if save_h:
-            ok, msg = save_profile(uname, {
-                "blood_type": v_blood,
-                "occupation": v_occ if v_occ != "— Select —" else "",
-                "allergies": v_allergies, "chronic_conditions": v_chronic,
-                "ec_name": v_ec_name,
-                "ec_relationship": v_ec_rel if v_ec_rel != "—" else "",
-                "ec_phone": v_ec_phone,
-            })
-            if ok:
-                st.success(msg)
-            else:
-                st.error(msg)
-
-    # ── TAB: Security ───────────────────────────────────────────────────────
-    with tab_s:
-        st.markdown(f"""
-        <div style="background:{t['p_light']};border:1px solid {t['border']};border-radius:14px;
-          padding:18px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px;">
-          <div style="width:40px;height:40px;border-radius:10px;background:{t['primary']};
-            display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">&#128274;</div>
-          <div>
-            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
-              color:{t['t1']};margin-bottom:4px;">Password Security</div>
-            <div style="font-size:.82rem;color:{t['t2']};line-height:1.6;">
-              Passwords are stored as <strong>SHA-256 salted hashes</strong> — never in plain text.
-              Choose a strong password with at least 8 characters, mixing letters, numbers and symbols.
-            </div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        sec_col, _ = st.columns([1.2, 1])
-        with sec_col:
-            v_old  = st.text_input("Current Password", type="password",
-                                   placeholder="Your current password", key="pp_sec_old")
-            v_new1 = st.text_input("New Password", type="password",
-                                   placeholder="e.g. Bagmati@2024", key="pp_sec_new1")
-            v_new2 = st.text_input("Confirm New Password", type="password",
-                                   placeholder="Repeat new password", key="pp_sec_new2")
-            password_rules_card(v_new1)
-            with st.form("form_security"):
-                save_s = st.form_submit_button("Change Password", use_container_width=True, type="primary")
-
-        if save_s:
-            if not v_old or not v_new1 or not v_new2:
-                st.error("All three password fields are required.")
-            elif v_new1 != v_new2:
-                st.error("New passwords do not match.")
-            else:
-                ok, msg = change_password(uname, v_old, v_new1)
-                if ok:
-                    st.success(msg)
-                else:
-                    st.error(msg)
-
-
-# ════════════════════════════════════════════════════════════════════════════
 # ROUTER
 # ════════════════════════════════════════════════════════════════════════════
 
 if not st.session_state.logged_in:
     page_login()
 elif st.session_state.role == "patient":
-    if st.session_state.get("page") == "profile":
-        profile_page()
-    else:
-        patient_dashboard()
+    patient_dashboard()
 elif st.session_state.role == "admin":
     admin_dashboard()
 else:
