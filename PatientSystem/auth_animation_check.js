@@ -1,0 +1,21 @@
+const { chromium } = require('C:/Users/rabin/AppData/Local/npm-cache/_npx/e41f203b7505f1fb/node_modules/playwright-core');
+(async () => {
+  const browser = await chromium.launch({ headless:true, executablePath:'C:/Users/rabin/AppData/Local/ms-playwright/chromium-1228/chrome-win64/chrome.exe' });
+  const page = await browser.newPage({ viewport:{ width:1366, height:768 }, reducedMotion:'no-preference' });
+  await page.goto('http://127.0.0.1:8502', { waitUntil:'networkidle' });
+  await page.locator('.view-signin').waitFor({ state:'attached' });
+  const signInAnimation = await page.locator('.st-key-auth_card').evaluate(el => getComputedStyle(el).animationName);
+  const signInTabAnimation = await page.locator('.st-key-seg_track').evaluate(el => getComputedStyle(el, '::after').animationName);
+  await page.getByRole('button', { name:'Create Account' }).click();
+  await page.locator('.view-register').waitFor({ state:'attached' });
+  const registerAnimation = await page.locator('.st-key-auth_card').evaluate(el => getComputedStyle(el).animationName);
+  const registerTabAnimation = await page.locator('.st-key-seg_track').evaluate(el => getComputedStyle(el, '::after').animationName);
+  await page.getByLabel('Full Name').fill('Anita Thapa');
+  await page.getByLabel('Username').fill('anita.motion');
+  await page.waitForTimeout(500);
+  await page.getByRole('button', { name:'Continue to security' }).click();
+  await page.getByText('Step 2 of 2', { exact:false }).waitFor();
+  const stepAnimation = await page.locator('.st-key-auth_card').evaluate(el => getComputedStyle(el).animationName);
+  console.log(JSON.stringify({ signInAnimation, signInTabAnimation, registerAnimation, registerTabAnimation, stepAnimation }));
+  await browser.close();
+})().catch(error => { console.error(error); process.exit(1); });
