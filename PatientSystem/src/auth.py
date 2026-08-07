@@ -96,8 +96,9 @@ def init_db() -> None:
 
 # ── Auth API ───────────────────────────────────────────────────────────────
 
-def register_user(username: str, password: str,
-                  full_name: str = "", role: str = "patient") -> tuple:
+def register_user(username: str, password: str, full_name: str = "", role: str = "patient",
+                  dob: str = "", gender: str = "", phone: str = "", email: str = "",
+                  district: str = "") -> tuple:
     role = "patient"  # patients cannot self-register as admin
     if len(username.strip()) < 3:
         return False, "Username must be at least 3 characters."
@@ -120,11 +121,11 @@ def register_user(username: str, password: str,
         db.profiles.insert_one({
             "username":           username.strip(),
             "full_name":          full_name.strip(),
-            "dob":                "",
-            "gender":             "",
-            "district":           "",
-            "phone":              "",
-            "email":              "",
+            "dob":                dob.strip(),
+            "gender":             gender.strip() if gender.strip() != "Prefer not to say" else "",
+            "district":           district.strip(),
+            "phone":              phone.strip(),
+            "email":              email.strip(),
             "blood_type":         "Unknown",
             "allergies":          "",
             "occupation":         "",

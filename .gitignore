@@ -1,0 +1,16 @@
+# Portable/embedded runtime and installers — not source, shouldn't be versioned
+/python-runtime/
+/python-embed.zip
+/python-3.13.14-amd64.exe
+/get-pip.py
+/mongodb-portable.zip
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Local test/debug artifacts
+PatientSystem/screenshots/
