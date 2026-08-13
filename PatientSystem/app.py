@@ -1,5 +1,5 @@
 """Hospital Intelligence System — Complete UI Redesign"""
-import os, sys, time as _time, secrets
+import os, sys, time as _time, secrets, base64
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -27,15 +27,16 @@ from src.data_loader  import (load_admissions, load_patients, load_occupancy,
                                load_occupancy_with_hospital,
                                hospital_stats, departments_by_hospital,
                                hospitals_with_department,
-                               merged_admissions_patients, kpi_summary)
-from src.predict      import predict_los, predict_cost, models_ready
+                               merged_admissions_patients, kpi_summary,
+                               thesis_model_metrics)
+from src.predict      import predict_los, predict_cost, models_ready, model_metrics
 from src.hospital_connector import (submit_booking, list_patient_bookings,
                                     list_all_bookings, update_booking_status,
                                     count_pending_bookings)
 from src.decision_engine import occupancy_alert, overtime_alert, los_flag
 
 st.set_page_config(
-    page_title="Bagmati Care — HIS",
+    page_title="Hospital Intelligence System",
     page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -55,7 +56,7 @@ with _boot_gate.container():
         border:3px solid #DCEAE6;border-top-color:#0F766E;
         animation:bootSpin .8s linear infinite;"></div>
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
-        color:#102A2A;font-size:.92rem;letter-spacing:-.01em;">Loading Bagmati Care…</div>
+        color:#102A2A;font-size:.92rem;letter-spacing:-.01em;">Loading Hospital Intelligence System…</div>
     </div>
     <style>
       @keyframes bootSpin { to { transform:rotate(360deg); } }
@@ -70,9 +71,18 @@ init_db()
 for k, v in [("logged_in", False), ("username", ""), ("role", ""),
              ("page", "dashboard"), ("profile_msg", None),
              ("login_view", "signin"), ("reg_success", ""), ("reg_step", 1),
-             ("_sid", ""), ("_session_expires", 0.0)]:
+             ("_sid", ""), ("_session_expires", 0.0), ("landing_seen", False)]:
     if k not in st.session_state:
         st.session_state[k] = v
+
+# Links inside the landing component navigate the top-level window. Query
+# parameters provide a reliable bridge from that iframe into Streamlit state.
+_auth_route = st.query_params.get("auth", "")
+if not st.session_state.logged_in and _auth_route in ("signin", "register"):
+    st.session_state.landing_seen = True
+    st.session_state.login_view = _auth_route
+    st.session_state.reg_step = 1
+    del st.query_params["auth"]
 
 SESSION_TIMEOUT = 3600  # seconds of inactivity before auto-logout
 
@@ -790,7 +800,7 @@ def render_sidebar(t: dict):
               border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;
               justify-content:center;font-size:18px;">&#10133;</div>
             <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
-              font-size:.95rem;color:#fff;">Bagmati Care</span>
+              font-size:.95rem;color:#fff;">Hospital Intelligence System</span>
           </div>
         </div>
         """, unsafe_allow_html=True)
@@ -1307,13 +1317,13 @@ def page_login():
     st.markdown("""
     <div class="auth-page-header" role="banner">
       <div class="auth-header-inner">
-        <div class="auth-brand" aria-label="Bagmati Care">
-          <svg class="auth-brand-mark" viewBox="0 0 40 40" role="img" aria-label="Bagmati Care mark">
+        <div class="auth-brand" aria-label="Hospital Intelligence System">
+          <svg class="auth-brand-mark" viewBox="0 0 40 40" role="img" aria-label="Hospital Intelligence System mark">
             <path d="M20 3.5C13 3.5 7.2 7.8 7.2 14.6c0 9.2 12.8 21.9 12.8 21.9s12.8-12.7 12.8-21.9C32.8 7.8 27 3.5 20 3.5Z" fill="#E6F0EC" stroke="#0F766E" stroke-width="1.5"/>
             <path d="M20 10v9m-4.5-4.5h9" stroke="#0F766E" stroke-width="2.4" stroke-linecap="round"/>
             <circle cx="20" cy="25.5" r="2.2" fill="#4D7CFE"/>
           </svg>
-          <span>Bagmati Care</span>
+          <span>Hospital Intelligence System</span>
         </div>
         <div class="auth-header-actions">
           <a href="mailto:support@bagmaticare.local">Help &amp; support</a>
@@ -1481,7 +1491,7 @@ def page_login():
                         f'{"Personal and account information" if step == 1 else "Password, security and consent"}</div></div>',
                         unsafe_allow_html=True)
                     if step == 1:
-                        full_name = st.text_input("Full Name", placeholder="e.g. Anita Thapa",
+                        full_name = st.text_input("Full Name", placeholder="Enter your full name",
                                                   icon=":material/badge:", autocomplete="name",
                                                   key="reg_full_name")
                         new_user = st.text_input("Username", placeholder="Choose a username (min. 3 characters)",
@@ -3971,9 +3981,32 @@ def admin_dashboard():
     _msg_label = f"💬  Messages {'🔴' if unread_total else ''}"
     _pending_count = len(pending_bookings)
     _bk_label  = f"📅  Bookings {'🔴 ' + str(_pending_count) if _pending_count else ''}"
-    admin_tab4, admin_tab1, admin_tab3, admin_tab2 = st.tabs([
-        "📊  Analytics", "👥  Patient Accounts", _bk_label, _msg_label
+    admin_tab4, admin_tab5, admin_tab6, admin_tab1, admin_tab3, admin_tab2 = st.tabs([
+        "📊  Analytics", "🏥  Hospital Data", "🎯  Model Accuracy",
+        "👥  Patient Accounts", _bk_label, _msg_label
     ])
+
+    # Shared chart helpers/palette (used by Analytics, Hospital Data, Model Accuracy)
+    GREEN  = "#10B981"; AMBER = "#F59E0B"; RED   = "#EF4444"
+    BLUE   = "#3B82F6"; GRAY  = "#9CA3AF"; INDIGO = "#6366F1"
+    PURPLE = "#7C3AED"; TEAL  = "#0D9488"
+    BG     = "rgba(0,0,0,0)"
+
+    def _base(fig, title="", legend=False):
+        fig.update_layout(
+            title=dict(text=title, font=dict(size=13, color="#374151",
+                       family="Plus Jakarta Sans"), x=0),
+            paper_bgcolor=BG, plot_bgcolor=BG,
+            margin=dict(l=8, r=8, t=44, b=8),
+            font=dict(family="Inter", size=11, color="#6B7280"),
+            showlegend=legend,
+            legend=dict(orientation="h", y=-0.2, x=0, font=dict(size=10)),
+        )
+        fig.update_xaxes(showgrid=False, zeroline=False,
+                         linecolor="#E5E7EB", tickfont=dict(size=10))
+        fig.update_yaxes(showgrid=True, gridcolor="#F3F4F6",
+                         zeroline=False, tickfont=dict(size=10))
+        return fig
 
     # ════ TAB 1: PATIENT ACCOUNTS ═══════════════════════════════════════════
     with admin_tab1:
@@ -4244,27 +4277,6 @@ def admin_dashboard():
         _all_bk_a   = list_all_bookings()
         _patients_a = patients
 
-        GREEN  = "#10B981"; AMBER = "#F59E0B"; RED   = "#EF4444"
-        BLUE   = "#3B82F6"; GRAY  = "#9CA3AF"; INDIGO = "#6366F1"
-        PURPLE = "#7C3AED"; TEAL  = "#0D9488"
-        BG     = "rgba(0,0,0,0)"
-
-        def _base(fig, title="", legend=False):
-            fig.update_layout(
-                title=dict(text=title, font=dict(size=13, color="#374151",
-                           family="Plus Jakarta Sans"), x=0),
-                paper_bgcolor=BG, plot_bgcolor=BG,
-                margin=dict(l=8, r=8, t=44, b=8),
-                font=dict(family="Inter", size=11, color="#6B7280"),
-                showlegend=legend,
-                legend=dict(orientation="h", y=-0.2, x=0, font=dict(size=10)),
-            )
-            fig.update_xaxes(showgrid=False, zeroline=False,
-                             linecolor="#E5E7EB", tickfont=dict(size=10))
-            fig.update_yaxes(showgrid=True, gridcolor="#F3F4F6",
-                             zeroline=False, tickfont=dict(size=10))
-            return fig
-
         # ── Row 1 ─────────────────────────────────────────────────────────────
         r1c1, r1c2 = st.columns(2)
 
@@ -4500,12 +4512,283 @@ def admin_dashboard():
             else:
                 st.info("No cross-data available yet.")
 
+    # ════ TAB 5: HOSPITAL DATA (real regional dataset, read-only) ═══════════
+    with admin_tab5:
+        _adm_a = load_admissions()
+        _occ_a = load_occupancy()
+
+        st.markdown(
+            '<div style="font-size:.78rem;color:#6B7280;margin-bottom:14px;">'
+            'Computed live from the regional admissions &amp; occupancy dataset '
+            '(2021–2024, 5 hospitals) — read-only, the source files are never modified.</div>',
+            unsafe_allow_html=True,
+        )
+
+        _total_adm = len(_adm_a)
+        _avg_los   = _adm_a["length_of_stay_days"].mean()
+        _avg_cost  = _adm_a["total_bill_npr"].mean()
+        _avg_occ   = _occ_a["occupancy_rate"].mean()
+        _recovery  = (_adm_a["discharge_outcome"] == "Recovered").mean()
+        _readmit   = _adm_a["readmission_flag"].mean()
+
+        hk1, hk2, hk3, hk4, hk5, hk6 = st.columns(6)
+        hk1.markdown(kpi_card(t["p_light"], "🛏️", f"{_total_adm:,}",
+                     "Total Admissions", "2021–2024 dataset", t), unsafe_allow_html=True)
+        hk2.markdown(kpi_card("#EFF6FF", "📆", f"{_avg_los:.1f}d",
+                     "Avg. Length of Stay", f"WHO benchmark {config.WHO_LOS_DAYS}d", t), unsafe_allow_html=True)
+        hk3.markdown(kpi_card("#F0FDF4", "💰", f"Rs {_avg_cost:,.0f}",
+                     "Avg. Bill", "Per admission", t), unsafe_allow_html=True)
+        hk4.markdown(kpi_card("#FFFBEB", "📊", f"{_avg_occ:.0%}",
+                     "Avg. Occupancy", f"WHO surge {config.WHO_OCCUPANCY_THRESHOLD:.0%}", t), unsafe_allow_html=True)
+        hk5.markdown(kpi_card("#ECFDF5", "✅", f"{_recovery:.0%}",
+                     "Recovery Rate", "Discharge outcome", t), unsafe_allow_html=True)
+        hk6.markdown(kpi_card("#FEF2F2", "🔁", f"{_readmit:.0%}",
+                     "Readmission Rate", "Flagged returns", t), unsafe_allow_html=True)
+
+        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+
+        hd_r1c1, hd_r1c2 = st.columns(2)
+
+        # Admissions by hospital
+        with hd_r1c1:
+            _by_hosp    = _adm_a.groupby("hospital_id").size().sort_values()
+            _hosp_names = [config.HOSPITAL_NAMES.get(h, h) for h in _by_hosp.index]
+            fig_h = go.Figure(go.Bar(
+                x=_by_hosp.values, y=_hosp_names, orientation="h",
+                marker=dict(color=TEAL),
+                hovertemplate="%{y}: %{x:,} admissions<extra></extra>",
+            ))
+            _base(fig_h, "Admissions by Hospital")
+            st.plotly_chart(fig_h, use_container_width=True)
+
+        # Monthly occupancy trend vs WHO thresholds
+        with hd_r1c2:
+            _occ_trend = (_occ_a.assign(month=_occ_a["date"].dt.to_period("M").astype(str))
+                                .groupby("month")["occupancy_rate"].mean().reset_index())
+            fig_t = go.Figure(go.Scatter(
+                x=_occ_trend["month"], y=_occ_trend["occupancy_rate"],
+                mode="lines", line=dict(color=BLUE, width=2.5),
+                fill="tozeroy", fillcolor="rgba(59,130,246,0.08)",
+                hovertemplate="%{x}: %{y:.1%}<extra></extra>",
+            ))
+            fig_t.add_hline(y=config.WHO_OCCUPANCY_THRESHOLD, line_dash="dash", line_color=RED,
+                            annotation_text="WHO surge", annotation_font_size=10)
+            fig_t.add_hline(y=config.WARN_OCCUPANCY_THRESHOLD, line_dash="dot", line_color=AMBER,
+                            annotation_text="Warning", annotation_font_size=10)
+            _base(fig_t, "Monthly Occupancy Trend")
+            fig_t.update_yaxes(tickformat=".0%")
+            st.plotly_chart(fig_t, use_container_width=True)
+
+        hd_r2c1, hd_r2c2 = st.columns(2)
+
+        # LOS distribution
+        with hd_r2c1:
+            fig_los = go.Figure(go.Histogram(
+                x=_adm_a["length_of_stay_days"], nbinsx=30,
+                marker=dict(color=INDIGO),
+                hovertemplate="%{x} days: %{y:,} admissions<extra></extra>",
+            ))
+            _base(fig_los, "Length of Stay Distribution")
+            st.plotly_chart(fig_los, use_container_width=True)
+
+        # Severity mix
+        with hd_r2c2:
+            _sev_order  = ["Mild", "Moderate", "Severe", "Critical"]
+            _sev_colors = {"Mild": GREEN, "Moderate": AMBER, "Severe": RED, "Critical": PURPLE}
+            _sev        = _adm_a["severity"].value_counts().reindex(_sev_order).dropna()
+            fig_sev = go.Figure(go.Pie(
+                labels=_sev.index, values=_sev.values, hole=0.55,
+                marker=dict(colors=[_sev_colors[s] for s in _sev.index]),
+                textinfo="label+percent",
+                hovertemplate="%{label}: %{value:,}<extra></extra>",
+            ))
+            _base(fig_sev, "Admissions by Severity", legend=True)
+            st.plotly_chart(fig_sev, use_container_width=True)
+
+        hd_r3c1, hd_r3c2 = st.columns(2)
+
+        # Department volume (top 10)
+        with hd_r3c1:
+            _dept = _adm_a["department_name"].value_counts().head(10).sort_values()
+            fig_dept = go.Figure(go.Bar(
+                x=_dept.values, y=_dept.index, orientation="h",
+                marker=dict(color=PURPLE),
+                hovertemplate="%{y}: %{x:,} admissions<extra></extra>",
+            ))
+            _base(fig_dept, "Top 10 Departments by Volume")
+            st.plotly_chart(fig_dept, use_container_width=True)
+
+        # Discharge outcomes
+        with hd_r3c2:
+            _out_colors = {"Recovered": GREEN, "Transferred": BLUE, "Referred": INDIGO,
+                          "Expired": RED, "LAMA": AMBER}
+            _out = _adm_a["discharge_outcome"].value_counts()
+            fig_out = go.Figure(go.Bar(
+                x=_out.index, y=_out.values,
+                marker=dict(color=[_out_colors.get(o, GRAY) for o in _out.index]),
+                hovertemplate="%{x}: %{y:,}<extra></extra>",
+            ))
+            _base(fig_out, "Discharge Outcomes")
+            st.plotly_chart(fig_out, use_container_width=True)
+
+    # ════ TAB 6: MODEL ACCURACY ═══════════════════════════════════════════════
+    with admin_tab6:
+        import datetime as _dt3
+
+        st.markdown(
+            '<div style="font-size:.78rem;color:#6B7280;margin-bottom:14px;">'
+            'Live accuracy of the trained Random Forest models, measured on a held-out '
+            '20% test split — recomputed each time <code>src/train_models.py</code> runs. '
+            'Ranges shown to patients are point-prediction ± this MAE.</div>',
+            unsafe_allow_html=True,
+        )
+
+        _metrics = model_metrics()
+
+        if not _metrics:
+            st.info("No trained models found. Run `python src/train_models.py` to train.")
+        else:
+            _los_m  = _metrics.get("los", {})
+            _cost_m = _metrics.get("cost", {})
+            _los_acc, _cost_acc = _los_m.get("accuracy_pct"), _cost_m.get("accuracy_pct")
+
+            def _acc_gauge(value, title, bar_color):
+                fig = go.Figure(go.Indicator(
+                    mode="gauge+number",
+                    value=value,
+                    number={"suffix": "%", "font": {"size": 32, "color": "#111827"}},
+                    gauge={
+                        "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#9CA3AF",
+                                "tickfont": {"size": 9}},
+                        "bar": {"color": bar_color, "thickness": 0.28},
+                        "bgcolor": "white",
+                        "borderwidth": 0,
+                        "steps": [
+                            {"range": [0, 50],  "color": "#FEE2E2"},
+                            {"range": [50, 75], "color": "#FEF3C7"},
+                            {"range": [75, 100], "color": "#D1FAE5"},
+                        ],
+                    },
+                ))
+                _base(fig, title)
+                fig.update_layout(height=210, margin=dict(l=20, r=20, t=44, b=10))
+                return fig
+
+            ga1, ga2 = st.columns(2)
+            with ga1:
+                if _los_acc is not None:
+                    st.plotly_chart(_acc_gauge(_los_acc, "LOS Model — Accuracy", TEAL),
+                                    use_container_width=True)
+                else:
+                    st.info("Retrain (`src/train_models.py`) to compute LOS accuracy.")
+            with ga2:
+                if _cost_acc is not None:
+                    st.plotly_chart(_acc_gauge(_cost_acc, "Cost Model — Accuracy", INDIGO),
+                                    use_container_width=True)
+                else:
+                    st.info("Retrain (`src/train_models.py`) to compute Cost accuracy.")
+
+            st.markdown(
+                '<div style="font-size:.7rem;color:#9CA3AF;margin:-6px 0 16px;">'
+                'Accuracy = 100 − (Mean Abs. Error ÷ average actual value) × 100 — '
+                'how close predictions land to real outcomes, on a held-out 20% test split.</div>',
+                unsafe_allow_html=True,
+            )
+
+            st.markdown(
+                '<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700;'
+                'font-size:.9rem;color:#111827;margin:6px 0 12px;">Other Thesis Models</div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                '<div style="font-size:.7rem;color:#9CA3AF;margin-top:-6px;margin-bottom:14px;">'
+                'From the wider thesis analysis (Raw_data_outputs/ml_models/) — '
+                'not served live by this app. (Length of Stay is omitted here — '
+                'the LOS gauge above already covers it.) '
+                'Readmission\'s 91% is misleading: precision is only 0.08 on the '
+                'minority (positive) class.</div>',
+                unsafe_allow_html=True,
+            )
+
+            _thesis_m = thesis_model_metrics()
+            _order    = ["occupancy", "discharge", "overtime", "readmission"]
+            _colors   = {"occupancy": TEAL, "discharge": INDIGO,
+                        "overtime": AMBER, "readmission": RED}
+            _items    = [(k, _thesis_m[k]) for k in _order if k in _thesis_m]
+
+            if _items:
+                _cols = st.columns(len(_items))
+                for col, (key, it) in zip(_cols, _items):
+                    with col:
+                        st.plotly_chart(
+                            _acc_gauge(it["accuracy_pct"], it["label"], _colors[key]),
+                            use_container_width=True,
+                        )
+                        st.markdown(
+                            f'<div style="font-size:.68rem;color:#9CA3AF;text-align:center;'
+                            f'margin-top:-10px;">{it["detail"]}</div>',
+                            unsafe_allow_html=True,
+                        )
+            else:
+                st.info("Thesis model metrics not found in Raw_data_outputs/ml_models/.")
+
+            st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+
+            _trained_at = _los_m.get("trained_at")
+            _trained_str = (_dt3.datetime.fromtimestamp(_trained_at).strftime("%d %b %Y, %H:%M")
+                            if _trained_at else "—")
+            st.markdown(
+                '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:14px;'
+                'padding:14px 20px;font-size:.82rem;color:#374151;line-height:1.9;">'
+                '<strong>LOS / Cost model details</strong>&nbsp;&nbsp;·&nbsp;&nbsp;'
+                'Algorithm: RandomForestRegressor (scikit-learn)&nbsp;&nbsp;·&nbsp;&nbsp;'
+                f'Trees: {_los_m.get("n_estimators", "—")}&nbsp;&nbsp;·&nbsp;&nbsp;'
+                f'Max depth: {_los_m.get("max_depth", "—")}&nbsp;&nbsp;·&nbsp;&nbsp;'
+                'Split: 80/20, random_state=42&nbsp;&nbsp;·&nbsp;&nbsp;'
+                f'Last trained: {_trained_str}'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# LANDING PAGE — shown once per session, before login
+# ════════════════════════════════════════════════════════════════════════════
+
+def page_landing():
+    st.markdown(
+        "<style>#MainMenu, header, footer{visibility:hidden;}"
+        ".stApp,[data-testid='stAppViewContainer']{background:#f5f3ee !important;}"
+        ".block-container{padding:0 !important;max-width:100% !important;}"
+        "[data-testid='stSidebar'],.stButton{display:none !important;}</style>",
+        unsafe_allow_html=True,
+    )
+    landing_path = os.path.join(BASE_DIR, "static", "landing.html")
+    with open(landing_path, encoding="utf-8") as f:
+        landing_html = f.read()
+    hero_path = os.path.join(BASE_DIR, "static", "hospital-hero.png")
+    with open(hero_path, "rb") as f:
+        hero_data = base64.b64encode(f.read()).decode("ascii")
+    landing_html = landing_html.replace(
+        "__HERO_IMAGE__", f"data:image/png;base64,{hero_data}"
+    )
+    st.html(landing_html, unsafe_allow_javascript=True)
+
+    st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)
+    _, mid, _ = st.columns([1, 1, 1])
+    with mid:
+        if st.button("→ Enter Hospital Intelligence System", use_container_width=True, type="primary"):
+            st.session_state.landing_seen = True
+            st.rerun()
+
 
 # ════════════════════════════════════════════════════════════════════════════
 # ROUTER
 # ════════════════════════════════════════════════════════════════════════════
 
-if not st.session_state.logged_in:
+if not st.session_state.landing_seen:
+    page_landing()
+elif not st.session_state.logged_in:
     page_login()
 elif st.session_state.role == "patient":
     patient_dashboard()

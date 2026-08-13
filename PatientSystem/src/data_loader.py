@@ -115,6 +115,80 @@ def kpi_summary(adm: pd.DataFrame, occ: pd.DataFrame) -> dict:
     }
 
 
+# ── Thesis-wide model metrics (read-only; feeds the Tableau side) ──────────
+
+def _metric_series(filename: str):
+    path = os.path.join(config.ML_OUTPUTS_DIR, filename)
+    return pd.read_csv(path, index_col="metric")["value"]
+
+
+def _thesis_model_metrics_raw() -> dict:
+    """Read-only summary of all 5 models trained for the Tableau thesis
+    analysis (Raw_data_outputs/ml_models/) — separate from the 2 models
+    (LOS, Cost) this app actually serves to patients. Regression MAE is
+    normalized against the real mean so every model reports one comparable
+    accuracy percentage."""
+    out = {}
+
+    try:
+        los = _metric_series("los_model_metrics.csv")
+        los_mean = pd.read_csv(
+            os.path.join(config.CLEANING_DIR, "admissions_master.csv")
+        )["length_of_stay_days"].mean()
+        out["los"] = {
+            "label": "Length of Stay",
+            "accuracy_pct": max(0.0, 100 * (1 - los["MAE_days"] / los_mean)),
+            "detail": f"MAE {los['MAE_days']:.1f}d · R² {los['R2_Score']:.2f}",
+        }
+    except Exception:
+        pass
+
+    try:
+        occ = _metric_series("occupancy_model_metrics.csv")
+        occ_mean = pd.read_csv(
+            os.path.join(config.CLEANING_DIR, "bed_occupancy_master.csv")
+        )["occupancy_rate"].mean()
+        out["occupancy"] = {
+            "label": "Bed Occupancy",
+            "accuracy_pct": max(0.0, 100 * (1 - occ["MAE"] / occ_mean)),
+            "detail": f"MAE {occ['MAE']:.1%} · R² {occ['R2_Score']:.2f}",
+        }
+    except Exception:
+        pass
+
+    try:
+        disc = _metric_series("discharge_overall_metrics.csv")
+        out["discharge"] = {
+            "label": "Discharge Outcome",
+            "accuracy_pct": disc["Overall_Accuracy"] * 100,
+            "detail": "5-class outcome · skews to the majority class",
+        }
+    except Exception:
+        pass
+
+    try:
+        ot = _metric_series("overtime_model_metrics.csv")
+        out["overtime"] = {
+            "label": "Staff Overtime",
+            "accuracy_pct": ot["Accuracy"] * 100,
+            "detail": f"Precision {ot['Precision']:.2f} · Recall {ot['Recall']:.2f}",
+        }
+    except Exception:
+        pass
+
+    try:
+        rd = _metric_series("readmission_model_metrics.csv")
+        out["readmission"] = {
+            "label": "Readmission",
+            "accuracy_pct": rd["Accuracy"] * 100,
+            "detail": f"Precision {rd['Precision']:.2f} · near-random, imbalanced classes",
+        }
+    except Exception:
+        pass
+
+    return out
+
+
 # ── Cached public API (single try/except wraps all cache decorators) ────────
 
 try:
@@ -144,6 +218,10 @@ try:
     def hospital_stats() -> pd.DataFrame:
         return _hospital_stats_raw()
 
+    @st.cache_data(show_spinner=False)
+    def thesis_model_metrics() -> dict:
+        return _thesis_model_metrics_raw()
+
 except Exception:
     def load_admissions() -> pd.DataFrame:
         return _load_admissions_raw()
@@ -162,3 +240,6 @@ except Exception:
 
     def hospital_stats() -> pd.DataFrame:
         return _hospital_stats_raw()
+
+    def thesis_model_metrics() -> dict:
+        return _thesis_model_metrics_raw()
