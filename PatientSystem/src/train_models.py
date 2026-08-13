@@ -89,22 +89,32 @@ def train_and_save(verbose: bool = True) -> dict:
         y_pred = rf.predict(X_test)
         mae    = mean_absolute_error(y_test, y_pred)
         r2     = r2_score(y_test, y_pred)
+        # Normalized accuracy: how small the average error is relative to the
+        # average actual value. Robust to zero-valued rows (unlike MAPE, which
+        # LOS has 500+ of via same-day discharges).
+        accuracy_pct = max(0.0, 100.0 * (1.0 - mae / y_test.mean()))
 
         if verbose:
-            print(f"  MAE  : {mae:.4f}")
-            print(f"  R2   : {r2:.4f}")
+            print(f"  MAE      : {mae:.4f}")
+            print(f"  R2       : {r2:.4f}")
+            print(f"  Accuracy : {accuracy_pct:.2f}%")
 
         # Save artefacts
         if key == "los":
-            joblib.dump(rf,       config.LOS_MODEL_PATH)
-            joblib.dump(encoders, config.LOS_ENCODER_PATH)
-            joblib.dump(mae,      config.LOS_MAE_PATH)
+            joblib.dump(rf,           config.LOS_MODEL_PATH)
+            joblib.dump(encoders,     config.LOS_ENCODER_PATH)
+            joblib.dump(mae,          config.LOS_MAE_PATH)
+            joblib.dump(r2,           config.LOS_R2_PATH)
+            joblib.dump(accuracy_pct, config.LOS_ACC_PATH)
         else:
-            joblib.dump(rf,       config.COST_MODEL_PATH)
-            joblib.dump(encoders, config.COST_ENCODER_PATH)
-            joblib.dump(mae,      config.COST_MAE_PATH)
+            joblib.dump(rf,           config.COST_MODEL_PATH)
+            joblib.dump(encoders,     config.COST_ENCODER_PATH)
+            joblib.dump(mae,          config.COST_MAE_PATH)
+            joblib.dump(r2,           config.COST_R2_PATH)
+            joblib.dump(accuracy_pct, config.COST_ACC_PATH)
 
-        results[key] = {"mae": mae, "r2": r2}
+        results[key] = {"mae": mae, "r2": r2, "accuracy_pct": accuracy_pct,
+                        "n_train": len(X_train), "n_test": len(X_test)}
 
     print("\n[train] All models saved to", config.MODELS_DIR)
     return results

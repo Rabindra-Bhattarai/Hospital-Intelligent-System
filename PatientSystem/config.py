@@ -60,6 +60,12 @@ COST_MODEL_PATH     = os.path.join(MODELS_DIR, "cost_model.joblib")
 COST_ENCODER_PATH   = os.path.join(MODELS_DIR, "cost_encoder.joblib")
 COST_MAE_PATH       = os.path.join(MODELS_DIR, "cost_mae.joblib")
 
+LOS_R2_PATH         = os.path.join(MODELS_DIR, "los_r2.joblib")
+COST_R2_PATH        = os.path.join(MODELS_DIR, "cost_r2.joblib")
+
+LOS_ACC_PATH        = os.path.join(MODELS_DIR, "los_accuracy.joblib")
+COST_ACC_PATH       = os.path.join(MODELS_DIR, "cost_accuracy.joblib")
+
 # ── WHO / operational thresholds ───────────────────────────────────────────
 WHO_OCCUPANCY_THRESHOLD   = 0.85   # surge above this
 WARN_OCCUPANCY_THRESHOLD  = 0.75   # warning band

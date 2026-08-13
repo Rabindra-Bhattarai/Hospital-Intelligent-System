@@ -98,3 +98,31 @@ def predict_cost(age: int, severity: str, admission_type: str,
 def models_ready() -> bool:
     """True if model files exist on disk."""
     return _models_exist()
+
+
+def model_metrics() -> dict:
+    """Live accuracy figures for the trained RF models, read from the
+    joblib artefacts saved by train_models.py. R² is unavailable for
+    models trained before the r2 artefact existed."""
+    metrics = {}
+    if os.path.exists(config.LOS_MODEL_PATH):
+        model, _, mae = _los_artefacts()
+        metrics["los"] = {
+            "mae": float(mae),
+            "r2":  float(_load(config.LOS_R2_PATH)) if os.path.exists(config.LOS_R2_PATH) else None,
+            "accuracy_pct": float(_load(config.LOS_ACC_PATH)) if os.path.exists(config.LOS_ACC_PATH) else None,
+            "n_estimators": model.n_estimators,
+            "max_depth":    model.max_depth,
+            "trained_at":   os.path.getmtime(config.LOS_MODEL_PATH),
+        }
+    if os.path.exists(config.COST_MODEL_PATH):
+        model, _, mae = _cost_artefacts()
+        metrics["cost"] = {
+            "mae": float(mae),
+            "r2":  float(_load(config.COST_R2_PATH)) if os.path.exists(config.COST_R2_PATH) else None,
+            "accuracy_pct": float(_load(config.COST_ACC_PATH)) if os.path.exists(config.COST_ACC_PATH) else None,
+            "n_estimators": model.n_estimators,
+            "max_depth":    model.max_depth,
+            "trained_at":   os.path.getmtime(config.COST_MODEL_PATH),
+        }
+    return metrics
