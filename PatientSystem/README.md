@@ -23,6 +23,56 @@ On first run, if no admin account exists yet, one is seeded from `ADMIN_USERNAME
 
 ---
 
+## Running with Docker
+
+From the repo root, with `.env` filled in (see above):
+
+```bash
+docker compose up --build
+```
+
+Starts the app (`localhost:8501`) and a MongoDB container together — no local
+Mongo install needed. `docker-compose.yml` overrides `MONGO_URI` to point at
+the `mongo` service; every other variable comes from `.env`.
+
+To build/run just the app image against an external Mongo:
+
+```bash
+cd PatientSystem
+docker build -t his-app .
+docker run -p 8501:8501 --env-file ../.env -e MONGO_URI=mongodb://host.docker.internal:27017/ his-app
+```
+
+Known limitation: patient avatars are written to the container's local
+filesystem (`static/avatars/`), so they don't persist across redeploys or
+survive a multi-replica setup. Fine for a single-instance demo; would need
+object storage (S3-compatible, etc.) for real production use.
+
+---
+
+## CI/CD
+
+`.github/workflows/ci.yml` runs on every push/PR touching `PatientSystem/`:
+compiles all source, spins up a real MongoDB service container, and runs the
+`AppTest`-based smoke tests in `PatientSystem/tests/` (landing page, login,
+and — with credentials seeded — the full admin dashboard, asserting each
+renders with no exception). A separate job does a Docker build-only check so
+a broken `Dockerfile` fails CI too.
+
+`.github/workflows/docker-publish.yml` builds and pushes the image to
+`ghcr.io/<owner>/<repo>:latest` on every push to `main`. No secrets to
+configure — it authenticates with the automatically-provided
+`GITHUB_TOKEN`. Pull it with:
+
+```bash
+docker pull ghcr.io/rabindra-bhattarai/thesis:latest
+```
+
+(The package may need to be set to public in the repo's Packages settings
+the first time, or you'll need to `docker login ghcr.io` first.)
+
+---
+
 ## Folder structure
 
 ```

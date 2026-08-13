@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.log
+screenshots/
+tests/
+.pytest_cache/
+.coverage
+_diag/
