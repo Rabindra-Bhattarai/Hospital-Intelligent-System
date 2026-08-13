@@ -9,24 +9,17 @@ Synthetic dataset — 5 hospitals, 2021–2024.
 
 ```bash
 pip install -r requirements.txt
-python src/train_models.py      # train RF models (first-time setup, ~30 s)
-streamlit run app.py            # launch the app
+cp ../.env.example ../.env    # fill in Mongo URI, Google OAuth creds, admin username/password
+python src/train_models.py    # train RF models (first-time setup, ~30 s)
+streamlit run app.py          # launch the app
 ```
 
-On first run `users.db` is auto-created and the default admin is seeded.
+Auth data lives in MongoDB (see `MONGO_URI`/`MONGO_DB` in `.env`), not a local file.
+On first run, if no admin account exists yet, one is seeded from `ADMIN_USERNAME`/
+`ADMIN_PASSWORD` in `.env` — leave `ADMIN_PASSWORD` blank and no admin is created.
 
----
-
-## Default admin credentials
-
-| Field    | Value       |
-|----------|-------------|
-| Username | `admin`     |
-| Password | `***REMOVED-PASSWORD***` |
-| Role     | admin       |
-
-> **Change this password** in a production deployment.  
-> Admins cannot be created via the UI — they must be seeded or inserted directly into `users.db`.
+> Admins cannot be created via the UI — only seeded via `.env`, or inserted directly
+> into the `users` collection.
 
 ---
 
@@ -35,19 +28,20 @@ On first run `users.db` is auto-created and the default admin is seeded.
 ```
 PatientSystem/
 ├── app.py                    # Streamlit entry point
-├── config.py                 # paths, thresholds, default creds
+├── config.py                 # paths, thresholds, env-driven config
 ├── requirements.txt
-├── users.db                  # auto-created SQLite (username + hash + role ONLY)
 ├── data/                     # admissions.csv  bed_occupancy_daily.csv  patients.csv
 ├── models/                   # trained .joblib artefacts
 ├── src/
-│   ├── auth.py               # SQLite auth, password hashing
+│   ├── auth.py               # MongoDB auth, salted SHA-256 password hashing
 │   ├── train_models.py       # RF training for LOS + Cost
 │   ├── predict.py            # inference → ranges
 │   ├── decision_engine.py    # threshold rules → alerts
 │   └── data_loader.py        # cached CSV loading
 └── automation/
     └── refresh_pipeline.py   # raw→retrain pipeline with hash check
+
+.env                          # local secrets (gitignored) — see .env.example
 ```
 
 ---
@@ -77,7 +71,7 @@ This system was built with the following ethical principles:
    *"Not a diagnosis, prediction of your outcome, or final bill. Always consult a doctor."*
 
 3. **No patient health data is stored.**  
-   The only persisted data is `username`, `password_hash`, and `role` in `users.db`.
+   The only persisted account data is `username`, `password_hash`, and `role`.
    No names, diagnoses, age, or personal information are saved.
 
 4. **Passwords are always hashed.**  
@@ -110,6 +104,6 @@ Actual live MAE values are displayed in the Admin → Model Performance tab afte
 
 - **Frontend:** Streamlit (single-tier)
 - **ML:** scikit-learn RandomForestRegressor + joblib
-- **Auth:** SQLite + SHA-256 hashing (stdlib only)
+- **Auth:** MongoDB + salted SHA-256 hashing (stdlib `hashlib`)
 - **Visualisation:** Plotly Express / Graph Objects
 - **Data:** pandas, numpy

@@ -82,8 +82,9 @@ def init_db() -> None:
     from src.hospital_connector import init_appointments_index
     init_appointments_index()
 
-    # Seed default admin if absent
-    if db.users.find_one({"username": config.DEFAULT_ADMIN_USERNAME}) is None:
+    # Seed default admin if absent — requires ADMIN_PASSWORD to be set via
+    # env/.env so no account is ever created with a blank password.
+    if config.DEFAULT_ADMIN_PASSWORD and db.users.find_one({"username": config.DEFAULT_ADMIN_USERNAME}) is None:
         salt, phash = _hash_password(config.DEFAULT_ADMIN_PASSWORD)
         db.users.insert_one({
             "username":      config.DEFAULT_ADMIN_USERNAME,

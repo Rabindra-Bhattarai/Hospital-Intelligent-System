@@ -1,4 +1,9 @@
-"""Central configuration: paths, thresholds, default credentials."""
+"""Central configuration: paths, thresholds, default credentials.
+
+Secrets are read from the environment, never hardcoded. For local dev,
+copy .env.example to .env and fill in real values — it's loaded below
+and is gitignored, so it never gets committed.
+"""
 import os
 
 # ── Base paths ─────────────────────────────────────────────────────────────
@@ -7,14 +12,31 @@ DATA_DIR   = os.path.join(BASE_DIR, "data")
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 AVATARS_DIR = os.path.join(BASE_DIR, "static", "avatars")
 
-# ── MongoDB ─────────────────────────────────────────────────────────────────
-MONGO_URI = "mongodb://localhost:27017/"
-MONGO_DB  = "hospital_intelligence"
 
-# ── Google SSO (fill in from Google Cloud Console → APIs & Services → Credentials)
-GOOGLE_CLIENT_ID     = "822579200986-e5406f9u3hv1jb35g03okcd9cjkuvjqs.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "***REMOVED-GOOGLE-CLIENT-SECRET***"
-GOOGLE_REDIRECT_URI  = "http://localhost:8501"
+def _load_dotenv(path: str) -> None:
+    """Minimal .env loader (no external dependency). Existing env vars win."""
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key, value = key.strip(), value.strip().strip('"').strip("'")
+            os.environ.setdefault(key, value)
+
+
+_load_dotenv(os.path.join(BASE_DIR, "..", ".env"))
+
+# ── MongoDB ─────────────────────────────────────────────────────────────────
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_DB  = os.environ.get("MONGO_DB", "hospital_intelligence")
+
+# ── Google SSO (Google Cloud Console → APIs & Services → Credentials) ───────
+GOOGLE_CLIENT_ID     = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_REDIRECT_URI  = os.environ.get("GOOGLE_REDIRECT_URI", "http://localhost:8501")
 AUTO_DIR   = os.path.join(BASE_DIR, "automation")
 LOG_PATH   = os.path.join(AUTO_DIR, "refresh.log")
 
@@ -44,9 +66,9 @@ WARN_OCCUPANCY_THRESHOLD  = 0.75   # warning band
 OVERTIME_THRESHOLD        = 0.20   # >20 % of shifts are overtime → breach
 WHO_LOS_DAYS              = 7      # WHO benchmark LOS
 
-# ── Default admin seed (documented; change in production) ───────────────────
-DEFAULT_ADMIN_USERNAME = "bkt_his_admin"
-DEFAULT_ADMIN_PASSWORD = "***REMOVED-PASSWORD***"
+# ── Default admin seed (only used the very first time the DB is empty) ──────
+DEFAULT_ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "bkt_his_admin")
+DEFAULT_ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 DEFAULT_ADMIN_ROLE     = "admin"
 
 # ── Categorical feature choices (used by patient planner UI) ───────────────
