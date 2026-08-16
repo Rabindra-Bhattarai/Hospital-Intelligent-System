@@ -44,27 +44,39 @@ st.set_page_config(
 
 # Session/role checks below hit the database before any page content exists —
 # without this, the browser shows a blank tab for that entire round trip.
+# Only worth the spinner when a real DB round-trip is actually about to
+# happen (a token to validate/touch, or an OAuth code to exchange) — e.g.
+# not on the rerun after Sign Out, which already cleared the session token
+# and would otherwise show a needless full-screen flash.
+_qp_boot = st.query_params
+_needs_boot_spinner = bool(
+    (st.session_state.get("logged_in") and st.session_state.get("_sid"))
+    or (not st.session_state.get("logged_in") and _qp_boot.get("sid"))
+    or (not st.session_state.get("logged_in") and "code" in _qp_boot)
+)
+
 _boot_gate = st.empty()
-with _boot_gate.container():
-    st.markdown("""
-    <style>
-      #MainMenu, header, footer { visibility: hidden; }
-    </style>
-    <div style="min-height:100dvh;display:flex;flex-direction:column;align-items:center;
-      justify-content:center;gap:16px;">
-      <div style="width:34px;height:34px;border-radius:50%;
-        border:3px solid #DCEAE6;border-top-color:#0F766E;
-        animation:bootSpin .8s linear infinite;"></div>
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
-        color:#102A2A;font-size:.92rem;letter-spacing:-.01em;">Loading Hospital Intelligence System…</div>
-    </div>
-    <style>
-      @keyframes bootSpin { to { transform:rotate(360deg); } }
-      @media (prefers-reduced-motion:reduce) {
-        [style*="bootSpin"] { animation:none !important; opacity:.6; }
-      }
-    </style>
-    """, unsafe_allow_html=True)
+if _needs_boot_spinner:
+    with _boot_gate.container():
+        st.markdown("""
+        <style>
+          #MainMenu, header, footer { visibility: hidden; }
+        </style>
+        <div style="min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+          justify-content:center;gap:16px;">
+          <div style="width:34px;height:34px;border-radius:50%;
+            border:3px solid #DCEAE6;border-top-color:#0F766E;
+            animation:bootSpin .8s linear infinite;"></div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;
+            color:#102A2A;font-size:.92rem;letter-spacing:-.01em;">Loading Hospital Intelligence System…</div>
+        </div>
+        <style>
+          @keyframes bootSpin { to { transform:rotate(360deg); } }
+          @media (prefers-reduced-motion:reduce) {
+            [style*="bootSpin"] { animation:none !important; opacity:.6; }
+          }
+        </style>
+        """, unsafe_allow_html=True)
 
 init_db()
 
