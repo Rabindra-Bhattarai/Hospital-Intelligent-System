@@ -46,7 +46,8 @@ def _load_saved_hashes() -> dict:
         return {}
     with open(HASH_PATH, "r") as f:
         return json.load(f)
-
+    
+ 
 
 def _save_hashes(hashes: dict):
     os.makedirs(config.AUTO_DIR, exist_ok=True)

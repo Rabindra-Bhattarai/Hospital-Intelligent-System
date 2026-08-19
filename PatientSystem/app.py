@@ -1670,17 +1670,22 @@ def _age_from_dob(dob_str: str):
 
 
 @st.dialog("📅  Book Your Visit", width="large")
-def _booking_dialog(est: dict, profile: dict, t: dict):
+def _booking_dialog(est: dict, profile: dict, t: dict, exclude_ref: str = None):
+    """exclude_ref: when rescheduling, the ref of the booking being replaced —
+    excluded from the duplicate-active-booking check below, and cancelled once
+    the new booking is successfully submitted."""
     import datetime as _dt
     uname = st.session_state.username
 
     hosp_name  = est.get("selected_hosp_name", "—")
     dept       = est.get("department", "—")
 
-    # Block duplicate active booking for the same department
+    # Block duplicate active booking for the same department (except the one
+    # this dialog was opened to reschedule, if any)
     _existing = [
         b for b in list_patient_bookings(uname)
         if b.get("department") == dept and b["status"] in ("pending", "confirmed")
+        and b["booking_ref"] != exclude_ref
     ]
     if _existing:
         _ex = _existing[0]
@@ -1823,6 +1828,11 @@ def _booking_dialog(est: dict, profile: dict, t: dict):
                     "cost_high":        est.get("cost_high"),
                 })
                 if ok:
+                    if exclude_ref:
+                        update_booking_status(
+                            exclude_ref, "cancelled",
+                            admin_note=f"Rescheduled by patient — replaced by {ref}",
+                        )
                     st.session_state["_last_booking_ref"] = ref
                     st.session_state["_booking_done"] = True
                     st.rerun()
@@ -3701,10 +3711,11 @@ def patient_dashboard():
     with tab6:
         # Reschedule booking dialog trigger (set by clicking 🔄 on a card)
         if st.session_state.get("_open_reschedule"):
-            _est_rs = st.session_state.pop("_reschedule_est", {})
+            _est_rs  = st.session_state.pop("_reschedule_est", {})
+            _ref_rs  = st.session_state.pop("_reschedule_ref", None)
             st.session_state["_open_reschedule"] = False
             if _est_rs:
-                _booking_dialog(_est_rs, profile, t)
+                _booking_dialog(_est_rs, profile, t, exclude_ref=_ref_rs)
 
         bookings = list_patient_bookings(uname)
 
@@ -3803,6 +3814,7 @@ def patient_dashboard():
                                              help="Reschedule this booking",
                                              use_container_width=True):
                                     st.session_state["_reschedule_est"]  = _booking_est_from(b)
+                                    st.session_state["_reschedule_ref"]  = ref
                                     st.session_state["_open_reschedule"] = True
                                     st.rerun()
                         if allow_cancel:

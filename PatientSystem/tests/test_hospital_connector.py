@@ -45,10 +45,13 @@ def _use_test_database(monkeypatch):
 @pytest.fixture
 def connector(monkeypatch):
     """Import hospital_connector fresh so its module-level state (none today,
-    but future-proof) picks up the monkeypatched config."""
+    but future-proof) picks up the monkeypatched config, and create its
+    indexes (including the active-booking-per-department uniqueness
+    constraint) on the isolated test database."""
     import importlib
     import src.hospital_connector as hc
     importlib.reload(hc)
+    hc.init_appointments_index()
     return hc
 
 
@@ -73,6 +76,59 @@ def _booking_payload(**overrides):
 
 
 # ── submit_booking ────────────────────────────────────────────────────────────
+
+def test_active_booking_uniqueness_is_enforced_by_the_database_itself(connector):
+    """Regression test for the race condition: the find_one-then-insert check
+    in submit_booking() is only a fast-path — this proves the underlying
+    partial unique index rejects a second active booking for the same
+    patient+department even when inserted directly, bypassing that check
+    entirely (simulating two near-simultaneous requests racing past it)."""
+    from pymongo.errors import DuplicateKeyError
+
+    db = connector._db()
+    base_doc = dict(
+        patient_username="racer", department="Cardiology", status="pending",
+        booking_ref="BKG900001", hospital_id="H1", hospital_name="Test",
+        severity="Moderate", admission_type="Elective", requested_date="2026-09-01",
+        preferred_time="Morning", notes="", los_low=1, los_high=2,
+        cost_low=1, cost_high=2, admin_note="",
+    )
+    db.appointments.insert_one(dict(base_doc))
+
+    with pytest.raises(DuplicateKeyError):
+        db.appointments.insert_one(dict(base_doc, booking_ref="BKG900002"))
+
+
+def test_submit_booking_surfaces_a_friendly_error_if_the_index_rejects_it(connector, monkeypatch):
+    """If two requests somehow both pass the find_one pre-check (the race
+    window), submit_booking must still fail cleanly via the DuplicateKeyError
+    handler rather than raising or corrupting state. Simulated by making
+    insert_one always raise, while find_one/counters still hit the real
+    (otherwise-empty) test database — i.e. the pre-check correctly finds no
+    duplicate, but the insert fails anyway, exactly like a genuine race."""
+    from pymongo.errors import DuplicateKeyError
+
+    real_db = connector._db()
+
+    class _FailingAppointments:
+        def __getattr__(self, name):
+            return getattr(real_db.appointments, name)
+
+        def insert_one(self, *a, **k):
+            raise DuplicateKeyError("simulated race")
+
+    class _FakeDB:
+        appointments = _FailingAppointments()
+
+        def __getattr__(self, name):
+            return getattr(real_db, name)
+
+    monkeypatch.setattr(connector, "_db", lambda: _FakeDB())
+
+    ok, msg = connector.submit_booking(_booking_payload(department="Cardiology"))
+    assert ok is False
+    assert "already have an active booking" in msg
+
 
 def test_submit_booking_succeeds_and_returns_a_booking_ref(connector):
     ok, ref = connector.submit_booking(_booking_payload())
