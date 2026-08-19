@@ -5,7 +5,7 @@ services:
     volumes:
       - mongo_data:/data/db
     ports:
-      - "27017:27017"
+      - "27018:27017"
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -19,11 +19,13 @@ services:
       - .env
     environment:
       MONGO_URI: mongodb://mongo:27017/
+    volumes:
+      - ./Raw_data_outputs:/Raw_data_outputs:ro
     depends_on:
       mongo:
         condition: service_healthy
     ports:
-      - "8501:8501"
+      - "8502:8501"
 
 volumes:
   mongo_data:
