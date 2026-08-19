@@ -9,6 +9,7 @@ import datetime, os, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import config
 from pymongo import MongoClient, ASCENDING
+from pymongo.errors import DuplicateKeyError
 
 
 def _db():
@@ -32,6 +33,20 @@ def init_appointments_index() -> None:
     db.appointments.create_index([("patient_username", ASCENDING)])
     db.appointments.create_index([("status", ASCENDING)])
     db.appointments.create_index([("requested_date", ASCENDING)])
+    # Enforces "one active booking per patient per department" atomically at
+    # the database level — the find_one-then-insert check in submit_booking()
+    # below is a fast-path for a friendly error message, but on its own it's
+    # a check-then-act race (two near-simultaneous submissions could both
+    # pass it before either inserts). This partial unique index is the actual
+    # guarantee: only pending/confirmed bookings are covered by it, so past
+    # cancelled/completed bookings for the same patient+department don't
+    # collide with it.
+    db.appointments.create_index(
+        [("patient_username", ASCENDING), ("department", ASCENDING)],
+        unique=True,
+        partialFilterExpression={"status": {"$in": ["pending", "confirmed"]}},
+        name="uniq_active_booking_per_patient_dept",
+    )
 
 
 # ── FUTURE HOOK ─────────────────────────────────────────────────────────────
@@ -93,6 +108,14 @@ def submit_booking(data: dict) -> tuple:
             "updated_at":       datetime.datetime.utcnow(),
         })
         return True, ref
+    except DuplicateKeyError:
+        # The find_one check above is a fast-path only — this is the actual
+        # race-proof guarantee, hit when two near-simultaneous submissions
+        # both passed that check before either had inserted.
+        return False, (
+            f"You already have an active booking for {data.get('department')}. "
+            f"Cancel it first."
+        )
     except Exception as e:
         return False, str(e)
 

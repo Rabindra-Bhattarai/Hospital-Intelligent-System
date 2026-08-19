@@ -1670,17 +1670,22 @@ def _age_from_dob(dob_str: str):
 
 
 @st.dialog("📅  Book Your Visit", width="large")
-def _booking_dialog(est: dict, profile: dict, t: dict):
+def _booking_dialog(est: dict, profile: dict, t: dict, exclude_ref: str = None):
+    """exclude_ref: when rescheduling, the ref of the booking being replaced —
+    excluded from the duplicate-active-booking check below, and cancelled once
+    the new booking is successfully submitted."""
     import datetime as _dt
     uname = st.session_state.username
 
     hosp_name  = est.get("selected_hosp_name", "—")
     dept       = est.get("department", "—")
 
-    # Block duplicate active booking for the same department
+    # Block duplicate active booking for the same department (except the one
+    # this dialog was opened to reschedule, if any)
     _existing = [
         b for b in list_patient_bookings(uname)
         if b.get("department") == dept and b["status"] in ("pending", "confirmed")
+        and b["booking_ref"] != exclude_ref
     ]
     if _existing:
         _ex = _existing[0]
@@ -1823,6 +1828,11 @@ def _booking_dialog(est: dict, profile: dict, t: dict):
                     "cost_high":        est.get("cost_high"),
                 })
                 if ok:
+                    if exclude_ref:
+                        update_booking_status(
+                            exclude_ref, "cancelled",
+                            admin_note=f"Rescheduled by patient — replaced by {ref}",
+                        )
                     st.session_state["_last_booking_ref"] = ref
                     st.session_state["_booking_done"] = True
                     st.rerun()
@@ -2287,14 +2297,16 @@ def _notif_card_html(n: dict) -> str:
         "info":    ("#EEF2FF", "#6366F1", "#3730A3"),
     }
     bg, border, text = colors.get(n["severity"], colors["info"])
+    safe_title = str(n["title"]).replace("<", "&lt;").replace(">", "&gt;")
+    safe_body  = str(n["body"]).replace("<", "&lt;").replace(">", "&gt;")
     return (
         f'<div style="background:{bg};border:1px solid {border};border-radius:12px;'
         f'padding:11px 14px;margin-bottom:8px;">'
         f'<div style="display:flex;align-items:flex-start;gap:9px;">'
         f'<span style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">{n["icon"]}</span>'
         f'<div>'
-        f'<div style="font-weight:700;font-size:.82rem;color:{text};margin-bottom:3px;">{n["title"]}</div>'
-        f'<div style="font-size:.76rem;color:{text};opacity:.85;line-height:1.45;">{n["body"]}</div>'
+        f'<div style="font-weight:700;font-size:.82rem;color:{text};margin-bottom:3px;">{safe_title}</div>'
+        f'<div style="font-size:.76rem;color:{text};opacity:.85;line-height:1.45;">{safe_body}</div>'
         f'</div></div></div>'
     )
 
@@ -3400,9 +3412,12 @@ def patient_dashboard():
             st.session_state.profile_msg = None
 
         # ── Profile header card (navy, thumbnail avatar ~5 KB base64) ──────────
-        district_chip = profile.get("district") or "Bagmati Region"
-        blood_chip    = profile.get("blood_type") or "Unknown"
-        occ_chip      = profile.get("occupation") or ""
+        def _esc(s):
+            return str(s).replace("<", "&lt;").replace(">", "&gt;")
+        full_name     = _esc(full_name)
+        district_chip = _esc(profile.get("district") or "Bagmati Region")
+        blood_chip    = _esc(profile.get("blood_type") or "Unknown")
+        occ_chip      = _esc(profile.get("occupation") or "")
         occ_span      = (
             f'<span style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);'
             f'border-radius:9999px;padding:2px 11px;font-size:.7rem;color:rgba(255,255,255,.8);">'
@@ -3696,10 +3711,11 @@ def patient_dashboard():
     with tab6:
         # Reschedule booking dialog trigger (set by clicking 🔄 on a card)
         if st.session_state.get("_open_reschedule"):
-            _est_rs = st.session_state.pop("_reschedule_est", {})
+            _est_rs  = st.session_state.pop("_reschedule_est", {})
+            _ref_rs  = st.session_state.pop("_reschedule_ref", None)
             st.session_state["_open_reschedule"] = False
             if _est_rs:
-                _booking_dialog(_est_rs, profile, t)
+                _booking_dialog(_est_rs, profile, t, exclude_ref=_ref_rs)
 
         bookings = list_patient_bookings(uname)
 
@@ -3798,6 +3814,7 @@ def patient_dashboard():
                                              help="Reschedule this booking",
                                              use_container_width=True):
                                     st.session_state["_reschedule_est"]  = _booking_est_from(b)
+                                    st.session_state["_reschedule_ref"]  = ref
                                     st.session_state["_open_reschedule"] = True
                                     st.rerun()
                         if allow_cancel:
@@ -3872,6 +3889,8 @@ def _admin_patient_row(p: dict, i: int, t: dict):
     type_col = "#1D4ED8" if is_sso else "#166534"
     type_lbl = "Google SSO" if is_sso else "Password"
     initials = name[:2].upper() if name != "(no name set)" else "??"
+    safe_name    = str(name).replace("<", "&lt;").replace(">", "&gt;")
+    safe_display = str(display).replace("<", "&lt;").replace(">", "&gt;")
 
     st.markdown(
         f'<div style="background:#fff;border:1px solid #E5E7EB;border-radius:14px;'
@@ -3882,8 +3901,8 @@ def _admin_patient_row(p: dict, i: int, t: dict):
         f'font-weight:700;font-size:.82rem;color:#fff;">{initials}</div>'
         f'<div style="flex:1;min-width:0;">'
         f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700;'
-        f'font-size:.92rem;color:#111827;margin-bottom:2px;">{name}</div>'
-        f'<div style="font-size:.76rem;color:#6B7280;">{display}</div>'
+        f'font-size:.92rem;color:#111827;margin-bottom:2px;">{safe_name}</div>'
+        f'<div style="font-size:.76rem;color:#6B7280;">{safe_display}</div>'
         f'</div>'
         f'<span style="background:#EDE9FE;color:#5B21B6;border-radius:9999px;'
         f'padding:3px 10px;font-size:.7rem;font-weight:700;flex-shrink:0;">{pid}</span>'
@@ -4129,11 +4148,12 @@ def admin_dashboard():
                     sel_name = next(
                         (th["full_name"] for th in inbox if th["patient_username"] == sel), sel
                     )
+                    safe_sel_name = str(sel_name).replace("<", "&lt;").replace(">", "&gt;")
                     st.markdown(
                         f'<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:700;'
                         f'font-size:.98rem;color:{t["t1"]};padding-bottom:10px;'
                         f'border-bottom:1px solid #E5E7EB;margin-bottom:10px;">'
-                        f'💬 &nbsp;{sel_name}</div>',
+                        f'💬 &nbsp;{safe_sel_name}</div>',
                         unsafe_allow_html=True,
                     )
 
