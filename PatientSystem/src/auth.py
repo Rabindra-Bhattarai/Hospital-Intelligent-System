@@ -1,5 +1,5 @@
 """Authentication + user profile layer — MongoDB backed."""
-import hashlib, os, secrets, base64, re, time
+import hashlib, hmac, os, secrets, base64, re, time
 import datetime, urllib.parse
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -47,7 +47,7 @@ def _hash_password(password: str, salt: str = None) -> tuple:
 
 def _verify_hash(password: str, salt: str, stored_hash: str) -> bool:
     _, digest = _hash_password(password, salt)
-    return digest == stored_hash
+    return hmac.compare_digest(digest, stored_hash)
 
 
 # ── DB initialisation ──────────────────────────────────────────────────────
@@ -238,17 +238,29 @@ def save_profile(username: str, data: dict) -> tuple:
 
 # ── Avatar API ───────────────────────────────────────────────────────────────
 
+_ALLOWED_AVATAR_EXTS = {"png", "jpg", "jpeg"}
+
+
 def save_avatar(username: str, image_bytes: bytes, ext: str = "png") -> tuple:
+    # ext comes from the client-supplied upload filename — never trust it
+    # blindly. A crafted extension (or username) containing "/" or ".."
+    # could otherwise be used to write outside AVATARS_DIR.
+    ext = str(ext).strip().lower()
+    if ext not in _ALLOWED_AVATAR_EXTS:
+        return False, "Unsupported file type — only JPG or PNG avatars are allowed."
     try:
         os.makedirs(config.AVATARS_DIR, exist_ok=True)
+        avatars_root = os.path.realpath(config.AVATARS_DIR)
+        filename     = f"{username}.{ext}"
+        path         = os.path.realpath(os.path.join(avatars_root, filename))
+        if os.path.commonpath([avatars_root, path]) != avatars_root:
+            return False, "Invalid filename."
         for f in os.listdir(config.AVATARS_DIR):
             if f.startswith(f"{username}."):
                 try:
                     os.remove(os.path.join(config.AVATARS_DIR, f))
                 except Exception:
                     pass
-        filename = f"{username}.{ext.lower()}"
-        path     = os.path.join(config.AVATARS_DIR, filename)
         with open(path, "wb") as fh:
             fh.write(image_bytes)
         db = _db()
